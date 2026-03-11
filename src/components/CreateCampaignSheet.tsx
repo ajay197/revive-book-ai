@@ -97,6 +97,9 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
     setScriptId("");
     setWindowStart("09:00");
     setWindowEnd("17:00");
+    setTimezone("America/New_York");
+    setMaxRetries("3");
+    setRetryDelay("24");
   };
 
   const handleClose = (val: boolean) => {
