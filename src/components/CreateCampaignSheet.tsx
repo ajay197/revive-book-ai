@@ -448,6 +448,9 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
                   { label: "AI Agent", value: selectedAgentName },
                   { label: "Script", value: selectedScript?.name },
                   { label: "Calling Window", value: `${windowStart} – ${windowEnd}` },
+                  { label: "Timezone", value: timezone.replace(/_/g, " ") },
+                  { label: "Max Retries", value: maxRetries },
+                  { label: "Retry Delay", value: `${retryDelay} hours` },
                 ].map((row) => (
                   <div key={row.label} className="flex items-center justify-between px-4 py-3">
                     <span className="text-sm text-muted-foreground">{row.label}</span>
