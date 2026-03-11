@@ -125,6 +125,27 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
   const mappedValues = Object.values(columnMapping);
   const missingRequired = mappedRequiredFields.filter((f) => !mappedValues.includes(f));
 
+  const phoneRegex = /^\+\d[\d\s()-]{7,}$/;
+
+  const getValidationErrors = () => {
+    const phoneColIndex = Object.entries(columnMapping).find(([, v]) => v === "phone")?.[0];
+    const nameColIndex = Object.entries(columnMapping).find(([, v]) => v === "name")?.[0];
+    let emptyCount = 0;
+    let invalidPhoneCount = 0;
+
+    rows.forEach((row) => {
+      if (nameColIndex !== undefined && !row[Number(nameColIndex)]?.trim()) emptyCount++;
+      if (phoneColIndex !== undefined) {
+        const phone = row[Number(phoneColIndex)]?.trim();
+        if (!phone) emptyCount++;
+        else if (!phoneRegex.test(phone)) invalidPhoneCount++;
+      }
+    });
+    return { emptyCount, invalidPhoneCount };
+  };
+
+  const validationErrors = step === "confirm" ? getValidationErrors() : { emptyCount: 0, invalidPhoneCount: 0 };
+
   const handleImport = () => {
     const mapped = rows.map((row) => {
       const obj: Record<string, string> = {};
@@ -136,8 +157,10 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
       });
       return obj;
     });
-    onImport?.(mapped);
-    toast.success(`${mapped.length} leads imported successfully`);
+    const valid = mapped.filter((r) => r.name?.trim() && r.phone?.trim() && phoneRegex.test(r.phone.trim()));
+    const skipped = mapped.length - valid.length;
+    onImport?.(valid);
+    toast.success(`${valid.length} leads imported${skipped > 0 ? ` (${skipped} skipped — invalid or empty)` : ""}`);
     handleClose(false);
   };
 
@@ -197,7 +220,18 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
                 <p className="mt-1 text-sm text-muted-foreground">
                   or click to browse · CSV up to 10 MB
                 </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Phone numbers must include country code (e.g. +1 555-123-4567)
+                </p>
               </div>
+              <a
+                href="/sample-leads.csv"
+                download="sample-leads.csv"
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
+              >
+                Download sample CSV
+              </a>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -331,6 +365,19 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
                   )
                 )}
               </div>
+              {(validationErrors.emptyCount > 0 || validationErrors.invalidPhoneCount > 0) && (
+                <div className="flex items-start gap-2 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                  <div>
+                    {validationErrors.emptyCount > 0 && (
+                      <p>{validationErrors.emptyCount} row(s) have empty required fields — will be skipped</p>
+                    )}
+                    {validationErrors.invalidPhoneCount > 0 && (
+                      <p>{validationErrors.invalidPhoneCount} row(s) have invalid phone numbers (must start with + country code) — will be skipped</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

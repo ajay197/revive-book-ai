@@ -20,9 +20,18 @@ const Leads = () => {
           <h1 className="font-display text-2xl font-bold text-foreground">Leads</h1>
           <p className="mt-1 text-sm text-muted-foreground">{initialLeads.length} total leads across all campaigns</p>
         </div>
-        <Button className="bg-gradient-primary" onClick={() => setUploadOpen(true)}>
-          <Upload className="mr-2 h-4 w-4" /> Upload CSV
-        </Button>
+        <div className="flex items-center gap-3">
+          <a
+            href="/sample-leads.csv"
+            download="sample-leads.csv"
+            className="text-sm text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
+          >
+            Download sample CSV
+          </a>
+          <Button className="bg-gradient-primary" onClick={() => setUploadOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" /> Upload CSV
+          </Button>
+        </div>
       </div>
 
       <CSVUploadModal open={uploadOpen} onOpenChange={setUploadOpen} />
