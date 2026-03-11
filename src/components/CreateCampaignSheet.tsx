@@ -379,7 +379,7 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
                   { label: "Campaign Name", value: name },
                   { label: "Lead List", value: `${selectedList?.label} (${selectedList?.count} leads)` },
                   { label: "Campaign Type", value: selectedType?.label },
-                  { label: "AI Agent", value: selectedAgent?.name },
+                  { label: "AI Agent", value: selectedAgentName },
                   { label: "Script", value: selectedScript?.name },
                   { label: "Calling Window", value: `${windowStart} – ${windowEnd}` },
                 ].map((row) => (
