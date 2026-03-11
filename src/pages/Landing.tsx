@@ -11,6 +11,10 @@ const fadeUp = {
 };
 
 const Landing = () => {
+  const { user, isReady } = useAuth();
+
+  if (isReady && user) return <Navigate to="/app" replace />;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
