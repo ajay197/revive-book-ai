@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Upload, Search, Filter, MoreHorizontal } from "lucide-react";
+import { Upload, Search, Filter, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { CSVUploadModal } from "@/components/CSVUploadModal";
+import { EditLeadDialog } from "@/components/EditLeadDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
