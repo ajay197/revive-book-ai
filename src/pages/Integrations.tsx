@@ -16,9 +16,9 @@ const Integrations = () => {
     setRetellAgentName(agentName);
   }, []);
 
-  const handleRetellConnected = (_apiKey: string, agent: { agent_id: string; agent_name: string }) => {
+  const handleRetellConnected = (_apiKey: string, agents: { agent_id: string; agent_name: string }[]) => {
     setRetellConnected(true);
-    setRetellAgentName(agent.agent_name || agent.agent_id);
+    setRetellAgentName(`${agents.length} agent(s)`);
   };
 
   const handleDisconnectRetell = () => {
