@@ -11,9 +11,10 @@ const Integrations = () => {
 
   useEffect(() => {
     const connected = localStorage.getItem("retell_connected") === "true";
-    const agentName = localStorage.getItem("retell_agent_name") || "";
+    const storedAgents = localStorage.getItem("retell_agents");
+    const agentCount = storedAgents ? JSON.parse(storedAgents).length : 0;
     setRetellConnected(connected);
-    setRetellAgentName(agentName);
+    setRetellAgentName(connected ? `${agentCount} agent(s)` : "");
   }, []);
 
   const handleRetellConnected = (_apiKey: string, agents: { agent_id: string; agent_name: string }[]) => {
