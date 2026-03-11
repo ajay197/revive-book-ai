@@ -1,1 +1,4 @@
 project_id = "dpsztdxnnhtihgsxcvub"
+
+[functions.retell-agents]
+verify_jwt = false
