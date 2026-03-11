@@ -19,7 +19,7 @@ serve(async (req) => {
       });
     }
 
-    const response = await fetch("https://api.retellai.com/v2/agent", {
+    const response = await fetch("https://api.retellai.com/list-agents", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${apiKey}`,
