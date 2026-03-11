@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Upload, Search, Filter, MoreHorizontal } from "lucide-react";
+import { Upload, Search, Filter, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { CSVUploadModal } from "@/components/CSVUploadModal";
+import { EditLeadDialog } from "@/components/EditLeadDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,6 +14,7 @@ import { toast } from "sonner";
 const Leads = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [editLead, setEditLead] = useState<Tables<"leads"> | null>(null);
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -77,6 +81,7 @@ const Leads = () => {
       </div>
 
       <CSVUploadModal open={uploadOpen} onOpenChange={setUploadOpen} onImport={handleImport} />
+      <EditLeadDialog lead={editLead} open={!!editLead} onOpenChange={(v) => { if (!v) setEditLead(null); }} />
 
       <div className="flex items-center gap-3">
         <div className="flex flex-1 items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm">
@@ -133,11 +138,33 @@ const Leads = () => {
                     <td className="px-5 py-3 text-muted-foreground">{lead.campaign || "—"}</td>
                     <td className="px-5 py-3"><StatusBadge status={lead.status as any} /></td>
                     <td className="px-5 py-3 text-xs text-muted-foreground">{new Date(lead.created_at).toLocaleDateString()}</td>
-                    <td className="px-5 py-3 text-right">
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
-                        <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </td>
+                      <td className="px-5 py-3 text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setEditLead(lead)}>
+                              <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={async () => {
+                                const { error } = await supabase.from("leads").delete().eq("id", lead.id);
+                                if (error) toast.error("Delete failed");
+                                else {
+                                  toast.success("Lead deleted");
+                                  queryClient.invalidateQueries({ queryKey: ["leads"] });
+                                }
+                              }}
+                            >
+                              <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
                   </tr>
                 ))
               )}
