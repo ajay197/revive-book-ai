@@ -256,32 +256,44 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
               <p className="text-sm text-muted-foreground mb-1">
                 Choose an AI voice agent for this campaign.
               </p>
-              {agents.map((a) => (
-                <button
-                  key={a.id}
-                  onClick={() => setAgentId(a.id)}
-                  className={`w-full flex items-center gap-3 rounded-xl border p-4 text-left transition-colors ${
-                    agentId === a.id
-                      ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                      : "border-border hover:border-primary/30 hover:bg-muted/50"
-                  }`}
-                >
-                  <div className="rounded-lg bg-muted p-2">
-                    <Bot className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">{a.name}</p>
-                    <p className="text-xs text-muted-foreground">{a.purpose} · {a.voice}</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-xs font-medium text-foreground">{a.bookingRate}%</p>
-                    <p className="text-xs text-muted-foreground">booking</p>
-                  </div>
-                  {agentId === a.id && (
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                  )}
-                </button>
-              ))}
+              {isRetellConnected && retellAgents.length > 0 ? (
+                retellAgents.map((a) => (
+                  <button
+                    key={a.agent_id}
+                    onClick={() => setAgentId(a.agent_id)}
+                    className={`w-full flex items-center gap-3 rounded-xl border p-4 text-left transition-colors ${
+                      agentId === a.agent_id
+                        ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                        : "border-border hover:border-primary/30 hover:bg-muted/50"
+                    }`}
+                  >
+                    <div className="rounded-lg bg-muted p-2">
+                      <Bot className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{a.agent_name || a.agent_id}</p>
+                      <p className="text-xs text-muted-foreground">Retell AI Agent</p>
+                    </div>
+                    {agentId === a.agent_id && (
+                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    )}
+                  </button>
+                ))
+              ) : !isRetellConnected ? (
+                <div className="text-center py-6 space-y-2">
+                  <Bot className="h-8 w-8 text-muted-foreground mx-auto" />
+                  <p className="text-sm text-muted-foreground">
+                    Connect Retell AI in Integrations to use voice agents.
+                  </p>
+                </div>
+              ) : (
+                <div className="text-center py-6 space-y-2">
+                  <Bot className="h-8 w-8 text-muted-foreground mx-auto" />
+                  <p className="text-sm text-muted-foreground">
+                    No agents found. Create agents in your Retell AI dashboard.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
