@@ -14,6 +14,7 @@ import { toast } from "sonner";
 const Leads = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [editLead, setEditLead] = useState<Tables<"leads"> | null>(null);
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
