@@ -15,7 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { agents, scripts } from "@/lib/mock-data";
+import { agents as mockAgents, scripts } from "@/lib/mock-data";
+import type { RetellAgent } from "@/components/RetellConnectDialog";
 import {
   ArrowLeft,
   ArrowRight,
