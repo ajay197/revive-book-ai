@@ -127,24 +127,42 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
 
   const phoneRegex = /^\+\d[\d\s()-]{7,}$/;
 
-  const getValidationErrors = () => {
-    const phoneColIndex = Object.entries(columnMapping).find(([, v]) => v === "phone")?.[0];
-    const nameColIndex = Object.entries(columnMapping).find(([, v]) => v === "name")?.[0];
-    let emptyCount = 0;
-    let invalidPhoneCount = 0;
-
-    rows.forEach((row) => {
-      if (nameColIndex !== undefined && !row[Number(nameColIndex)]?.trim()) emptyCount++;
-      if (phoneColIndex !== undefined) {
-        const phone = row[Number(phoneColIndex)]?.trim();
-        if (!phone) emptyCount++;
-        else if (!phoneRegex.test(phone)) invalidPhoneCount++;
-      }
-    });
-    return { emptyCount, invalidPhoneCount };
+  const getColIndex = (field: string) => {
+    const entry = Object.entries(columnMapping).find(([, v]) => v === field);
+    return entry ? Number(entry[0]) : undefined;
   };
 
-  const validationErrors = step === "confirm" ? getValidationErrors() : { emptyCount: 0, invalidPhoneCount: 0 };
+  const getRowErrors = (row: string[]) => {
+    const errors: Record<string, "empty" | "invalid"> = {};
+    const nameIdx = getColIndex("name");
+    const phoneIdx = getColIndex("phone");
+    const emailIdx = getColIndex("email");
+
+    if (nameIdx !== undefined && !row[nameIdx]?.trim()) errors.name = "empty";
+    if (emailIdx !== undefined && !row[emailIdx]?.trim()) errors.email = "empty";
+    if (phoneIdx !== undefined) {
+      const phone = row[phoneIdx]?.trim();
+      if (!phone) errors.phone = "empty";
+      else if (!phoneRegex.test(phone)) errors.phone = "invalid";
+    }
+    return errors;
+  };
+
+  const getValidationSummary = () => {
+    let emptyCount = 0;
+    let invalidPhoneCount = 0;
+    let invalidEmailCount = 0;
+    rows.forEach((row) => {
+      const errs = getRowErrors(row);
+      if (errs.name === "empty") emptyCount++;
+      if (errs.email === "empty") invalidEmailCount++;
+      if (errs.phone === "empty") emptyCount++;
+      if (errs.phone === "invalid") invalidPhoneCount++;
+    });
+    return { emptyCount, invalidPhoneCount, invalidEmailCount };
+  };
+
+  const validationErrors = step === "confirm" || step === "mapping" ? getValidationSummary() : { emptyCount: 0, invalidPhoneCount: 0, invalidEmailCount: 0 };
 
   const handleImport = () => {
     const mapped = rows.map((row) => {
@@ -157,7 +175,10 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
       });
       return obj;
     });
-    const valid = mapped.filter((r) => r.name?.trim() && r.phone?.trim() && phoneRegex.test(r.phone.trim()));
+    const valid = mapped.filter((r) => {
+      if (!r.name?.trim() || !r.email?.trim() || !r.phone?.trim()) return false;
+      return phoneRegex.test(r.phone.trim());
+    });
     const skipped = mapped.length - valid.length;
     onImport?.(valid);
     toast.success(`${valid.length} leads imported${skipped > 0 ? ` (${skipped} skipped — invalid or empty)` : ""}`);
