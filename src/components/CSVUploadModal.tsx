@@ -365,6 +365,19 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
                   )
                 )}
               </div>
+              {(validationErrors.emptyCount > 0 || validationErrors.invalidPhoneCount > 0) && (
+                <div className="flex items-start gap-2 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                  <div>
+                    {validationErrors.emptyCount > 0 && (
+                      <p>{validationErrors.emptyCount} row(s) have empty required fields — will be skipped</p>
+                    )}
+                    {validationErrors.invalidPhoneCount > 0 && (
+                      <p>{validationErrors.invalidPhoneCount} row(s) have invalid phone numbers (must start with + country code) — will be skipped</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
