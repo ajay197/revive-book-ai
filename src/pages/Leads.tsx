@@ -81,6 +81,7 @@ const Leads = () => {
       </div>
 
       <CSVUploadModal open={uploadOpen} onOpenChange={setUploadOpen} onImport={handleImport} />
+      <EditLeadDialog lead={editLead} open={!!editLead} onOpenChange={(v) => { if (!v) setEditLead(null); }} />
 
       <div className="flex items-center gap-3">
         <div className="flex flex-1 items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm">
