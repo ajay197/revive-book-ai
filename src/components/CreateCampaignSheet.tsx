@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Sheet,
   SheetContent,
@@ -15,7 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { agents, scripts } from "@/lib/mock-data";
+import { agents as mockAgents, scripts } from "@/lib/mock-data";
+import type { RetellAgent } from "@/components/RetellConnectDialog";
 import {
   ArrowLeft,
   ArrowRight,
@@ -71,6 +72,19 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
   const [windowStart, setWindowStart] = useState("09:00");
   const [windowEnd, setWindowEnd] = useState("17:00");
 
+  // Load Retell agents from localStorage
+  const [retellAgents, setRetellAgents] = useState<RetellAgent[]>([]);
+  const isRetellConnected = localStorage.getItem("retell_connected") === "true";
+
+  useEffect(() => {
+    if (isRetellConnected) {
+      try {
+        const stored = localStorage.getItem("retell_agents");
+        if (stored) setRetellAgents(JSON.parse(stored));
+      } catch {}
+    }
+  }, [isRetellConnected]);
+
   const reset = () => {
     setStep(1);
     setName("");
@@ -104,7 +118,12 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
     handleClose(false);
   };
 
-  const selectedAgent = agents.find((a) => a.id === agentId);
+  const selectedAgent = isRetellConnected
+    ? retellAgents.find((a) => a.agent_id === agentId)
+    : mockAgents.find((a) => a.id === agentId);
+  const selectedAgentName = isRetellConnected
+    ? (selectedAgent as RetellAgent)?.agent_name
+    : (selectedAgent as (typeof mockAgents)[0])?.name;
   const selectedScript = scripts.find((s) => s.id === scriptId);
   const selectedList = LEAD_LISTS.find((l) => l.value === leadList);
   const selectedType = CAMPAIGN_TYPES.find((t) => t.value === campaignType);
@@ -237,32 +256,44 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
               <p className="text-sm text-muted-foreground mb-1">
                 Choose an AI voice agent for this campaign.
               </p>
-              {agents.map((a) => (
-                <button
-                  key={a.id}
-                  onClick={() => setAgentId(a.id)}
-                  className={`w-full flex items-center gap-3 rounded-xl border p-4 text-left transition-colors ${
-                    agentId === a.id
-                      ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                      : "border-border hover:border-primary/30 hover:bg-muted/50"
-                  }`}
-                >
-                  <div className="rounded-lg bg-muted p-2">
-                    <Bot className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">{a.name}</p>
-                    <p className="text-xs text-muted-foreground">{a.purpose} · {a.voice}</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-xs font-medium text-foreground">{a.bookingRate}%</p>
-                    <p className="text-xs text-muted-foreground">booking</p>
-                  </div>
-                  {agentId === a.id && (
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                  )}
-                </button>
-              ))}
+              {isRetellConnected && retellAgents.length > 0 ? (
+                retellAgents.map((a) => (
+                  <button
+                    key={a.agent_id}
+                    onClick={() => setAgentId(a.agent_id)}
+                    className={`w-full flex items-center gap-3 rounded-xl border p-4 text-left transition-colors ${
+                      agentId === a.agent_id
+                        ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                        : "border-border hover:border-primary/30 hover:bg-muted/50"
+                    }`}
+                  >
+                    <div className="rounded-lg bg-muted p-2">
+                      <Bot className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{a.agent_name || a.agent_id}</p>
+                      <p className="text-xs text-muted-foreground">Retell AI Agent</p>
+                    </div>
+                    {agentId === a.agent_id && (
+                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    )}
+                  </button>
+                ))
+              ) : !isRetellConnected ? (
+                <div className="text-center py-6 space-y-2">
+                  <Bot className="h-8 w-8 text-muted-foreground mx-auto" />
+                  <p className="text-sm text-muted-foreground">
+                    Connect Retell AI in Integrations to use voice agents.
+                  </p>
+                </div>
+              ) : (
+                <div className="text-center py-6 space-y-2">
+                  <Bot className="h-8 w-8 text-muted-foreground mx-auto" />
+                  <p className="text-sm text-muted-foreground">
+                    No agents found. Create agents in your Retell AI dashboard.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -348,7 +379,7 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
                   { label: "Campaign Name", value: name },
                   { label: "Lead List", value: `${selectedList?.label} (${selectedList?.count} leads)` },
                   { label: "Campaign Type", value: selectedType?.label },
-                  { label: "AI Agent", value: selectedAgent?.name },
+                  { label: "AI Agent", value: selectedAgentName },
                   { label: "Script", value: selectedScript?.name },
                   { label: "Calling Window", value: `${windowStart} – ${windowEnd}` },
                 ].map((row) => (
