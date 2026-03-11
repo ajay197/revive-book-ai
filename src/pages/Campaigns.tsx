@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { campaigns } from "@/lib/mock-data";
 import { Plus, Play, Pause } from "lucide-react";
+import { CreateCampaignSheet } from "@/components/CreateCampaignSheet";
 
 const Campaigns = () => {
+  const [createOpen, setCreateOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between">
@@ -11,10 +15,12 @@ const Campaigns = () => {
           <h1 className="font-display text-2xl font-bold text-foreground">Campaigns</h1>
           <p className="mt-1 text-sm text-muted-foreground">{campaigns.length} campaigns</p>
         </div>
-        <Button className="bg-gradient-primary">
+        <Button className="bg-gradient-primary" onClick={() => setCreateOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> New Campaign
         </Button>
       </div>
+
+      <CreateCampaignSheet open={createOpen} onOpenChange={setCreateOpen} />
 
       <div className="rounded-xl border bg-card shadow-card">
         <div className="overflow-x-auto">
