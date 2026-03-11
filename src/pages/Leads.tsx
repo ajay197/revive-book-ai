@@ -137,11 +137,33 @@ const Leads = () => {
                     <td className="px-5 py-3 text-muted-foreground">{lead.campaign || "—"}</td>
                     <td className="px-5 py-3"><StatusBadge status={lead.status as any} /></td>
                     <td className="px-5 py-3 text-xs text-muted-foreground">{new Date(lead.created_at).toLocaleDateString()}</td>
-                    <td className="px-5 py-3 text-right">
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
-                        <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </td>
+                      <td className="px-5 py-3 text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setEditLead(lead)}>
+                              <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={async () => {
+                                const { error } = await supabase.from("leads").delete().eq("id", lead.id);
+                                if (error) toast.error("Delete failed");
+                                else {
+                                  toast.success("Lead deleted");
+                                  queryClient.invalidateQueries({ queryKey: ["leads"] });
+                                }
+                              }}
+                            >
+                              <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
                   </tr>
                 ))
               )}
