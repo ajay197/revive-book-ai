@@ -11,7 +11,7 @@ const Agents = () => {
           <h1 className="font-display text-2xl font-bold text-foreground">AI Agents</h1>
           <p className="mt-1 text-sm text-muted-foreground">Manage your AI calling agents powered by Retell AI</p>
         </div>
-        <Button variant="outline">View Retell Dashboard</Button>
+        <Button variant="outline" onClick={() => window.open("https://www.retellai.com/dashboard", "_blank")}>View Retell Dashboard</Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
