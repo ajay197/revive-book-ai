@@ -126,9 +126,10 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
   const missingRequired = mappedRequiredFields.filter((f) => !mappedValues.includes(f));
 
   const cleanPhone = (phone: string) => {
-    let cleaned = phone.replace(/[^\d+]/g, '');
-    if (cleaned && !cleaned.startsWith('+')) cleaned = '+' + cleaned;
-    return cleaned;
+    // Strip everything except digits
+    let digits = phone.replace(/\D/g, '');
+    if (!digits) return '';
+    return '+' + digits;
   };
   const phoneRegex = /^\+\d{7,15}$/;
 
