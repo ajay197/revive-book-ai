@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
-import { leads } from "@/lib/mock-data";
+import { leads as initialLeads } from "@/lib/mock-data";
 import { Upload, Search, Filter, MoreHorizontal } from "lucide-react";
+import { CSVUploadModal } from "@/components/CSVUploadModal";
 
 const Leads = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const filtered = leads.filter((l) =>
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const filtered = initialLeads.filter((l) =>
     l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     l.company.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -16,12 +18,14 @@ const Leads = () => {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground">Leads</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{leads.length} total leads across all campaigns</p>
+          <p className="mt-1 text-sm text-muted-foreground">{initialLeads.length} total leads across all campaigns</p>
         </div>
-        <Button className="bg-gradient-primary">
+        <Button className="bg-gradient-primary" onClick={() => setUploadOpen(true)}>
           <Upload className="mr-2 h-4 w-4" /> Upload CSV
         </Button>
       </div>
+
+      <CSVUploadModal open={uploadOpen} onOpenChange={setUploadOpen} />
 
       {/* Filters */}
       <div className="flex items-center gap-3">
