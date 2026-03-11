@@ -71,6 +71,9 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
   const [scriptId, setScriptId] = useState("");
   const [windowStart, setWindowStart] = useState("09:00");
   const [windowEnd, setWindowEnd] = useState("17:00");
+  const [timezone, setTimezone] = useState("America/New_York");
+  const [maxRetries, setMaxRetries] = useState("3");
+  const [retryDelay, setRetryDelay] = useState("24");
 
   // Load Retell agents from localStorage
   const [retellAgents, setRetellAgents] = useState<RetellAgent[]>([]);
@@ -94,6 +97,9 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
     setScriptId("");
     setWindowStart("09:00");
     setWindowEnd("17:00");
+    setTimezone("America/New_York");
+    setMaxRetries("3");
+    setRetryDelay("24");
   };
 
   const handleClose = (val: boolean) => {
@@ -328,15 +334,15 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
             </div>
           )}
 
-          {/* Step 6 — Calling Window */}
+          {/* Step 6 — Calling Window & Settings */}
           {step === 6 && (
             <div className="space-y-5">
               <p className="text-sm text-muted-foreground">
-                Set the daily calling window. Calls will only be placed during these hours.
+                Set the daily calling window and retry settings.
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="win-start" className="text-sm font-medium">Start Time</Label>
+                  <Label htmlFor="win-start" className="text-sm font-medium">Calling Start Time</Label>
                   <Input
                     id="win-start"
                     type="time"
@@ -345,7 +351,7 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="win-end" className="text-sm font-medium">End Time</Label>
+                  <Label htmlFor="win-end" className="text-sm font-medium">Calling End Time</Label>
                   <Input
                     id="win-end"
                     type="time"
@@ -354,9 +360,69 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
                   />
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="timezone" className="text-sm font-medium">Timezone</Label>
+                <Select value={timezone} onValueChange={setTimezone}>
+                  <SelectTrigger id="timezone">
+                    <SelectValue placeholder="Select timezone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[
+                      "America/New_York",
+                      "America/Chicago",
+                      "America/Denver",
+                      "America/Los_Angeles",
+                      "America/Anchorage",
+                      "Pacific/Honolulu",
+                      "America/Phoenix",
+                      "America/Toronto",
+                      "America/Vancouver",
+                      "Europe/London",
+                      "Europe/Paris",
+                      "Europe/Berlin",
+                      "Asia/Dubai",
+                      "Asia/Kolkata",
+                      "Asia/Singapore",
+                      "Asia/Tokyo",
+                      "Australia/Sydney",
+                    ].map((tz) => (
+                      <SelectItem key={tz} value={tz}>
+                        {tz.replace(/_/g, " ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="max-retries" className="text-sm font-medium">Max Retries</Label>
+                  <Input
+                    id="max-retries"
+                    type="number"
+                    min="0"
+                    max="10"
+                    value={maxRetries}
+                    onChange={(e) => setMaxRetries(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="retry-delay" className="text-sm font-medium">Retry Delay (hours)</Label>
+                  <Input
+                    id="retry-delay"
+                    type="number"
+                    min="1"
+                    max="168"
+                    value={retryDelay}
+                    onChange={(e) => setRetryDelay(e.target.value)}
+                  />
+                </div>
+              </div>
+
               <div className="rounded-lg bg-muted/50 px-4 py-3 text-xs text-muted-foreground">
                 <Clock className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" />
-                Calls run {windowStart} – {windowEnd} daily in your workspace timezone.
+                Calls run {windowStart} – {windowEnd} daily ({timezone.replace(/_/g, " ")}). Up to {maxRetries} retries with {retryDelay}h delay.
               </div>
             </div>
           )}
@@ -382,6 +448,9 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
                   { label: "AI Agent", value: selectedAgentName },
                   { label: "Script", value: selectedScript?.name },
                   { label: "Calling Window", value: `${windowStart} – ${windowEnd}` },
+                  { label: "Timezone", value: timezone.replace(/_/g, " ") },
+                  { label: "Max Retries", value: maxRetries },
+                  { label: "Retry Delay", value: `${retryDelay} hours` },
                 ].map((row) => (
                   <div key={row.label} className="flex items-center justify-between px-4 py-3">
                     <span className="text-sm text-muted-foreground">{row.label}</span>
