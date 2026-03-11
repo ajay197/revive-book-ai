@@ -125,7 +125,11 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
   const mappedValues = Object.values(columnMapping);
   const missingRequired = mappedRequiredFields.filter((f) => !mappedValues.includes(f));
 
-  const cleanPhone = (phone: string) => phone.replace(/[^\d+]/g, '');
+  const cleanPhone = (phone: string) => {
+    let cleaned = phone.replace(/[^\d+]/g, '');
+    if (cleaned && !cleaned.startsWith('+')) cleaned = '+' + cleaned;
+    return cleaned;
+  };
   const phoneRegex = /^\+\d{7,15}$/;
 
   const getColIndex = (field: string) => {
