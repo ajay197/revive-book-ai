@@ -125,7 +125,8 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
   const mappedValues = Object.values(columnMapping);
   const missingRequired = mappedRequiredFields.filter((f) => !mappedValues.includes(f));
 
-  const phoneRegex = /^\+\d[\d\s()-]{7,}$/;
+  const cleanPhone = (phone: string) => phone.replace(/[^\d+]/g, '');
+  const phoneRegex = /^\+\d{7,15}$/;
 
   const getColIndex = (field: string) => {
     const entry = Object.entries(columnMapping).find(([, v]) => v === field);
@@ -141,7 +142,7 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
     if (nameIdx !== undefined && !row[nameIdx]?.trim()) errors.name = "empty";
     if (emailIdx !== undefined && !row[emailIdx]?.trim()) errors.email = "empty";
     if (phoneIdx !== undefined) {
-      const phone = row[phoneIdx]?.trim();
+      const phone = cleanPhone(row[phoneIdx] || '');
       if (!phone) errors.phone = "empty";
       else if (!phoneRegex.test(phone)) errors.phone = "invalid";
     }
@@ -170,14 +171,14 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
       headers.forEach((_, i) => {
         const field = columnMapping[i];
         if (field && field !== "skip") {
-          obj[field] = row[i] || "";
+          obj[field] = field === "phone" ? cleanPhone(row[i] || "") : (row[i] || "");
         }
       });
       return obj;
     });
     const valid = mapped.filter((r) => {
       if (!r.name?.trim() || !r.email?.trim() || !r.phone?.trim()) return false;
-      return phoneRegex.test(r.phone.trim());
+      return phoneRegex.test(r.phone);
     });
     const skipped = mapped.length - valid.length;
     onImport?.(valid);
