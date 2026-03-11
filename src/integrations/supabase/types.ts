@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      campaigns: {
+        Row: {
+          agent_id: string | null
+          agent_name: string | null
+          appointments_booked: number | null
+          calls_completed: number | null
+          cost: number | null
+          created_at: string
+          id: string
+          lead_count: number | null
+          lead_list: string | null
+          max_retries: number | null
+          name: string
+          retry_delay: number | null
+          script_id: string | null
+          script_name: string | null
+          status: string
+          timezone: string | null
+          type: string
+          updated_at: string
+          user_id: string
+          window_end: string | null
+          window_start: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          agent_name?: string | null
+          appointments_booked?: number | null
+          calls_completed?: number | null
+          cost?: number | null
+          created_at?: string
+          id?: string
+          lead_count?: number | null
+          lead_list?: string | null
+          max_retries?: number | null
+          name: string
+          retry_delay?: number | null
+          script_id?: string | null
+          script_name?: string | null
+          status?: string
+          timezone?: string | null
+          type: string
+          updated_at?: string
+          user_id: string
+          window_end?: string | null
+          window_start?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          agent_name?: string | null
+          appointments_booked?: number | null
+          calls_completed?: number | null
+          cost?: number | null
+          created_at?: string
+          id?: string
+          lead_count?: number | null
+          lead_list?: string | null
+          max_retries?: number | null
+          name?: string
+          retry_delay?: number | null
+          script_id?: string | null
+          script_name?: string | null
+          status?: string
+          timezone?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+          window_end?: string | null
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           campaign: string | null
