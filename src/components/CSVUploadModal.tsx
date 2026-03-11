@@ -197,7 +197,18 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
                 <p className="mt-1 text-sm text-muted-foreground">
                   or click to browse · CSV up to 10 MB
                 </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Phone numbers must include country code (e.g. +1 555-123-4567)
+                </p>
               </div>
+              <a
+                href="/sample-leads.csv"
+                download="sample-leads.csv"
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
+              >
+                Download sample CSV
+              </a>
               <input
                 ref={fileInputRef}
                 type="file"
