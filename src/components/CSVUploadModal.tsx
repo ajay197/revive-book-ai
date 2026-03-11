@@ -342,7 +342,8 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
           {step === "mapping" && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Map each CSV column to a lead field. <span className="text-primary font-medium">Name</span> and{" "}
+                Map each CSV column to a lead field. <span className="text-primary font-medium">Name</span>,{" "}
+                <span className="text-primary font-medium">Email</span>, and{" "}
                 <span className="text-primary font-medium">Phone</span> are required.
               </p>
               <div className="space-y-3">
