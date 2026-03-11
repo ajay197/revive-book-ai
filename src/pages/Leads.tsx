@@ -7,7 +7,8 @@ import { CSVUploadModal } from "@/components/CSVUploadModal";
 
 const Leads = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const filtered = leads.filter((l) =>
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const filtered = initialLeads.filter((l) =>
     l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     l.company.toLowerCase().includes(searchQuery.toLowerCase())
   );
