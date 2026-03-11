@@ -71,6 +71,9 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
   const [scriptId, setScriptId] = useState("");
   const [windowStart, setWindowStart] = useState("09:00");
   const [windowEnd, setWindowEnd] = useState("17:00");
+  const [timezone, setTimezone] = useState("America/New_York");
+  const [maxRetries, setMaxRetries] = useState("3");
+  const [retryDelay, setRetryDelay] = useState("24");
 
   // Load Retell agents from localStorage
   const [retellAgents, setRetellAgents] = useState<RetellAgent[]>([]);
