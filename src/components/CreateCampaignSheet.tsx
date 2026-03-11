@@ -118,7 +118,12 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
     handleClose(false);
   };
 
-  const selectedAgent = agents.find((a) => a.id === agentId);
+  const selectedAgent = isRetellConnected
+    ? retellAgents.find((a) => a.agent_id === agentId)
+    : mockAgents.find((a) => a.id === agentId);
+  const selectedAgentName = isRetellConnected
+    ? (selectedAgent as RetellAgent)?.agent_name
+    : (selectedAgent as (typeof mockAgents)[0])?.name;
   const selectedScript = scripts.find((s) => s.id === scriptId);
   const selectedList = LEAD_LISTS.find((l) => l.value === leadList);
   const selectedType = CAMPAIGN_TYPES.find((t) => t.value === campaignType);
