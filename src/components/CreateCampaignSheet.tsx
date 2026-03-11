@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { scripts } from "@/lib/mock-data";
 import type { RetellAgent } from "@/components/RetellConnectDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,9 +24,7 @@ import {
   CheckCircle2,
   Rocket,
   FileText,
-  Users,
   Bot,
-  ScrollText,
   Clock,
   ClipboardCheck,
   Loader2,
@@ -41,15 +38,14 @@ const CAMPAIGN_TYPES = [
   { value: "Lead Qualification", label: "Lead Qualification", desc: "Qualify and route inbound leads" },
 ];
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+type Step = 1 | 2 | 3 | 4 | 5;
 
 const STEPS: { step: Step; label: string; icon: React.ElementType }[] = [
   { step: 1, label: "Name", icon: FileText },
   { step: 2, label: "Type", icon: ClipboardCheck },
   { step: 3, label: "Agent", icon: Bot },
-  { step: 4, label: "Script", icon: ScrollText },
-  { step: 5, label: "Window", icon: Clock },
-  { step: 6, label: "Review", icon: CheckCircle2 },
+  { step: 4, label: "Window", icon: Clock },
+  { step: 5, label: "Review", icon: CheckCircle2 },
 ];
 
 interface CreateCampaignSheetProps {
@@ -64,7 +60,6 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
   const [campaignType, setCampaignType] = useState("");
   const [agentId, setAgentId] = useState("");
   const [agentName, setAgentName] = useState("");
-  const [scriptId, setScriptId] = useState("");
   const [windowStart, setWindowStart] = useState("09:00");
   const [windowEnd, setWindowEnd] = useState("17:00");
   const [timezone, setTimezone] = useState("America/New_York");
@@ -91,7 +86,6 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
     setCampaignType("");
     setAgentId("");
     setAgentName("");
-    setScriptId("");
     setWindowStart("09:00");
     setWindowEnd("17:00");
     setTimezone("America/New_York");
@@ -109,8 +103,7 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
       case 1: return name.trim().length > 0;
       case 2: return campaignType !== "";
       case 3: return agentId !== "";
-      case 4: return scriptId !== "";
-      case 5: return windowStart !== "" && windowEnd !== "";
+      case 4: return windowStart !== "" && windowEnd !== "";
       default: return true;
     }
   };
@@ -118,15 +111,12 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
   const handleLaunch = async () => {
     if (!user) return;
     setSaving(true);
-    const selectedScript = scripts.find((s) => s.id === scriptId);
     const { error } = await supabase.from("campaigns").insert({
       user_id: user.id,
       name,
       type: campaignType,
       agent_id: agentId,
       agent_name: agentName,
-      script_id: scriptId,
-      script_name: selectedScript?.name || "",
       status: "Draft",
       window_start: windowStart,
       window_end: windowEnd,
@@ -146,7 +136,6 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
   };
 
   const selectedAgent = retellAgents.find((a) => a.agent_id === agentId);
-  const selectedScript = scripts.find((s) => s.id === scriptId);
   const selectedType = CAMPAIGN_TYPES.find((t) => t.value === campaignType);
 
   return (
@@ -261,33 +250,8 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
             </div>
           )}
 
-          {/* Step 4 — Script */}
+          {/* Step 4 — Calling Window & Settings */}
           {step === 4 && (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground mb-1">Select a calling script for the agent.</p>
-              {scripts.filter((s) => s.active).map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => setScriptId(s.id)}
-                  className={`w-full flex items-center gap-3 rounded-xl border p-4 text-left transition-colors ${
-                    scriptId === s.id
-                      ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                      : "border-border hover:border-primary/30 hover:bg-muted/50"
-                  }`}
-                >
-                  <div className="rounded-lg bg-muted p-2"><ScrollText className="h-4 w-4 text-primary" /></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">{s.name}</p>
-                    <p className="text-xs text-muted-foreground">{s.category} · {s.objective}</p>
-                  </div>
-                  {scriptId === s.id && <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Step 5 — Calling Window & Settings */}
-          {step === 5 && (
             <div className="space-y-5">
               <p className="text-sm text-muted-foreground">Set the daily calling window and retry settings.</p>
               <div className="grid grid-cols-2 gap-4">
@@ -328,8 +292,8 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
             </div>
           )}
 
-          {/* Step 6 — Review */}
-          {step === 6 && (
+          {/* Step 5 — Review */}
+          {step === 5 && (
             <div className="space-y-5">
               <div className="flex flex-col items-center gap-3 pb-4">
                 <div className="rounded-full bg-primary/10 p-4">
@@ -343,7 +307,6 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
                   { label: "Campaign Name", value: name },
                   { label: "Campaign Type", value: selectedType?.label },
                   { label: "AI Agent", value: agentName || selectedAgent?.agent_name },
-                  { label: "Script", value: selectedScript?.name },
                   { label: "Calling Window", value: `${windowStart} – ${windowEnd}` },
                   { label: "Timezone", value: timezone.replace(/_/g, " ") },
                   { label: "Max Retries", value: maxRetries },
@@ -372,7 +335,7 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
             {step === 1 ? "Cancel" : "Back"}
           </Button>
 
-          {step < 6 ? (
+          {step < 5 ? (
             <Button
               onClick={() => setStep((step + 1) as Step)}
               disabled={!canNext()}
