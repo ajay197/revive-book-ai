@@ -1,8 +1,9 @@
 import {
-  LayoutDashboard, Users, Megaphone, Bot, FileText, BarChart3, Plug, Settings, Phone,
+  LayoutDashboard, Users, Megaphone, Bot, FileText, BarChart3, Plug, Settings, Phone, LogOut,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar,
@@ -26,7 +27,15 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const isActive = (path: string) => location.pathname === path || (path === "/app" && location.pathname === "/app");
+  const { profile, user, signOut } = useAuth();
+  const isActive = (path: string) => location.pathname === path;
+
+  const initials = (profile?.display_name || user?.email || "U")
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <Sidebar collapsible="icon">
@@ -80,13 +89,18 @@ export function AppSidebar() {
       <SidebarFooter className="border-t p-4">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted font-display text-xs font-semibold text-muted-foreground">
-            JD
+            {initials}
           </div>
           {!collapsed && (
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-foreground">John Doe</p>
-              <p className="truncate text-xs text-muted-foreground">Acme Agency</p>
+            <div className="flex-1 min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">{profile?.display_name || user?.email}</p>
+              <p className="truncate text-xs text-muted-foreground">{profile?.company || user?.email}</p>
             </div>
+          )}
+          {!collapsed && (
+            <button onClick={signOut} className="shrink-0 text-muted-foreground hover:text-foreground transition-colors" title="Sign out">
+              <LogOut className="h-4 w-4" />
+            </button>
           )}
         </div>
       </SidebarFooter>
