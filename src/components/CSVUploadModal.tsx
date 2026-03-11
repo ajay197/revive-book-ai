@@ -9,7 +9,7 @@ const LEAD_FIELDS = [
   { value: "skip", label: "— Skip this column —" },
   { value: "name", label: "Name", required: true },
   { value: "phone", label: "Phone", required: true },
-  { value: "email", label: "Email" },
+  { value: "email", label: "Email", required: true },
   { value: "company", label: "Company" },
   { value: "city", label: "City" },
   { value: "state", label: "State" },
