@@ -9,7 +9,7 @@ const LEAD_FIELDS = [
   { value: "skip", label: "— Skip this column —" },
   { value: "name", label: "Name", required: true },
   { value: "phone", label: "Phone", required: true },
-  { value: "email", label: "Email" },
+  { value: "email", label: "Email", required: true },
   { value: "company", label: "Company" },
   { value: "city", label: "City" },
   { value: "state", label: "State" },
@@ -127,24 +127,42 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
 
   const phoneRegex = /^\+\d[\d\s()-]{7,}$/;
 
-  const getValidationErrors = () => {
-    const phoneColIndex = Object.entries(columnMapping).find(([, v]) => v === "phone")?.[0];
-    const nameColIndex = Object.entries(columnMapping).find(([, v]) => v === "name")?.[0];
-    let emptyCount = 0;
-    let invalidPhoneCount = 0;
-
-    rows.forEach((row) => {
-      if (nameColIndex !== undefined && !row[Number(nameColIndex)]?.trim()) emptyCount++;
-      if (phoneColIndex !== undefined) {
-        const phone = row[Number(phoneColIndex)]?.trim();
-        if (!phone) emptyCount++;
-        else if (!phoneRegex.test(phone)) invalidPhoneCount++;
-      }
-    });
-    return { emptyCount, invalidPhoneCount };
+  const getColIndex = (field: string) => {
+    const entry = Object.entries(columnMapping).find(([, v]) => v === field);
+    return entry ? Number(entry[0]) : undefined;
   };
 
-  const validationErrors = step === "confirm" ? getValidationErrors() : { emptyCount: 0, invalidPhoneCount: 0 };
+  const getRowErrors = (row: string[]) => {
+    const errors: Record<string, "empty" | "invalid"> = {};
+    const nameIdx = getColIndex("name");
+    const phoneIdx = getColIndex("phone");
+    const emailIdx = getColIndex("email");
+
+    if (nameIdx !== undefined && !row[nameIdx]?.trim()) errors.name = "empty";
+    if (emailIdx !== undefined && !row[emailIdx]?.trim()) errors.email = "empty";
+    if (phoneIdx !== undefined) {
+      const phone = row[phoneIdx]?.trim();
+      if (!phone) errors.phone = "empty";
+      else if (!phoneRegex.test(phone)) errors.phone = "invalid";
+    }
+    return errors;
+  };
+
+  const getValidationSummary = () => {
+    let emptyCount = 0;
+    let invalidPhoneCount = 0;
+    let invalidEmailCount = 0;
+    rows.forEach((row) => {
+      const errs = getRowErrors(row);
+      if (errs.name === "empty") emptyCount++;
+      if (errs.email === "empty") invalidEmailCount++;
+      if (errs.phone === "empty") emptyCount++;
+      if (errs.phone === "invalid") invalidPhoneCount++;
+    });
+    return { emptyCount, invalidPhoneCount, invalidEmailCount };
+  };
+
+  const validationErrors = step === "confirm" || step === "mapping" ? getValidationSummary() : { emptyCount: 0, invalidPhoneCount: 0, invalidEmailCount: 0 };
 
   const handleImport = () => {
     const mapped = rows.map((row) => {
@@ -157,7 +175,10 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
       });
       return obj;
     });
-    const valid = mapped.filter((r) => r.name?.trim() && r.phone?.trim() && phoneRegex.test(r.phone.trim()));
+    const valid = mapped.filter((r) => {
+      if (!r.name?.trim() || !r.email?.trim() || !r.phone?.trim()) return false;
+      return phoneRegex.test(r.phone.trim());
+    });
     const skipped = mapped.length - valid.length;
     onImport?.(valid);
     toast.success(`${valid.length} leads imported${skipped > 0 ? ` (${skipped} skipped — invalid or empty)` : ""}`);
@@ -265,23 +286,47 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="bg-muted/40">
-                      {headers.map((h, i) => (
-                        <th key={i} className="px-3 py-2 text-left font-medium text-muted-foreground whitespace-nowrap">
-                          {h}
-                        </th>
-                      ))}
+                      {headers.map((h, i) => {
+                        const mappedField = columnMapping[i];
+                        const fieldDef = LEAD_FIELDS.find((f) => f.value === mappedField);
+                        return (
+                          <th key={i} className="px-3 py-2 text-left font-medium text-muted-foreground whitespace-nowrap">
+                            {h}
+                            {fieldDef?.required && <span className="text-destructive ml-1">*</span>}
+                          </th>
+                        );
+                      })}
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.slice(0, 5).map((row, ri) => (
-                      <tr key={ri} className="border-t">
-                        {row.map((cell, ci) => (
-                          <td key={ci} className="px-3 py-2 text-foreground whitespace-nowrap max-w-[200px] truncate">
-                            {cell || <span className="text-muted-foreground/40">—</span>}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
+                    {rows.slice(0, 5).map((row, ri) => {
+                      const errs = getRowErrors(row);
+                      return (
+                        <tr key={ri} className="border-t">
+                          {row.map((cell, ci) => {
+                            const mappedField = columnMapping[ci];
+                            const err = mappedField ? errs[mappedField] : undefined;
+                            return (
+                              <td key={ci} className={`px-3 py-2 whitespace-nowrap max-w-[200px] truncate ${err ? "text-destructive" : "text-foreground"}`}>
+                                {err === "empty" ? (
+                                  <span className="inline-flex items-center gap-1 text-destructive font-medium">
+                                    <AlertCircle className="h-3 w-3" /> Empty
+                                  </span>
+                                ) : err === "invalid" ? (
+                                  <span className="inline-flex items-center gap-1 text-destructive font-medium">
+                                    <AlertCircle className="h-3 w-3" /> Invalid: {cell}
+                                  </span>
+                                ) : cell ? (
+                                  cell
+                                ) : (
+                                  <span className="text-muted-foreground/40">—</span>
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -297,7 +342,8 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
           {step === "mapping" && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Map each CSV column to a lead field. <span className="text-primary font-medium">Name</span> and{" "}
+                Map each CSV column to a lead field. <span className="text-primary font-medium">Name</span>,{" "}
+                <span className="text-primary font-medium">Email</span>, and{" "}
                 <span className="text-primary font-medium">Phone</span> are required.
               </p>
               <div className="space-y-3">
@@ -365,7 +411,7 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
                   )
                 )}
               </div>
-              {(validationErrors.emptyCount > 0 || validationErrors.invalidPhoneCount > 0) && (
+              {(validationErrors.emptyCount > 0 || validationErrors.invalidPhoneCount > 0 || validationErrors.invalidEmailCount > 0) && (
                 <div className="flex items-start gap-2 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
                   <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
                   <div>
@@ -373,7 +419,10 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
                       <p>{validationErrors.emptyCount} row(s) have empty required fields — will be skipped</p>
                     )}
                     {validationErrors.invalidPhoneCount > 0 && (
-                      <p>{validationErrors.invalidPhoneCount} row(s) have invalid phone numbers (must start with + country code) — will be skipped</p>
+                      <p>{validationErrors.invalidPhoneCount} row(s) have invalid phone numbers (must start with +country code) — will be skipped</p>
+                    )}
+                    {validationErrors.invalidEmailCount > 0 && (
+                      <p>{validationErrors.invalidEmailCount} row(s) have empty email — will be skipped</p>
                     )}
                   </div>
                 </div>
