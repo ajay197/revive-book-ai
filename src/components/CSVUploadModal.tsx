@@ -126,12 +126,13 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
   const missingRequired = mappedRequiredFields.filter((f) => !mappedValues.includes(f));
 
   const cleanPhone = (phone: string) => {
-    // Strip everything except digits
     let digits = phone.replace(/\D/g, '');
     if (!digits) return '';
+    // If 10 digits, assume US/Canada and prepend country code 1
+    if (digits.length === 10) digits = '1' + digits;
     return '+' + digits;
   };
-  const phoneRegex = /^\+\d{7,15}$/;
+  const phoneRegex = /^\+\d{11,15}$/; // minimum 11 digits = 1 country code + 10 number
 
   const getColIndex = (field: string) => {
     const entry = Object.entries(columnMapping).find(([, v]) => v === field);
