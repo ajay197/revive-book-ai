@@ -72,6 +72,19 @@ export function CreateCampaignSheet({ open, onOpenChange }: CreateCampaignSheetP
   const [windowStart, setWindowStart] = useState("09:00");
   const [windowEnd, setWindowEnd] = useState("17:00");
 
+  // Load Retell agents from localStorage
+  const [retellAgents, setRetellAgents] = useState<RetellAgent[]>([]);
+  const isRetellConnected = localStorage.getItem("retell_connected") === "true";
+
+  useEffect(() => {
+    if (isRetellConnected) {
+      try {
+        const stored = localStorage.getItem("retell_agents");
+        if (stored) setRetellAgents(JSON.parse(stored));
+      } catch {}
+    }
+  }, [isRetellConnected]);
+
   const reset = () => {
     setStep(1);
     setName("");
