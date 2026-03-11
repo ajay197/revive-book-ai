@@ -23,8 +23,8 @@ const Integrations = () => {
 
   const handleDisconnectRetell = () => {
     localStorage.removeItem("retell_connected");
-    localStorage.removeItem("retell_agent_id");
-    localStorage.removeItem("retell_agent_name");
+    localStorage.removeItem("retell_api_key");
+    localStorage.removeItem("retell_agents");
     setRetellConnected(false);
     setRetellAgentName("");
   };
