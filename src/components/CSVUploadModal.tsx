@@ -125,6 +125,27 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
   const mappedValues = Object.values(columnMapping);
   const missingRequired = mappedRequiredFields.filter((f) => !mappedValues.includes(f));
 
+  const phoneRegex = /^\+\d[\d\s()-]{7,}$/;
+
+  const getValidationErrors = () => {
+    const phoneColIndex = Object.entries(columnMapping).find(([, v]) => v === "phone")?.[0];
+    const nameColIndex = Object.entries(columnMapping).find(([, v]) => v === "name")?.[0];
+    let emptyCount = 0;
+    let invalidPhoneCount = 0;
+
+    rows.forEach((row) => {
+      if (nameColIndex !== undefined && !row[Number(nameColIndex)]?.trim()) emptyCount++;
+      if (phoneColIndex !== undefined) {
+        const phone = row[Number(phoneColIndex)]?.trim();
+        if (!phone) emptyCount++;
+        else if (!phoneRegex.test(phone)) invalidPhoneCount++;
+      }
+    });
+    return { emptyCount, invalidPhoneCount };
+  };
+
+  const validationErrors = step === "confirm" ? getValidationErrors() : { emptyCount: 0, invalidPhoneCount: 0 };
+
   const handleImport = () => {
     const mapped = rows.map((row) => {
       const obj: Record<string, string> = {};
@@ -136,8 +157,10 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
       });
       return obj;
     });
-    onImport?.(mapped);
-    toast.success(`${mapped.length} leads imported successfully`);
+    const valid = mapped.filter((r) => r.name?.trim() && r.phone?.trim() && phoneRegex.test(r.phone.trim()));
+    const skipped = mapped.length - valid.length;
+    onImport?.(valid);
+    toast.success(`${valid.length} leads imported${skipped > 0 ? ` (${skipped} skipped — invalid or empty)` : ""}`);
     handleClose(false);
   };
 
