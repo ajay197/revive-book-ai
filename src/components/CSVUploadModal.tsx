@@ -286,23 +286,47 @@ export function CSVUploadModal({ open, onOpenChange, onImport }: CSVUploadModalP
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="bg-muted/40">
-                      {headers.map((h, i) => (
-                        <th key={i} className="px-3 py-2 text-left font-medium text-muted-foreground whitespace-nowrap">
-                          {h}
-                        </th>
-                      ))}
+                      {headers.map((h, i) => {
+                        const mappedField = columnMapping[i];
+                        const fieldDef = LEAD_FIELDS.find((f) => f.value === mappedField);
+                        return (
+                          <th key={i} className="px-3 py-2 text-left font-medium text-muted-foreground whitespace-nowrap">
+                            {h}
+                            {fieldDef?.required && <span className="text-destructive ml-1">*</span>}
+                          </th>
+                        );
+                      })}
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.slice(0, 5).map((row, ri) => (
-                      <tr key={ri} className="border-t">
-                        {row.map((cell, ci) => (
-                          <td key={ci} className="px-3 py-2 text-foreground whitespace-nowrap max-w-[200px] truncate">
-                            {cell || <span className="text-muted-foreground/40">—</span>}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
+                    {rows.slice(0, 5).map((row, ri) => {
+                      const errs = getRowErrors(row);
+                      return (
+                        <tr key={ri} className="border-t">
+                          {row.map((cell, ci) => {
+                            const mappedField = columnMapping[ci];
+                            const err = mappedField ? errs[mappedField] : undefined;
+                            return (
+                              <td key={ci} className={`px-3 py-2 whitespace-nowrap max-w-[200px] truncate ${err ? "text-destructive" : "text-foreground"}`}>
+                                {err === "empty" ? (
+                                  <span className="inline-flex items-center gap-1 text-destructive font-medium">
+                                    <AlertCircle className="h-3 w-3" /> Empty
+                                  </span>
+                                ) : err === "invalid" ? (
+                                  <span className="inline-flex items-center gap-1 text-destructive font-medium">
+                                    <AlertCircle className="h-3 w-3" /> Invalid: {cell}
+                                  </span>
+                                ) : cell ? (
+                                  cell
+                                ) : (
+                                  <span className="text-muted-foreground/40">—</span>
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
