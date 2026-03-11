@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
-import { leads } from "@/lib/mock-data";
+import { leads as initialLeads } from "@/lib/mock-data";
 import { Upload, Search, Filter, MoreHorizontal } from "lucide-react";
+import { CSVUploadModal } from "@/components/CSVUploadModal";
 
 const Leads = () => {
   const [searchQuery, setSearchQuery] = useState("");
