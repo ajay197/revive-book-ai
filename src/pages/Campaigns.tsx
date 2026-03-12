@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Plus, Play, Pause, Loader2 } from "lucide-react";
+import { Plus, Play, Pause, Loader2, AlertTriangle } from "lucide-react";
 import { CreateCampaignSheet } from "@/components/CreateCampaignSheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCredits } from "@/contexts/CreditsContext";
+import { BLOCK_CALLS_THRESHOLD } from "@/lib/credits";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface Campaign {
   id: string;
@@ -24,6 +28,9 @@ const Campaigns = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { balance } = useCredits();
+  const navigate = useNavigate();
+  const callsBlocked = balance <= BLOCK_CALLS_THRESHOLD;
 
   const fetchCampaigns = async () => {
     if (!user) return;
@@ -43,6 +50,11 @@ const Campaigns = () => {
   }, [user]);
 
   const handleStatusToggle = async (campaign: Campaign) => {
+    if (campaign.status !== "Running" && callsBlocked) {
+      toast.error("Insufficient credits. Please add more credits before starting campaigns.");
+      navigate("/app/billing");
+      return;
+    }
     const newStatus = campaign.status === "Running" ? "Paused" : "Running";
     await supabase.from("campaigns").update({ status: newStatus }).eq("id", campaign.id);
     fetchCampaigns();
@@ -50,6 +62,16 @@ const Campaigns = () => {
 
   return (
     <div className="space-y-6">
+      {callsBlocked && (
+        <div className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-destructive">Calls Blocked — Insufficient Credits</p>
+            <p className="text-xs text-muted-foreground">You need more credits to start or resume campaigns.</p>
+          </div>
+          <Button size="sm" className="bg-gradient-primary" onClick={() => navigate("/app/billing")}>Add Credits</Button>
+        </div>
+      )}
       <div className="flex items-start justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground">Campaigns</h1>

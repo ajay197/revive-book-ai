@@ -1,9 +1,10 @@
 import {
-  LayoutDashboard, Users, Megaphone, Bot, FileText, BarChart3, Plug, Settings, Phone, LogOut,
+  LayoutDashboard, Users, Megaphone, Bot, FileText, BarChart3, Plug, Settings, Phone, LogOut, CreditCard, History, Shield,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCredits } from "@/contexts/CreditsContext";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar,
@@ -19,6 +20,8 @@ const mainItems = [
 ];
 
 const secondaryItems = [
+  { title: "Billing", url: "/app/billing", icon: CreditCard },
+  { title: "Credit History", url: "/app/credit-history", icon: History },
   { title: "Integrations", url: "/app/integrations", icon: Plug },
   { title: "Settings", url: "/app/settings", icon: Settings },
 ];
@@ -28,6 +31,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { profile, user, signOut } = useAuth();
+  const { isAdmin } = useCredits();
   const isActive = (path: string) => location.pathname === path;
 
   const initials = (profile?.display_name || user?.email || "U")
@@ -84,6 +88,24 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isActive("/app/admin/credits")}>
+                    <NavLink to="/app/admin/credits" end className="hover:bg-muted/50" activeClassName="bg-primary/10 text-primary font-medium">
+                      <Shield className="mr-2 h-4 w-4" />
+                      {!collapsed && <span>Credit Management</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t p-4">

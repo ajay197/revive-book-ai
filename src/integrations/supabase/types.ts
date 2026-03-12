@@ -86,6 +86,84 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_purchase_requests: {
+        Row: {
+          base_credits: number
+          bonus_credits: number
+          created_at: string
+          id: string
+          pack_name: string
+          payment_status: string
+          request_status: string
+          total_credits: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          base_credits: number
+          bonus_credits?: number
+          created_at?: string
+          id?: string
+          pack_name: string
+          payment_status?: string
+          request_status?: string
+          total_credits: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          base_credits?: number
+          bonus_credits?: number
+          created_at?: string
+          id?: string
+          pack_name?: string
+          payment_status?: string
+          request_status?: string
+          total_credits?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      credit_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          balance_before: number
+          call_id: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          source: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          balance_before: number
+          call_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          source: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          balance_before?: number
+          call_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          source?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           campaign: string | null
@@ -170,15 +248,81 @@ export type Database = {
         }
         Relationships: []
       }
+      user_credits: {
+        Row: {
+          balance_credits: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance_credits?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance_credits?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_adjust_credits: {
+        Args: {
+          p_admin_id: string
+          p_amount: number
+          p_reason?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      deduct_call_credits: {
+        Args: {
+          p_call_id: string
+          p_campaign_id?: string
+          p_duration_seconds: number
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -305,6 +449,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
