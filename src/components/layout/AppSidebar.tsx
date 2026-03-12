@@ -106,6 +106,7 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         )}
+      </SidebarContent>
 
       <SidebarFooter className="border-t p-4">
         <div className="flex items-center gap-2.5">
