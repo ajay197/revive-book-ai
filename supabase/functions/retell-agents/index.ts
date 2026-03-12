@@ -140,6 +140,7 @@ serve(async (req) => {
             callsToday,
             answerRate,
             avgDuration: formatDuration(avgDurationMs),
+            totalDuration: formatDuration(durations.reduce((a, b) => a + b, 0)),
             appointmentsBooked: booked,
             totalCost,
             positiveSentiment: positivePct,

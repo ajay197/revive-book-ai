@@ -109,6 +109,7 @@ const Dashboard = () => {
         <StatCard label="Calls Today" value={stats?.callsToday ?? 0} icon={Clock} />
         <StatCard label="Answer Rate" value={stats ? `${stats.answerRate}%` : "0%"} icon={TrendingUp} />
         <StatCard label="Avg Duration" value={stats?.avgDuration ?? "0:00"} icon={Clock} />
+        <StatCard label="Total Duration" value={stats?.totalDuration ?? "0:00"} icon={Clock} />
         <StatCard label="Appointments Booked" value={stats?.appointmentsBooked ?? 0} icon={Calendar} />
         <StatCard label="Total Cost" value={(stats?.totalCost ?? 0).toFixed(2)} prefix="$" icon={DollarSign} />
         <StatCard label="Active Campaigns" value={activeCampaigns} icon={Megaphone} />
