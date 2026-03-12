@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
-import { Phone, Calendar, TrendingUp, DollarSign, Megaphone, Clock, SmilePlus, Loader2 } from "lucide-react";
+import { Phone, Calendar, TrendingUp, DollarSign, Megaphone, Clock, SmilePlus, Loader2, Coins, CreditCard, Timer } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { StatusBadge } from "@/components/StatusBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCredits } from "@/contexts/CreditsContext";
+import { formatRemainingTime } from "@/lib/credits";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 interface DashboardData {
