@@ -38,6 +38,8 @@ interface DashboardData {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { balance } = useCredits();
+  const navigate = useNavigate();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeCampaigns, setActiveCampaigns] = useState(0);
