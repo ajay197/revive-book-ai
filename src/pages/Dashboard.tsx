@@ -12,6 +12,7 @@ interface DashboardData {
     callsToday: number;
     answerRate: number;
     avgDuration: string;
+    totalDuration: string;
     appointmentsBooked: number;
     totalCost: number;
     positiveSentiment: number;
