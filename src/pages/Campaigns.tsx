@@ -62,6 +62,16 @@ const Campaigns = () => {
 
   return (
     <div className="space-y-6">
+      {callsBlocked && (
+        <div className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-destructive">Calls Blocked — Insufficient Credits</p>
+            <p className="text-xs text-muted-foreground">You need more credits to start or resume campaigns.</p>
+          </div>
+          <Button size="sm" className="bg-gradient-primary" onClick={() => navigate("/app/billing")}>Add Credits</Button>
+        </div>
+      )}
       <div className="flex items-start justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground">Campaigns</h1>
