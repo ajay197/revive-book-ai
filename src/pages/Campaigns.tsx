@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Plus, Play, Pause, Loader2 } from "lucide-react";
+import { Plus, Play, Pause, Loader2, AlertTriangle } from "lucide-react";
 import { CreateCampaignSheet } from "@/components/CreateCampaignSheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCredits } from "@/contexts/CreditsContext";
+import { BLOCK_CALLS_THRESHOLD } from "@/lib/credits";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface Campaign {
   id: string;
