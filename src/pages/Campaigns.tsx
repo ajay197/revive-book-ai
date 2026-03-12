@@ -50,6 +50,11 @@ const Campaigns = () => {
   }, [user]);
 
   const handleStatusToggle = async (campaign: Campaign) => {
+    if (campaign.status !== "Running" && callsBlocked) {
+      toast.error("Insufficient credits. Please add more credits before starting campaigns.");
+      navigate("/app/billing");
+      return;
+    }
     const newStatus = campaign.status === "Running" ? "Paused" : "Running";
     await supabase.from("campaigns").update({ status: newStatus }).eq("id", campaign.id);
     fetchCampaigns();
