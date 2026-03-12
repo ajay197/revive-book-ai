@@ -1,9 +1,10 @@
 import {
-  LayoutDashboard, Users, Megaphone, Bot, FileText, BarChart3, Plug, Settings, Phone, LogOut,
+  LayoutDashboard, Users, Megaphone, Bot, FileText, BarChart3, Plug, Settings, Phone, LogOut, CreditCard, History, Shield,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCredits } from "@/contexts/CreditsContext";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar,
@@ -19,6 +20,8 @@ const mainItems = [
 ];
 
 const secondaryItems = [
+  { title: "Billing", url: "/app/billing", icon: CreditCard },
+  { title: "Credit History", url: "/app/credit-history", icon: History },
   { title: "Integrations", url: "/app/integrations", icon: Plug },
   { title: "Settings", url: "/app/settings", icon: Settings },
 ];
