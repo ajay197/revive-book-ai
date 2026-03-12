@@ -28,6 +28,9 @@ const Campaigns = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { balance } = useCredits();
+  const navigate = useNavigate();
+  const callsBlocked = balance <= BLOCK_CALLS_THRESHOLD;
 
   const fetchCampaigns = async () => {
     if (!user) return;
