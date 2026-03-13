@@ -220,6 +220,10 @@ export type Database = {
       }
       phone_number_purchases: {
         Row: {
+          agent_id: string | null
+          agent_name: string | null
+          campaign_id: string | null
+          campaign_name: string | null
           created_at: string
           credits_deducted: number
           expires_at: string
@@ -231,6 +235,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          agent_id?: string | null
+          agent_name?: string | null
+          campaign_id?: string | null
+          campaign_name?: string | null
           created_at?: string
           credits_deducted?: number
           expires_at?: string
@@ -242,6 +250,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          agent_id?: string | null
+          agent_name?: string | null
+          campaign_id?: string | null
+          campaign_name?: string | null
           created_at?: string
           credits_deducted?: number
           expires_at?: string
