@@ -66,6 +66,25 @@ const Campaigns = () => {
     fetchCampaigns();
   };
 
+  const handleDelete = async () => {
+    if (!deleteCampaign) return;
+    setDeleting(true);
+    // Also unassign leads from this campaign
+    await supabase.from("leads").update({ campaign: null }).eq("campaign", deleteCampaign.name);
+    const { error } = await supabase.from("campaigns").delete().eq("id", deleteCampaign.id);
+    if (error) {
+      toast.error("Failed to delete campaign");
+    } else {
+      toast.success(`Campaign "${deleteCampaign.name}" deleted`);
+    }
+    setDeleting(false);
+    setDeleteCampaign(null);
+    fetchCampaigns();
+  };
+
+  // A campaign can only be deleted if it has never been activated (only "Draft" status)
+  const canDelete = (campaign: Campaign) => campaign.status === "Draft";
+
   return (
     <div className="space-y-6">
       {callsBlocked && (
