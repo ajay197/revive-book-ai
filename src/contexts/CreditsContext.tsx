@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -6,6 +6,7 @@ interface CreditsContextType {
   balance: number;
   loading: boolean;
   isAdmin: boolean;
+  hasFetched: boolean;
   refetch: () => Promise<void>;
 }
 
@@ -13,6 +14,7 @@ const CreditsContext = createContext<CreditsContextType>({
   balance: 0,
   loading: true,
   isAdmin: false,
+  hasFetched: false,
   refetch: async () => {},
 });
 
@@ -23,13 +25,17 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const fetchCredits = useCallback(async () => {
     if (!user) {
       setBalance(0);
       setLoading(false);
+      setHasFetched(false);
       return;
     }
+
+    setLoading(true);
 
     const [creditsRes, roleRes] = await Promise.all([
       supabase
@@ -54,6 +60,7 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
     }
 
     setIsAdmin(!!roleRes.data);
+    setHasFetched(true);
     setLoading(false);
   }, [user]);
 
@@ -89,7 +96,7 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   return (
-    <CreditsContext.Provider value={{ balance, loading, isAdmin, refetch: fetchCredits }}>
+    <CreditsContext.Provider value={{ balance, loading, isAdmin, hasFetched, refetch: fetchCredits }}>
       {children}
     </CreditsContext.Provider>
   );

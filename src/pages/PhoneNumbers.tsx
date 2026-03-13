@@ -68,7 +68,7 @@ const PhoneNumbers = () => {
     setPurchased(fetchedPurchased);
     setLoading(false);
 
-    // Auto-purchase any new phone numbers not yet in DB
+    // Auto-purchase any new phone numbers not yet in DB (only once per mount)
     if (fetchedPhones.length > 0 && !processedRef.current) {
       processedRef.current = true;
       await autoPurchaseNewNumbers(fetchedPhones, fetchedPurchased);
@@ -81,13 +81,21 @@ const PhoneNumbers = () => {
   ) => {
     if (!user) return;
 
+    // Check both phone_number AND phone_number_id to avoid duplicates
+    const purchasedNumbers = new Set(
+      alreadyPurchased
+        .filter((p) => p.status === "active")
+        .map((p) => p.phone_number)
+    );
     const purchasedIds = new Set(
       alreadyPurchased
         .filter((p) => p.status === "active")
         .map((p) => p.phone_number_id)
     );
 
-    const newPhones = retellPhones.filter((p) => !purchasedIds.has(p.phone_number_id));
+    const newPhones = retellPhones.filter(
+      (p) => !purchasedIds.has(p.phone_number_id) && !purchasedNumbers.has(p.phone_number)
+    );
     if (newPhones.length === 0) return;
 
     const totalCost = newPhones.length * CREDIT_COST;
@@ -100,54 +108,49 @@ const PhoneNumbers = () => {
 
     setAutoProcessing(true);
 
+    let successCount = 0;
+
     for (const phone of newPhones) {
-      // Deduct credits
-      const { data: deductResult, error: deductError } = await supabase.rpc(
-        "admin_adjust_credits",
-        {
-          p_admin_id: user.id,
-          p_user_id: user.id,
-          p_amount: -CREDIT_COST,
-          p_reason: `Phone number purchase: ${phone.phone_number}`,
-        }
-      );
-
-      if (deductError || (deductResult as any)?.status === "unauthorized") {
-        // Fallback for non-admin users
-        const { error: fnError } = await supabase.functions.invoke("deduct-credits", {
-          body: {
-            userId: user.id,
-            callId: `phone-purchase-${phone.phone_number_id}-${Date.now()}`,
-            durationSeconds: CREDIT_COST * 150,
-            campaignId: null,
-          },
-        });
-
-        if (fnError) {
-          toast.error(`Failed to deduct credits for ${phone.phone_number}`);
-          continue;
-        }
-      }
-
-      // Record purchase
+      // First, try to insert into phone_number_purchases to claim it (acts as dedup lock)
       const { error: insertError } = await supabase
         .from("phone_number_purchases")
         .insert({
           user_id: user.id,
           phone_number: phone.phone_number,
-          phone_number_id: phone.phone_number_id,
+          phone_number_id: phone.phone_number_id || `retell-${phone.phone_number}`,
           credits_deducted: CREDIT_COST,
         });
 
       if (insertError) {
-        // Might be a duplicate — skip silently
-        console.warn("Insert error (may be duplicate):", insertError.message);
+        // Already purchased (duplicate) — skip silently
+        console.warn("Already purchased (duplicate):", insertError.message);
+        continue;
       }
+
+      // Only deduct credits AFTER successful insert (prevents double-charge)
+      const { error: deductError } = await supabase.functions.invoke("deduct-credits", {
+        body: {
+          userId: user.id,
+          callId: `phone-purchase-${phone.phone_number_id || phone.phone_number}-initial`,
+          durationSeconds: CREDIT_COST * 150,
+          campaignId: null,
+        },
+      });
+
+      if (deductError) {
+        toast.error(`Failed to deduct credits for ${phone.phone_number}`);
+        // Optionally remove the purchase record, but it's safer to keep it
+        continue;
+      }
+
+      successCount++;
     }
 
-    toast.success(
-      `${newPhones.length} phone number(s) registered. ${newPhones.length * CREDIT_COST} credits deducted.`
-    );
+    if (successCount > 0) {
+      toast.success(
+        `${successCount} phone number(s) registered. ${successCount * CREDIT_COST} credits deducted.`
+      );
+    }
 
     // Refresh data
     await refetch();
