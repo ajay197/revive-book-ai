@@ -111,7 +111,8 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
   const handleLaunch = async () => {
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase.from("campaigns").insert({
+
+    const { data: campaignData, error } = await supabase.from("campaigns").insert({
       user_id: user.id,
       name,
       type: campaignType,
@@ -123,13 +124,71 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
       timezone,
       max_retries: parseInt(maxRetries) || 3,
       retry_delay: parseInt(retryDelay) || 24,
-    } as any);
+    } as any).select("id").single();
 
-    setSaving(false);
-    if (error) {
+    if (error || !campaignData) {
+      setSaving(false);
       toast.error("Failed to create campaign");
       return;
     }
+
+    // Fetch agent's phone numbers from Retell and register them
+    const apiKey = localStorage.getItem("retell_api_key");
+    if (apiKey && agentId) {
+      try {
+        const { data: phonesRes } = await supabase.functions.invoke("retell-agents", {
+          body: { apiKey, mode: "phone-numbers" },
+        });
+
+        const phoneNumbers = phonesRes?.phoneNumbers;
+        if (Array.isArray(phoneNumbers)) {
+          // Filter phone numbers assigned to this agent
+          const agentPhones = phoneNumbers.filter(
+            (p: any) => p.outbound_agent_id === agentId || p.inbound_agent_id === agentId
+          );
+
+          for (const phone of agentPhones) {
+            // Insert with unique constraint protection (won't duplicate)
+            const { error: insertError } = await supabase
+              .from("phone_number_purchases")
+              .insert({
+                user_id: user.id,
+                phone_number: phone.phone_number_pretty || phone.phone_number,
+                phone_number_id: phone.phone_number_id,
+                credits_deducted: 2,
+                campaign_id: campaignData.id,
+                campaign_name: name,
+                agent_id: agentId,
+                agent_name: agentName,
+              } as any);
+
+            if (insertError) {
+              // Already registered — skip
+              console.warn("Phone already registered:", insertError.message);
+              continue;
+            }
+
+            // Deduct 2 credits for the new phone number
+            await supabase.functions.invoke("deduct-credits", {
+              body: {
+                userId: user.id,
+                callId: `phone-purchase-${phone.phone_number_id}-${campaignData.id}`,
+                durationSeconds: 2 * 150, // 2 credits
+                campaignId: campaignData.id,
+              },
+            });
+          }
+
+          if (agentPhones.length > 0) {
+            toast.success(`${agentPhones.length} phone number(s) registered. ${agentPhones.length * 2} credits deducted.`);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to register phone numbers:", err);
+      }
+    }
+
+    setSaving(false);
     toast.success(`Campaign "${name}" created successfully!`);
     handleClose(false);
     onCreated?.();
