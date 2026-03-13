@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCredits } from "@/contexts/CreditsContext";
 import {
   Loader2, Plus, Search, History, Trash2, Users, CreditCard, Phone,
-  Shield, Mail, Calendar, Clock, ChevronDown, ChevronUp, Eye,
+  Shield, Mail, Calendar, Clock, ChevronDown, ChevronUp, UserCog, Save, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +17,12 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 
 interface EnrichedUser {
   id: string;
@@ -80,6 +86,28 @@ const AdminCredits = () => {
   const [txOpen, setTxOpen] = useState(false);
   const [userTxs, setUserTxs] = useState<Transaction[]>([]);
   const [txUserName, setTxUserName] = useState("");
+
+  // User detail editor
+  const [detailUserId, setDetailUserId] = useState<string>("");
+  const [editName, setEditName] = useState("");
+  const [editCompany, setEditCompany] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editIsAdmin, setEditIsAdmin] = useState(false);
+  const [editIsModerator, setEditIsModerator] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const detailUser = users.find((u) => u.id === detailUserId) || null;
+
+  // Sync form fields when detailUser changes
+  useEffect(() => {
+    if (detailUser) {
+      setEditName(detailUser.display_name || "");
+      setEditCompany(detailUser.company || "");
+      setEditEmail(detailUser.email);
+      setEditIsAdmin(detailUser.roles.includes("admin"));
+      setEditIsModerator(detailUser.roles.includes("moderator"));
+    }
+  }, [detailUserId, detailUser?.display_name, detailUser?.company, detailUser?.email, detailUser?.roles?.join(",")]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -168,6 +196,7 @@ const AdminCredits = () => {
       toast.error("Failed to delete user: " + (data?.error || error?.message));
     } else {
       toast.success(`User ${deleteUser.email} deleted.`);
+      if (detailUserId === deleteUser.id) setDetailUserId("");
       fetchData();
     }
     setDeleting(false);
@@ -185,6 +214,76 @@ const AdminCredits = () => {
       .limit(100);
     setUserTxs((data || []) as Transaction[]);
     setTxOpen(true);
+  };
+
+  const handleSaveUserDetails = async () => {
+    if (!detailUser) return;
+    setSaving(true);
+
+    try {
+      // Update profile
+      const profileChanged =
+        editName !== (detailUser.display_name || "") ||
+        editCompany !== (detailUser.company || "");
+
+      if (profileChanged) {
+        const { data, error } = await supabase.functions.invoke("admin-users", {
+          body: {
+            action: "update_profile",
+            userId: detailUser.id,
+            display_name: editName,
+            company: editCompany,
+          },
+        });
+        if (error || data?.error) throw new Error(data?.error || error?.message);
+      }
+
+      // Update email
+      if (editEmail !== detailUser.email) {
+        const { data, error } = await supabase.functions.invoke("admin-users", {
+          body: {
+            action: "update_email",
+            userId: detailUser.id,
+            email: editEmail,
+          },
+        });
+        if (error || data?.error) throw new Error(data?.error || error?.message);
+      }
+
+      // Update admin role
+      const wasAdmin = detailUser.roles.includes("admin");
+      if (editIsAdmin !== wasAdmin) {
+        const { data, error } = await supabase.functions.invoke("admin-users", {
+          body: {
+            action: "update_role",
+            userId: detailUser.id,
+            role: "admin",
+            remove: !editIsAdmin,
+          },
+        });
+        if (error || data?.error) throw new Error(data?.error || error?.message);
+      }
+
+      // Update moderator role
+      const wasMod = detailUser.roles.includes("moderator");
+      if (editIsModerator !== wasMod) {
+        const { data, error } = await supabase.functions.invoke("admin-users", {
+          body: {
+            action: "update_role",
+            userId: detailUser.id,
+            role: "moderator",
+            remove: !editIsModerator,
+          },
+        });
+        if (error || data?.error) throw new Error(data?.error || error?.message);
+      }
+
+      toast.success("User details updated successfully");
+      fetchData();
+    } catch (err: any) {
+      toast.error("Failed to save: " + err.message);
+    }
+    setSaving(false);
   };
 
   if (!isAdmin) {
@@ -270,8 +369,11 @@ const AdminCredits = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="accounts" className="space-y-4">
+      <Tabs defaultValue="user-details" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="user-details">
+            <UserCog className="mr-1.5 h-3.5 w-3.5" /> User Details
+          </TabsTrigger>
           <TabsTrigger value="accounts">
             <Users className="mr-1.5 h-3.5 w-3.5" /> Accounts ({users.length})
           </TabsTrigger>
@@ -282,6 +384,192 @@ const AdminCredits = () => {
             <History className="mr-1.5 h-3.5 w-3.5" /> Transactions
           </TabsTrigger>
         </TabsList>
+
+        {/* User Details Tab */}
+        <TabsContent value="user-details">
+          <div className="rounded-xl border bg-card shadow-card">
+            <div className="border-b px-5 py-4">
+              <h3 className="font-display text-sm font-semibold text-foreground">Select a User to View & Edit</h3>
+              <div className="mt-3">
+                <Select value={detailUserId} onValueChange={setDetailUserId}>
+                  <SelectTrigger className="w-full max-w-md">
+                    <SelectValue placeholder="Choose a user…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {users.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {u.display_name || u.email} — {u.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {detailUser ? (
+              <div className="p-5 space-y-6">
+                {/* Read-only info */}
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="rounded-lg border bg-muted/20 p-3">
+                    <p className="text-[10px] font-medium uppercase text-muted-foreground">User ID</p>
+                    <p className="mt-1 text-xs font-mono text-foreground break-all">{detailUser.id}</p>
+                  </div>
+                  <div className="rounded-lg border bg-muted/20 p-3">
+                    <p className="text-[10px] font-medium uppercase text-muted-foreground">Signed Up</p>
+                    <p className="mt-1 text-xs text-foreground flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {new Date(detailUser.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border bg-muted/20 p-3">
+                    <p className="text-[10px] font-medium uppercase text-muted-foreground">Last Sign In</p>
+                    <p className="mt-1 text-xs text-foreground">
+                      {detailUser.last_sign_in_at
+                        ? new Date(detailUser.last_sign_in_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+                        : "Never"}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border bg-muted/20 p-3">
+                    <p className="text-[10px] font-medium uppercase text-muted-foreground">Email Verified</p>
+                    <p className="mt-1 text-xs text-foreground">{detailUser.email_confirmed_at ? "✅ Yes" : "❌ No"}</p>
+                  </div>
+                </div>
+
+                {/* Balance */}
+                <div className="flex items-center gap-4 rounded-lg border bg-primary/5 p-4">
+                  <CreditCard className="h-5 w-5 text-primary" />
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-muted-foreground">Credit Balance</p>
+                    <p className="font-display text-2xl font-bold text-foreground">{detailUser.balance_credits.toFixed(2)}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => { setSelectedUser(detailUser); setAdjustOpen(true); }}
+                  >
+                    <Plus className="mr-1 h-3 w-3" /> Adjust Credits
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => viewUserTransactions(detailUser.id, detailUser.display_name || detailUser.email)}
+                  >
+                    <History className="mr-1 h-3 w-3" /> Transactions
+                  </Button>
+                </div>
+
+                <Separator />
+
+                {/* Editable fields */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-semibold text-foreground">Edit User Details</h4>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="edit-name" className="text-xs">Display Name</Label>
+                      <Input
+                        id="edit-name"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        placeholder="Full name"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="edit-email" className="text-xs">Email Address</Label>
+                      <Input
+                        id="edit-email"
+                        type="email"
+                        value={editEmail}
+                        onChange={(e) => setEditEmail(e.target.value)}
+                        placeholder="user@email.com"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="edit-company" className="text-xs">Company</Label>
+                      <Input
+                        id="edit-company"
+                        value={editCompany}
+                        onChange={(e) => setEditCompany(e.target.value)}
+                        placeholder="Company name"
+                      />
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Roles */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-foreground">Roles</h4>
+                    <div className="flex flex-wrap gap-6">
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          id="role-admin"
+                          checked={editIsAdmin}
+                          onCheckedChange={setEditIsAdmin}
+                        />
+                        <Label htmlFor="role-admin" className="text-sm">Admin</Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          id="role-moderator"
+                          checked={editIsModerator}
+                          onCheckedChange={setEditIsModerator}
+                        />
+                        <Label htmlFor="role-moderator" className="text-sm">Moderator</Label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Phone Numbers */}
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold text-foreground">Phone Numbers</h4>
+                    {detailUser.phone_numbers.length > 0 ? (
+                      <div className="space-y-2">
+                        {detailUser.phone_numbers.map((p, i) => (
+                          <div key={i} className="flex items-center gap-3 rounded-lg border bg-muted/20 px-3 py-2">
+                            <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="text-sm text-foreground">{p.phone_number}</span>
+                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                              p.status === "active" ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
+                            }`}>
+                              {p.status}
+                            </span>
+                            <span className="text-xs text-muted-foreground ml-auto">
+                              Expires: {new Date(p.expires_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No phone numbers purchased</p>
+                    )}
+                  </div>
+
+                  {/* Save */}
+                  <div className="flex gap-3 pt-2">
+                    <Button className="bg-gradient-primary" onClick={handleSaveUserDetails} disabled={saving}>
+                      {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                      Save Changes
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => { setDeleteUser(detailUser); setDeleteOpen(true); }}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Delete User
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="px-5 py-16 text-center">
+                <UserCog className="mx-auto h-10 w-10 text-muted-foreground/40" />
+                <p className="mt-3 text-sm text-muted-foreground">Select a user from the dropdown above to view and edit their details.</p>
+              </div>
+            )}
+          </div>
+        </TabsContent>
 
         {/* Accounts Tab */}
         <TabsContent value="accounts">

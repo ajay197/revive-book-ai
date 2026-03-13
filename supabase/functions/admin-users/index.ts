@@ -109,6 +109,133 @@ serve(async (req) => {
       });
     }
 
+    // Update user profile
+    if (action === "update_profile") {
+      const { userId, display_name, company, avatar_url } = body;
+      if (!userId) {
+        return new Response(JSON.stringify({ error: "userId required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const updateFields: Record<string, any> = {};
+      if (display_name !== undefined) updateFields.display_name = display_name;
+      if (company !== undefined) updateFields.company = company;
+      if (avatar_url !== undefined) updateFields.avatar_url = avatar_url;
+
+      if (Object.keys(updateFields).length === 0) {
+        return new Response(JSON.stringify({ error: "No fields to update" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Check if profile exists
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (existing) {
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update(updateFields)
+          .eq("user_id", userId);
+
+        if (updateError) {
+          return new Response(JSON.stringify({ error: updateError.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      } else {
+        const { error: insertError } = await supabase
+          .from("profiles")
+          .insert({ user_id: userId, ...updateFields });
+
+        if (insertError) {
+          return new Response(JSON.stringify({ error: insertError.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+
+      return new Response(JSON.stringify({ status: "updated" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Update user email
+    if (action === "update_email") {
+      const { userId, email } = body;
+      if (!userId || !email) {
+        return new Response(JSON.stringify({ error: "userId and email required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { error: updateError } = await supabase.auth.admin.updateUserById(userId, { email });
+      if (updateError) {
+        return new Response(JSON.stringify({ error: updateError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({ status: "email_updated" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Update user role
+    if (action === "update_role") {
+      const { userId, role, remove } = body;
+      if (!userId || !role) {
+        return new Response(JSON.stringify({ error: "userId and role required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (remove) {
+        const { error } = await supabase
+          .from("user_roles")
+          .delete()
+          .eq("user_id", userId)
+          .eq("role", role);
+
+        if (error) {
+          return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      } else {
+        // Upsert role
+        const { error } = await supabase
+          .from("user_roles")
+          .upsert({ user_id: userId, role }, { onConflict: "user_id,role" });
+
+        if (error) {
+          return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+
+      return new Response(JSON.stringify({ status: "role_updated" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Delete user
     if (action === "delete") {
       const { userId } = body;
