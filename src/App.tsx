@@ -21,6 +21,7 @@ import Settings from "./pages/Settings";
 import Billing from "./pages/Billing";
 import CreditHistory from "./pages/CreditHistory";
 import AdminCredits from "./pages/AdminCredits";
+import PhoneNumbers from "./pages/PhoneNumbers";
 import AppLayout from "./components/layout/AppLayout";
 import NotFound from "./pages/NotFound";
 
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="/app/settings" element={<AppRoute><Settings /></AppRoute>} />
               <Route path="/app/billing" element={<AppRoute><Billing /></AppRoute>} />
               <Route path="/app/credit-history" element={<AppRoute><CreditHistory /></AppRoute>} />
+              <Route path="/app/phone-numbers" element={<AppRoute><PhoneNumbers /></AppRoute>} />
               <Route path="/app/admin/credits" element={<AppRoute><AdminCredits /></AppRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -218,6 +218,42 @@ export type Database = {
         }
         Relationships: []
       }
+      phone_number_purchases: {
+        Row: {
+          created_at: string
+          credits_deducted: number
+          expires_at: string
+          id: string
+          phone_number: string
+          phone_number_id: string
+          purchased_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits_deducted?: number
+          expires_at?: string
+          id?: string
+          phone_number: string
+          phone_number_id: string
+          purchased_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits_deducted?: number
+          expires_at?: string
+          id?: string
+          phone_number?: string
+          phone_number_id?: string
+          purchased_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

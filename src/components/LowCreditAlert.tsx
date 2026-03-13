@@ -31,7 +31,7 @@ export function LowCreditAlert() {
   if (!isLow || loading) return null;
 
   return (
-    <AlertDialog open={open} onOpenChange={(v) => { if (!isCritical) setOpen(v); }}>
+    <AlertDialog open={open} onOpenChange={(v) => { if (!v) { setDismissed(true); setOpen(false); } }}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
@@ -56,11 +56,9 @@ export function LowCreditAlert() {
           >
             <CreditCard className="mr-2 h-4 w-4" /> Add Credits
           </AlertDialogAction>
-          {!isCritical && (
-            <AlertDialogCancel onClick={() => { setDismissed(true); setOpen(false); }}>
-              Maybe Later
-            </AlertDialogCancel>
-          )}
+          <AlertDialogCancel onClick={() => { setDismissed(true); setOpen(false); }}>
+            {isCritical ? "Close" : "Maybe Later"}
+          </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
