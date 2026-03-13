@@ -110,30 +110,23 @@ const Dashboard = () => {
       </div>
 
       {/* Credits & Stats Grid */}
+      <div className="flex items-center gap-3">
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-xs"
+          onClick={() => navigate("/app/billing")}
+        >
+          <CreditCard className="mr-1.5 h-3 w-3" /> Add Credits
+        </Button>
+        <span className="text-sm text-muted-foreground">
+          Balance: <span className="font-semibold text-foreground">{balance.toFixed(2)} credits</span>
+          <span className="ml-2 text-xs">({formatRemainingTime(balance)} remaining)</span>
+        </span>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border bg-card p-5 shadow-card transition-shadow hover:shadow-elevated">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">Balance Credits</p>
-              <p className="mt-2 font-display text-2xl font-bold text-foreground">{balance.toFixed(2)}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                <Timer className="mr-1 inline h-3 w-3" />
-                {formatRemainingTime(balance)} remaining
-              </p>
-            </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-              <Coins className="h-4 w-4 text-primary" />
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="mt-3 w-full text-xs"
-            onClick={() => navigate("/app/billing")}
-          >
-            <CreditCard className="mr-1.5 h-3 w-3" /> Add Credits
-          </Button>
-        </div>
+        <StatCard label="Balance Credits" value={balance.toFixed(2)} icon={Coins} />
         <StatCard label="Total Calls" value={stats?.totalCalls ?? 0} icon={Phone} />
         <StatCard label="Calls Today" value={stats?.callsToday ?? 0} icon={Clock} />
         <StatCard label="Answer Rate" value={stats ? `${stats.answerRate}%` : "0%"} icon={TrendingUp} />
