@@ -15,6 +15,7 @@ const mainItems = [
   { title: "Leads", url: "/app/leads", icon: Users },
   { title: "Campaigns", url: "/app/campaigns", icon: Megaphone },
   { title: "Agents", url: "/app/agents", icon: Bot },
+  { title: "Phone Numbers", url: "/app/phone-numbers", icon: Phone },
   { title: "Scripts", url: "/app/scripts", icon: FileText },
   { title: "Analytics", url: "/app/analytics", icon: BarChart3 },
 ];

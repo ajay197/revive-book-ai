@@ -58,6 +58,7 @@ const App = () => (
               <Route path="/app/settings" element={<AppRoute><Settings /></AppRoute>} />
               <Route path="/app/billing" element={<AppRoute><Billing /></AppRoute>} />
               <Route path="/app/credit-history" element={<AppRoute><CreditHistory /></AppRoute>} />
+              <Route path="/app/phone-numbers" element={<AppRoute><PhoneNumbers /></AppRoute>} />
               <Route path="/app/admin/credits" element={<AppRoute><AdminCredits /></AppRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
