@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Plus, Play, Pause, Loader2, AlertTriangle } from "lucide-react";
+import { Plus, Play, Pause, Loader2, AlertTriangle, MoreHorizontal, UserPlus, Trash2 } from "lucide-react";
 import { CreateCampaignSheet } from "@/components/CreateCampaignSheet";
+import { AddLeadsToCampaignDialog } from "@/components/AddLeadsToCampaignDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCredits } from "@/contexts/CreditsContext";
