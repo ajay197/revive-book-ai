@@ -170,6 +170,9 @@ const Leads = () => {
           >
             Download sample CSV
           </a>
+          <Button variant="outline" onClick={() => setAddOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Add Lead
+          </Button>
           <Button className="bg-gradient-primary" onClick={() => setUploadOpen(true)}>
             <Upload className="mr-2 h-4 w-4" /> Upload CSV
           </Button>
