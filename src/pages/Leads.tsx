@@ -180,6 +180,7 @@ const Leads = () => {
       </div>
 
       <CSVUploadModal open={uploadOpen} onOpenChange={setUploadOpen} onImport={handleImport} />
+      <AddLeadDialog open={addOpen} onOpenChange={setAddOpen} existingPhones={leads.map((l) => l.phone)} />
       <EditLeadDialog lead={editLead} open={!!editLead} onOpenChange={(v) => { if (!v) setEditLead(null); }} />
 
       <div className="flex items-center gap-3">
