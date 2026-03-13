@@ -30,6 +30,7 @@ const emptyFilters: Filters = { statuses: [], sources: [], companies: [], campai
 const Leads = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const [editLead, setEditLead] = useState<Tables<"leads"> | null>(null);
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [filterOpen, setFilterOpen] = useState(false);
