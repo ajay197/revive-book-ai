@@ -31,7 +31,7 @@ export function LowCreditAlert() {
   if (!isLow || loading) return null;
 
   return (
-    <AlertDialog open={open} onOpenChange={(v) => { if (!isCritical) setOpen(v); }}>
+    <AlertDialog open={open} onOpenChange={(v) => { if (!v) { setDismissed(true); setOpen(false); } }}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
