@@ -21,6 +21,7 @@ import Settings from "./pages/Settings";
 import Billing from "./pages/Billing";
 import CreditHistory from "./pages/CreditHistory";
 import AdminCredits from "./pages/AdminCredits";
+import PhoneNumbers from "./pages/PhoneNumbers";
 import AppLayout from "./components/layout/AppLayout";
 import NotFound from "./pages/NotFound";
 
