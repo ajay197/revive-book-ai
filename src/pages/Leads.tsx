@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Upload, Search, Filter, MoreHorizontal, Pencil, Trash2, X } from "lucide-react";
+import { Upload, Search, Filter, MoreHorizontal, Pencil, Trash2, X, Plus } from "lucide-react";
 import { CSVUploadModal } from "@/components/CSVUploadModal";
 import { EditLeadDialog } from "@/components/EditLeadDialog";
+import { AddLeadDialog } from "@/components/AddLeadDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -29,6 +30,7 @@ const emptyFilters: Filters = { statuses: [], sources: [], companies: [], campai
 const Leads = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const [editLead, setEditLead] = useState<Tables<"leads"> | null>(null);
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -168,6 +170,9 @@ const Leads = () => {
           >
             Download sample CSV
           </a>
+          <Button variant="outline" onClick={() => setAddOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Add Lead
+          </Button>
           <Button className="bg-gradient-primary" onClick={() => setUploadOpen(true)}>
             <Upload className="mr-2 h-4 w-4" /> Upload CSV
           </Button>
@@ -175,6 +180,7 @@ const Leads = () => {
       </div>
 
       <CSVUploadModal open={uploadOpen} onOpenChange={setUploadOpen} onImport={handleImport} />
+      <AddLeadDialog open={addOpen} onOpenChange={setAddOpen} existingPhones={leads.map((l) => l.phone)} />
       <EditLeadDialog lead={editLead} open={!!editLead} onOpenChange={(v) => { if (!v) setEditLead(null); }} />
 
       <div className="flex items-center gap-3">
