@@ -30,6 +30,9 @@ const Campaigns = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addLeadsCampaign, setAddLeadsCampaign] = useState<{ id: string; name: string } | null>(null);
+  const [deleteCampaign, setDeleteCampaign] = useState<Campaign | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const { user } = useAuth();
   const { balance } = useCredits();
   const navigate = useNavigate();
