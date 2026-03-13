@@ -523,24 +523,73 @@ const AdminCredits = () => {
                   <Separator />
 
                   {/* Phone Numbers */}
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-foreground">Phone Numbers</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-foreground">Phone Numbers</h4>
+                      {detailUser.phone_numbers.length > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          {detailUser.phone_numbers.filter(p => p.status === "active").length} active / {detailUser.phone_numbers.length} total
+                        </span>
+                      )}
+                    </div>
                     {detailUser.phone_numbers.length > 0 ? (
-                      <div className="space-y-2">
-                        {detailUser.phone_numbers.map((p, i) => (
-                          <div key={i} className="flex items-center gap-3 rounded-lg border bg-muted/20 px-3 py-2">
-                            <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="text-sm text-foreground">{p.phone_number}</span>
-                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                              p.status === "active" ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
-                            }`}>
-                              {p.status}
-                            </span>
-                            <span className="text-xs text-muted-foreground ml-auto">
-                              Expires: {new Date(p.expires_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                        ))}
+                      <div className="overflow-x-auto rounded-lg border">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b bg-muted/30">
+                              <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">Phone Number</th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">Status</th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">Purchased</th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">Expires</th>
+                              <th className="px-3 py-2 text-right text-xs font-medium text-muted-foreground">Credits</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {detailUser.phone_numbers.map((p, i) => (
+                              <tr key={i} className="border-b last:border-0 hover:bg-muted/20">
+                                <td className="px-3 py-2.5">
+                                  <div className="flex items-center gap-2">
+                                    <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <span className="font-medium text-foreground">{p.phone_number}</span>
+                                  </div>
+                                </td>
+                                <td className="px-3 py-2.5">
+                                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                    p.status === "active"
+                                      ? "bg-success/10 text-success"
+                                      : p.status === "expired"
+                                      ? "bg-destructive/10 text-destructive"
+                                      : "bg-muted text-muted-foreground"
+                                  }`}>
+                                    {p.status}
+                                  </span>
+                                </td>
+                                <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                                  {new Date(p.purchased_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                                </td>
+                                <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                                  {new Date(p.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                                </td>
+                                <td className="px-3 py-2.5 text-right text-xs font-medium text-foreground">
+                                  {(p.credits_deducted ?? 2).toFixed(2)}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot>
+                            <tr className="bg-muted/20">
+                              <td colSpan={4} className="px-3 py-2 text-xs font-medium text-muted-foreground text-right">
+                                Total Monthly Cost
+                              </td>
+                              <td className="px-3 py-2 text-right text-xs font-semibold text-foreground">
+                                {detailUser.phone_numbers
+                                  .filter(p => p.status === "active")
+                                  .reduce((sum, p) => sum + (p.credits_deducted ?? 2), 0)
+                                  .toFixed(2)} credits/mo
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
                       </div>
                     ) : (
                       <p className="text-sm text-muted-foreground">No phone numbers purchased</p>

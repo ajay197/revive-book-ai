@@ -69,7 +69,7 @@ serve(async (req) => {
       const { data: credits } = await supabase.from("user_credits").select("user_id, balance_credits");
       const { data: profiles } = await supabase.from("profiles").select("user_id, display_name, company, avatar_url");
       const { data: roles } = await supabase.from("user_roles").select("user_id, role");
-      const { data: phoneNumbers } = await supabase.from("phone_number_purchases").select("user_id, phone_number, status, purchased_at, expires_at");
+      const { data: phoneNumbers } = await supabase.from("phone_number_purchases").select("user_id, phone_number, phone_number_id, status, purchased_at, expires_at, credits_deducted");
 
       const creditsMap = new Map((credits || []).map((c) => [c.user_id, Number(c.balance_credits)]));
       const profilesMap = new Map((profiles || []).map((p) => [p.user_id, p]));
