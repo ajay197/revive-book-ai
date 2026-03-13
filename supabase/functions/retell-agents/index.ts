@@ -47,6 +47,37 @@ serve(async (req) => {
       });
     }
 
+    // Phone numbers mode: list phone numbers from Retell
+    if (mode === "phone-numbers") {
+      const response = await fetch("https://api.retellai.com/list-phone-numbers", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        return new Response(
+          JSON.stringify({ error: `Retell API error [${response.status}]: ${errorText}` }),
+          { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const phoneNumbers = await response.json();
+      return new Response(JSON.stringify({ phoneNumbers }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: "API key is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Dashboard mode: fetch all calls for given agent IDs and return aggregated stats + recent calls
     if (mode === "dashboard" && Array.isArray(agentIds) && agentIds.length > 0) {
       const allCalls: any[] = [];
