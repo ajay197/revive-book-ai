@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Upload, Search, Filter, MoreHorizontal, Pencil, Trash2, X } from "lucide-react";
+import { Upload, Search, Filter, MoreHorizontal, Pencil, Trash2, X, Plus } from "lucide-react";
 import { CSVUploadModal } from "@/components/CSVUploadModal";
 import { EditLeadDialog } from "@/components/EditLeadDialog";
+import { AddLeadDialog } from "@/components/AddLeadDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
