@@ -15,7 +15,7 @@ import {
 import { AlertTriangle, CreditCard } from "lucide-react";
 
 export function LowCreditAlert() {
-  const { balance, loading } = useCredits();
+  const { balance, loading, hasFetched } = useCredits();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -24,11 +24,13 @@ export function LowCreditAlert() {
   const isLow = balance < LOW_BALANCE_THRESHOLD;
 
   useEffect(() => {
-    if (loading || dismissed) return;
+    // Only show after we've actually fetched the real balance from the server
+    if (!hasFetched || loading || dismissed) return;
     if (isLow) setOpen(true);
-  }, [loading, balance, dismissed, isLow]);
+  }, [hasFetched, loading, balance, dismissed, isLow]);
 
-  if (!isLow || loading) return null;
+  // Don't render anything until we've confirmed the balance from the server
+  if (!hasFetched || loading || !isLow) return null;
 
   return (
     <AlertDialog open={open} onOpenChange={(v) => { if (!v) { setDismissed(true); setOpen(false); } }}>

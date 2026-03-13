@@ -87,7 +87,7 @@ const CreditHistory = () => {
                       <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                         tx.type === "debit" ? "bg-destructive/10 text-destructive" : "bg-success/10 text-success"
                       }`}>
-                        {tx.type}
+                        {tx.type === "admin_adjustment" ? "credited" : tx.type}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-muted-foreground">{tx.source}</td>
