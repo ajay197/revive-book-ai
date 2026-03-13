@@ -32,7 +32,7 @@ interface EnrichedUser {
   avatar_url: string | null;
   balance_credits: number;
   roles: string[];
-  phone_numbers: { phone_number: string; status: string; purchased_at: string; expires_at: string }[];
+  phone_numbers: { phone_number: string; phone_number_id?: string; status: string; purchased_at: string; expires_at: string; credits_deducted?: number }[];
   created_at: string;
   last_sign_in_at: string | null;
   email_confirmed_at: string | null;
