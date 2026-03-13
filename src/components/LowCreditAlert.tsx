@@ -56,11 +56,9 @@ export function LowCreditAlert() {
           >
             <CreditCard className="mr-2 h-4 w-4" /> Add Credits
           </AlertDialogAction>
-          {!isCritical && (
-            <AlertDialogCancel onClick={() => { setDismissed(true); setOpen(false); }}>
-              Maybe Later
-            </AlertDialogCancel>
-          )}
+          <AlertDialogCancel onClick={() => { setDismissed(true); setOpen(false); }}>
+            {isCritical ? "Close" : "Maybe Later"}
+          </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
