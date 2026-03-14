@@ -31,7 +31,7 @@ export function AddLeadsToCampaignDialog({
   onUpdated,
 }: AddLeadsToCampaignDialogProps) {
   const { user } = useAuth();
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<Set<string> | null>(null);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -48,12 +48,21 @@ export function AddLeadsToCampaignDialog({
     enabled: !!user && open,
   });
 
-  // Filter leads not already assigned to this campaign
-  const availableLeads = leads.filter(
-    (l) => l.campaign !== campaign?.name && l.campaign !== campaign?.id
+  // Initialize selected with already-assigned leads
+  const assignedIds = new Set(
+    leads
+      .filter((l) => l.campaign === campaign?.name || l.campaign === campaign?.id)
+      .map((l) => l.id)
   );
 
-  const filtered = availableLeads.filter((l) => {
+  // Lazy-init selected from assigned leads
+  if (selected === null && leads.length > 0) {
+    setSelected(new Set(assignedIds));
+  }
+
+  const sel = selected ?? new Set<string>();
+
+  const filtered = leads.filter((l) => {
     if (!search) return true;
     const q = search.toLowerCase();
     return (
@@ -66,7 +75,7 @@ export function AddLeadsToCampaignDialog({
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev ?? []);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
@@ -74,7 +83,7 @@ export function AddLeadsToCampaignDialog({
   };
 
   const toggleAll = () => {
-    if (selected.size === filtered.length) {
+    if (sel.size === filtered.length) {
       setSelected(new Set());
     } else {
       setSelected(new Set(filtered.map((l) => l.id)));
@@ -82,44 +91,58 @@ export function AddLeadsToCampaignDialog({
   };
 
   const handleAssign = async () => {
-    if (!campaign || selected.size === 0) return;
+    if (!campaign) return;
     setSaving(true);
 
-    const { error } = await supabase
-      .from("leads")
-      .update({ campaign: campaign.name })
-      .in("id", Array.from(selected));
+    const toAssign = Array.from(sel).filter((id) => !assignedIds.has(id));
+    const toUnassign = Array.from(assignedIds).filter((id) => !sel.has(id));
 
-    if (error) {
-      toast.error("Failed to assign leads");
-      setSaving(false);
-      return;
+    // Assign new leads
+    if (toAssign.length > 0) {
+      const { error } = await supabase
+        .from("leads")
+        .update({ campaign: campaign.name })
+        .in("id", toAssign);
+      if (error) {
+        toast.error("Failed to assign leads");
+        setSaving(false);
+        return;
+      }
     }
 
-    // Update lead_count on campaign
-    const { data: countData } = await supabase
-      .from("leads")
-      .select("id", { count: "exact", head: true })
-      .eq("campaign", campaign.name);
+    // Unassign removed leads
+    if (toUnassign.length > 0) {
+      const { error } = await supabase
+        .from("leads")
+        .update({ campaign: null })
+        .in("id", toUnassign);
+      if (error) {
+        toast.error("Failed to unassign leads");
+        setSaving(false);
+        return;
+      }
+    }
 
-    const newCount = (countData as any)?.length ?? selected.size;
+    // Update lead_count
     await supabase
       .from("campaigns")
-      .update({ lead_count: newCount })
+      .update({ lead_count: sel.size })
       .eq("id", campaign.id);
 
-    toast.success(`${selected.size} lead(s) added to "${campaign.name}"`);
-    setSelected(new Set());
-    setSearch("");
-    setSaving(false);
+    const added = toAssign.length;
+    const removed = toUnassign.length;
+    const parts: string[] = [];
+    if (added > 0) parts.push(`${added} added`);
+    if (removed > 0) parts.push(`${removed} removed`);
+    toast.success(`Leads updated: ${parts.join(", ")}`);
     onOpenChange(false);
     onUpdated?.();
   };
 
   const handleClose = (val: boolean) => {
     if (!val) {
-      setSelected(new Set());
-      setSearch("");
+    setSelected(null);
+    setSearch("");
     }
     onOpenChange(val);
   };
@@ -154,8 +177,8 @@ export function AddLeadsToCampaignDialog({
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-10 text-sm text-muted-foreground">
-              {availableLeads.length === 0
-                ? "All leads are already assigned to this campaign."
+              {leads.length === 0
+                ? "No leads found."
                 : "No leads match your search."}
             </div>
           ) : (
@@ -164,7 +187,7 @@ export function AddLeadsToCampaignDialog({
                 <tr className="border-b">
                   <th className="px-3 py-2 text-left w-10">
                     <Checkbox
-                      checked={selected.size === filtered.length && filtered.length > 0}
+                      checked={sel.size === filtered.length && filtered.length > 0}
                       onCheckedChange={toggleAll}
                     />
                   </th>
@@ -182,7 +205,7 @@ export function AddLeadsToCampaignDialog({
                   >
                     <td className="px-3 py-2">
                       <Checkbox
-                        checked={selected.has(lead.id)}
+                        checked={sel.has(lead.id)}
                         onCheckedChange={() => toggleSelect(lead.id)}
                       />
                     </td>
@@ -202,15 +225,15 @@ export function AddLeadsToCampaignDialog({
         <DialogFooter>
           <div className="flex items-center justify-between w-full">
             <p className="text-sm text-muted-foreground">
-              {selected.size} lead{selected.size !== 1 ? "s" : ""} selected
+              {sel.size} lead{sel.size !== 1 ? "s" : ""} selected
             </p>
             <Button
               onClick={handleAssign}
-              disabled={saving || selected.size === 0}
+              disabled={saving}
               className="bg-gradient-primary"
             >
               {saving && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
-              Add {selected.size > 0 ? `${selected.size} ` : ""}Lead{selected.size !== 1 ? "s" : ""}
+              Save Changes
             </Button>
           </div>
         </DialogFooter>
