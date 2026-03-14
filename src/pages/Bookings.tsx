@@ -75,7 +75,7 @@ const Bookings = () => {
   const [rescheduleDateTime, setRescheduleDateTime] = useState("");
   const [bookingDate, setBookingDate] = useState<Date | undefined>(undefined);
   const [bookingTimeSlot, setBookingTimeSlot] = useState("");
-  const [availableSlots, setAvailableSlots] = useState<Record<string, string[]>>({});
+  const [availableSlots, setAvailableSlots] = useState<Record<string, unknown>>({});
   const [loadingSlots, setLoadingSlots] = useState(false);
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 

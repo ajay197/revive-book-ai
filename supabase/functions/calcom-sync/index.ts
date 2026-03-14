@@ -104,7 +104,45 @@ serve(async (req) => {
         throw new Error(`Cal.com slots API error: ${res.status} ${errText}`);
       }
       const data = await res.json();
-      return new Response(JSON.stringify({ slots: data.slots || {} }), {
+      const rawSlots = data?.slots || {};
+      const normalizedSlots: Record<string, string[]> = {};
+
+      const extractIso = (value: any, fallback?: string): string | null => {
+        if (typeof value === "string") {
+          return value.includes("T") ? value : null;
+        }
+        if (value && typeof value === "object") {
+          return value.time || value.start || value.startTime || (typeof fallback === "string" && fallback.includes("T") ? fallback : null) || null;
+        }
+        return typeof fallback === "string" && fallback.includes("T") ? fallback : null;
+      };
+
+      for (const [dateKey, slotValue] of Object.entries(rawSlots)) {
+        const values: string[] = [];
+
+        if (Array.isArray(slotValue)) {
+          for (const slot of slotValue) {
+            const iso = extractIso(slot);
+            if (iso) values.push(iso);
+          }
+        } else if (slotValue && typeof slotValue === "object") {
+          for (const [k, v] of Object.entries(slotValue as Record<string, any>)) {
+            if (Array.isArray(v)) {
+              for (const item of v) {
+                const iso = extractIso(item, k);
+                if (iso) values.push(iso);
+              }
+            } else {
+              const iso = extractIso(v, k);
+              if (iso) values.push(iso);
+            }
+          }
+        }
+
+        normalizedSlots[dateKey] = [...new Set(values)].sort();
+      }
+
+      return new Response(JSON.stringify({ slots: normalizedSlots }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
