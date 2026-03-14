@@ -6,9 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar, ChevronLeft, ChevronRight, RefreshCw, Loader2, ExternalLink, Clock, User, Mail, Phone, Video, Plus, XCircle, CalendarClock, CalendarIcon, Globe } from "lucide-react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, parseISO, addDays } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, parseISO, addDays, isValid } from "date-fns";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -76,7 +75,7 @@ const Bookings = () => {
   const [rescheduleDateTime, setRescheduleDateTime] = useState("");
   const [bookingDate, setBookingDate] = useState<Date | undefined>(undefined);
   const [bookingTimeSlot, setBookingTimeSlot] = useState("");
-  const [availableSlots, setAvailableSlots] = useState<Record<string, string[]>>({});
+  const [availableSlots, setAvailableSlots] = useState<Record<string, unknown>>({});
   const [loadingSlots, setLoadingSlots] = useState(false);
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -658,7 +657,9 @@ const Bookings = () => {
                         </div>
                       ) : (() => {
                         const dateKey = format(bookingDate, "yyyy-MM-dd");
-                        const daySlots = availableSlots[dateKey] || [];
+                        const rawDaySlots = availableSlots[dateKey];
+                        const daySlots = Array.isArray(rawDaySlots) ? rawDaySlots : [];
+
                         if (daySlots.length === 0) {
                           return (
                             <div className="rounded-lg border border-dashed bg-muted/30 p-4 text-center">
@@ -670,18 +671,27 @@ const Bookings = () => {
                         }
                         return (
                           <div className="grid grid-cols-3 gap-2 max-h-[180px] overflow-y-auto pr-1">
-                            {daySlots.map((slot: string) => {
-                              const slotTime = parseISO(slot);
+                            {daySlots.map((slot: unknown, idx: number) => {
+                              const slotIso = typeof slot === "string"
+                                ? slot
+                                : (slot && typeof slot === "object" && "time" in slot && typeof (slot as { time?: unknown }).time === "string"
+                                    ? (slot as { time: string }).time
+                                    : null);
+                              if (!slotIso) return null;
+
+                              const slotTime = parseISO(slotIso);
+                              if (!isValid(slotTime)) return null;
+
                               const timeLabel = format(slotTime, "h:mm a");
-                              const isSelected = bookingTimeSlot === slot;
+                              const isSelected = bookingTimeSlot === slotIso;
                               return (
                                 <Button
-                                  key={slot}
+                                  key={`${slotIso}-${idx}`}
                                   type="button"
                                   variant={isSelected ? "default" : "outline"}
                                   size="sm"
                                   className={cn("text-xs", isSelected && "ring-2 ring-primary")}
-                                  onClick={() => setBookingTimeSlot(slot)}
+                                  onClick={() => setBookingTimeSlot(slotIso)}
                                 >
                                   {timeLabel}
                                 </Button>
