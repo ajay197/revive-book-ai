@@ -175,8 +175,13 @@ const Campaigns = () => {
                 {campaigns.map((c) => (
                   <tr key={c.id} className="border-b last:border-0 hover:bg-muted/20">
                     <td className="px-5 py-3">
-                      <p className="font-medium text-foreground">{c.name}</p>
-                      <p className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</p>
+                      <button
+                        className="text-left hover:underline"
+                        onClick={() => navigate(`/app/campaigns/${c.id}`)}
+                      >
+                        <p className="font-medium text-foreground">{c.name}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</p>
+                      </button>
                       <CampaignCallStatus campaignName={c.name} campaignStatus={c.status} />
                     </td>
                     <td className="px-5 py-3 text-muted-foreground">{c.type}</td>

@@ -13,6 +13,7 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
 import Campaigns from "./pages/Campaigns";
+import CampaignDetail from "./pages/CampaignDetail";
 import Agents from "./pages/Agents";
 import Scripts from "./pages/Scripts";
 import Analytics from "./pages/Analytics";
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="/app" element={<AppRoute><Dashboard /></AppRoute>} />
               <Route path="/app/leads" element={<AppRoute><Leads /></AppRoute>} />
               <Route path="/app/campaigns" element={<AppRoute><Campaigns /></AppRoute>} />
+              <Route path="/app/campaigns/:id" element={<AppRoute><CampaignDetail /></AppRoute>} />
               <Route path="/app/agents" element={<AppRoute><Agents /></AppRoute>} />
               <Route path="/app/scripts" element={<AppRoute><Scripts /></AppRoute>} />
               <Route path="/app/analytics" element={<AppRoute><Analytics /></AppRoute>} />

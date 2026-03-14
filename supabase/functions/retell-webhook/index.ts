@@ -15,7 +15,6 @@ serve(async (req) => {
     const payload = await req.json();
     const { event, call } = payload;
 
-    // We only care about call completion events
     if (event !== "call_ended" && event !== "call_analyzed") {
       return new Response(JSON.stringify({ ok: true }), {
         status: 200,
@@ -32,6 +31,7 @@ serve(async (req) => {
     const leadId = metadata.lead_id;
     const campaignId = metadata.campaign_id;
     const userId = metadata.user_id;
+    const attemptNumber = metadata.attempt_number || 1;
 
     if (!callId || !leadId || !userId) {
       console.warn("Webhook missing metadata:", { callId, leadId, userId });
@@ -56,17 +56,66 @@ serve(async (req) => {
     else if (isVoicemail) leadStatus = "Voicemail";
     else if (call?.call_status === "ended") leadStatus = "Called";
 
-    // Update lead status
-    await supabase.from("leads").update({
-      status: leadStatus,
-    }).eq("id", leadId);
-
-    // Deduct credits based on call duration
+    // Calculate duration
     const durationMs = (call?.end_timestamp && call?.start_timestamp)
       ? call.end_timestamp - call.start_timestamp
       : 0;
     const durationSeconds = Math.round(durationMs / 1000);
+    const callCost = call?.cost || 0;
+    const sentiment = callAnalysis?.user_sentiment || null;
 
+    // Update call log entry
+    await supabase.from("call_logs").update({
+      status: leadStatus,
+      duration_seconds: durationSeconds,
+      cost: callCost,
+      sentiment,
+      disconnection_reason: disconnectionReason || null,
+      call_analysis: callAnalysis || null,
+      ended_at: new Date().toISOString(),
+    }).eq("retell_call_id", callId);
+
+    // Check if this lead should be retried
+    let shouldRetry = false;
+    if (campaignId && (isNoAnswer || isVoicemail || leadStatus === "Unsuccessful")) {
+      const { data: campaign } = await supabase
+        .from("campaigns")
+        .select("max_retries, retry_delay, status")
+        .eq("id", campaignId)
+        .single();
+
+      if (campaign && campaign.max_retries && campaign.max_retries > 0) {
+        const { data: lead } = await supabase
+          .from("leads")
+          .select("retry_count")
+          .eq("id", leadId)
+          .single();
+
+        const currentRetries = lead?.retry_count || 0;
+        if (currentRetries < campaign.max_retries) {
+          shouldRetry = true;
+          const retryDelayMinutes = campaign.retry_delay || 60;
+          const nextRetryAt = new Date(Date.now() + retryDelayMinutes * 60 * 1000).toISOString();
+
+          // Mark lead for retry
+          await supabase.from("leads").update({
+            status: leadStatus,
+            retell_call_id: null, // Clear so it can be picked up again
+            retry_count: currentRetries + 1,
+            next_retry_at: nextRetryAt,
+          }).eq("id", leadId);
+        }
+      }
+    }
+
+    // If not retrying, just update lead status normally
+    if (!shouldRetry) {
+      await supabase.from("leads").update({
+        status: leadStatus,
+      }).eq("id", leadId);
+    }
+
+    // Deduct credits
     if (durationSeconds > 0 && userId) {
       await supabase.rpc("deduct_call_credits", {
         p_user_id: userId,
@@ -86,20 +135,18 @@ serve(async (req) => {
 
       if (campaign) {
         const updates: Record<string, any> = {
-          cost: (Number(campaign.cost) || 0) + (call?.cost || 0),
+          cost: (Number(campaign.cost) || 0) + callCost,
         };
         if (isBooked) {
           updates.appointments_booked = (campaign.appointments_booked || 0) + 1;
         }
         await supabase.from("campaigns").update(updates).eq("id", campaignId);
 
-        // If campaign is still running, trigger the next call
+        // Trigger next call if campaign is still running
         if (campaign.status === "Running") {
-          // Call the campaign-caller function to initiate next call
           const callerUrl = `${supabaseUrl}/functions/v1/campaign-caller`;
           const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-          // Fire and forget — don't wait for response to avoid webhook timeout
           fetch(callerUrl, {
             method: "POST",
             headers: {
@@ -112,7 +159,7 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({ ok: true, leadStatus, durationSeconds }), {
+    return new Response(JSON.stringify({ ok: true, leadStatus, durationSeconds, shouldRetry }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

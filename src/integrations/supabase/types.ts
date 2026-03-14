@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      call_logs: {
+        Row: {
+          attempt_number: number | null
+          call_analysis: Json | null
+          campaign_id: string | null
+          cost: number | null
+          created_at: string
+          disconnection_reason: string | null
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          lead_id: string | null
+          lead_name: string | null
+          lead_phone: string | null
+          retell_call_id: string | null
+          sentiment: string | null
+          started_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          attempt_number?: number | null
+          call_analysis?: Json | null
+          campaign_id?: string | null
+          cost?: number | null
+          created_at?: string
+          disconnection_reason?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          lead_id?: string | null
+          lead_name?: string | null
+          lead_phone?: string | null
+          retell_call_id?: string | null
+          sentiment?: string | null
+          started_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          attempt_number?: number | null
+          call_analysis?: Json | null
+          campaign_id?: string | null
+          cost?: number | null
+          created_at?: string
+          disconnection_reason?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          lead_id?: string | null
+          lead_name?: string | null
+          lead_phone?: string | null
+          retell_call_id?: string | null
+          sentiment?: string | null
+          started_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_logs_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_logs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
           agent_id: string | null
@@ -173,9 +248,11 @@ export type Database = {
           email: string
           id: string
           name: string
+          next_retry_at: string | null
           notes: string | null
           phone: string
           retell_call_id: string | null
+          retry_count: number | null
           source: string | null
           state: string | null
           status: string | null
@@ -191,9 +268,11 @@ export type Database = {
           email: string
           id?: string
           name: string
+          next_retry_at?: string | null
           notes?: string | null
           phone: string
           retell_call_id?: string | null
+          retry_count?: number | null
           source?: string | null
           state?: string | null
           status?: string | null
@@ -209,9 +288,11 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+          next_retry_at?: string | null
           notes?: string | null
           phone?: string
           retell_call_id?: string | null
+          retry_count?: number | null
           source?: string | null
           state?: string | null
           status?: string | null
