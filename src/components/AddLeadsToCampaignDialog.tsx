@@ -205,7 +205,7 @@ export function AddLeadsToCampaignDialog({
                   >
                     <td className="px-3 py-2">
                       <Checkbox
-                        checked={selected.has(lead.id)}
+                        checked={sel.has(lead.id)}
                         onCheckedChange={() => toggleSelect(lead.id)}
                       />
                     </td>
