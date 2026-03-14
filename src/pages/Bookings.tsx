@@ -370,12 +370,52 @@ const Bookings = () => {
                   <p className="text-sm text-foreground">{selectedBooking.description}</p>
                 </div>
               )}
+
+              {/* Reschedule form */}
+              {rescheduling && (
+                <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+                  <label className="text-sm font-medium text-foreground">New Date & Time</label>
+                  <Input type="datetime-local" value={rescheduleDateTime} onChange={(e) => setRescheduleDateTime(e.target.value)} />
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => { setRescheduling(false); setRescheduleDateTime(""); }}>Cancel</Button>
+                    <Button size="sm" disabled={!rescheduleDateTime} onClick={async () => {
+                      if (!rescheduleDateTime || !selectedBooking) return;
+                      const selectedEvent = eventTypes.find((et) => et.id === selectedBooking.event_type_id);
+                      const newStart = new Date(rescheduleDateTime).toISOString();
+                      const newEnd = new Date(new Date(rescheduleDateTime).getTime() + (selectedEvent?.length || 30) * 60000).toISOString();
+                      const { error } = await supabase.from("bookings").update({ start_time: newStart, end_time: newEnd, updated_at: new Date().toISOString() }).eq("id", selectedBooking.id);
+                      if (error) { toast.error("Failed to reschedule"); return; }
+                      toast.success("Booking rescheduled!");
+                      setRescheduling(false); setRescheduleDateTime(""); setSelectedBooking(null); refetch();
+                    }}>Confirm Reschedule</Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Action buttons */}
+              {selectedBooking.status !== "cancelled" && !rescheduling && (
+                <div className="flex gap-2 pt-2 border-t">
+                  <Button variant="outline" size="sm" onClick={() => setRescheduling(true)}>
+                    <CalendarClock className="mr-1.5 h-3.5 w-3.5" /> Reschedule
+                  </Button>
+                  <Button variant="destructive" size="sm" disabled={cancellingBooking} onClick={async () => {
+                    if (!selectedBooking) return;
+                    setCancellingBooking(true);
+                    const { error } = await supabase.from("bookings").update({ status: "cancelled", updated_at: new Date().toISOString() }).eq("id", selectedBooking.id);
+                    setCancellingBooking(false);
+                    if (error) { toast.error("Failed to cancel booking"); return; }
+                    toast.success("Booking cancelled");
+                    setSelectedBooking(null); refetch();
+                  }}>
+                    {cancellingBooking ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <XCircle className="mr-1.5 h-3.5 w-3.5" />}
+                    Cancel Booking
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
       </Dialog>
-
-      {/* New Booking Dialog */}
       <Dialog open={showNewBooking} onOpenChange={setShowNewBooking}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
