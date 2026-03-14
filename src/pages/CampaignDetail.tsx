@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/StatusBadge";
-import { ArrowLeft, Phone, Clock, Loader2, RefreshCw } from "lucide-react";
+import { ArrowLeft, Phone, Clock, Loader2, RefreshCw, Timer, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface CallLog {
   id: string;
