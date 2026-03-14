@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
-import { Phone, PhoneOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-interface ActiveLead {
+type ActiveLead = {
   id: string;
   name: string;
   phone: string;
-  status: string | null;
-}
+};
 
-export const CampaignCallStatus = ({ campaignName, campaignStatus }: { campaignName: string; campaignStatus: string }) => {
+export const CampaignCallStatus = ({
+  campaignId,
+  campaignName,
+  campaignStatus,
+}: {
+  campaignId: string;
+  campaignName: string;
+  campaignStatus: string;
+}) => {
   const [activeLead, setActiveLead] = useState<ActiveLead | null>(null);
 
   const fetchActiveLead = async () => {
@@ -19,16 +25,21 @@ export const CampaignCallStatus = ({ campaignName, campaignStatus }: { campaignN
     }
 
     const { data } = await supabase
-      .from("leads")
-      .select("id, name, phone, status")
-      .eq("campaign", campaignName)
+      .from("campaign_leads")
+      .select("lead_id, leads!campaign_leads_lead_id_fkey(id, name, phone)")
+      .eq("campaign_id", campaignId)
       .eq("status", "Queued")
       .not("retell_call_id", "is", null)
       .order("updated_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    setActiveLead(data);
+    const leadData = data?.leads;
+    if (leadData && !Array.isArray(leadData)) {
+      setActiveLead({ id: leadData.id, name: leadData.name, phone: leadData.phone });
+    } else {
+      setActiveLead(null);
+    }
   };
 
   useEffect(() => {
@@ -37,14 +48,14 @@ export const CampaignCallStatus = ({ campaignName, campaignStatus }: { campaignN
     if (campaignStatus !== "Running") return;
 
     const channel = supabase
-      .channel(`campaign-calls-${campaignName}`)
+      .channel(`campaign-calls-${campaignId}`)
       .on(
         "postgres_changes",
         {
-          event: "UPDATE",
+          event: "*",
           schema: "public",
-          table: "leads",
-          filter: `campaign=eq.${campaignName}`,
+          table: "campaign_leads",
+          filter: `campaign_id=eq.${campaignId}`,
         },
         () => {
           fetchActiveLead();
@@ -55,17 +66,17 @@ export const CampaignCallStatus = ({ campaignName, campaignStatus }: { campaignN
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [campaignName, campaignStatus]);
+  }, [campaignId, campaignStatus]);
 
   if (campaignStatus !== "Running" || !activeLead) return null;
 
   return (
-    <div className="flex items-center gap-1.5 mt-1">
+    <div className="mt-1 flex items-center gap-1.5">
       <span className="relative flex h-2 w-2">
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
         <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
       </span>
-      <span className="text-xs text-muted-foreground truncate max-w-[140px]">
+      <span className="max-w-[140px] truncate text-xs text-muted-foreground">
         Calling {activeLead.name}
       </span>
     </div>
