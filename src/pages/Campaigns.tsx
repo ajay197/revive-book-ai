@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Plus, Play, Pause, Loader2, AlertTriangle, MoreHorizontal, UserPlus, Trash2 } from "lucide-react";
+import { CampaignCallStatus } from "@/components/CampaignCallStatus";
 import { CreateCampaignSheet } from "@/components/CreateCampaignSheet";
 import { AddLeadsToCampaignDialog } from "@/components/AddLeadsToCampaignDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -176,6 +177,7 @@ const Campaigns = () => {
                     <td className="px-5 py-3">
                       <p className="font-medium text-foreground">{c.name}</p>
                       <p className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</p>
+                      <CampaignCallStatus campaignName={c.name} campaignStatus={c.status} />
                     </td>
                     <td className="px-5 py-3 text-muted-foreground">{c.type}</td>
                     <td className="px-5 py-3 text-muted-foreground">{c.lead_count.toLocaleString()}</td>
