@@ -229,11 +229,11 @@ export function AddLeadsToCampaignDialog({
             </p>
             <Button
               onClick={handleAssign}
-              disabled={saving || selected.size === 0}
+              disabled={saving}
               className="bg-gradient-primary"
             >
               {saving && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
-              Add {selected.size > 0 ? `${selected.size} ` : ""}Lead{selected.size !== 1 ? "s" : ""}
+              Save Changes
             </Button>
           </div>
         </DialogFooter>
