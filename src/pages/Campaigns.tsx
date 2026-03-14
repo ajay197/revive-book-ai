@@ -64,6 +64,35 @@ const Campaigns = () => {
     const newStatus = campaign.status === "Running" ? "Paused" : "Running";
     await supabase.from("campaigns").update({ status: newStatus }).eq("id", campaign.id);
     fetchCampaigns();
+
+    // If activating campaign, persist Retell API key server-side and trigger first call
+    if (newStatus === "Running" && user) {
+      const apiKey = localStorage.getItem("retell_api_key");
+      if (apiKey) {
+        // Upsert API key to user_integrations for server-side use
+        await supabase.from("user_integrations" as any).upsert(
+          { user_id: user.id, provider: "retell", api_key: apiKey },
+          { onConflict: "user_id,provider" }
+        );
+      }
+
+      // Trigger the campaign caller
+      toast.info(`Starting calls for "${campaign.name}"...`);
+      const { data, error } = await supabase.functions.invoke("campaign-caller", {
+        body: { campaignId: campaign.id, userId: user.id },
+      });
+
+      if (error) {
+        toast.error("Failed to start calling: " + error.message);
+      } else if (data?.error) {
+        toast.error(data.error);
+      } else if (data?.success) {
+        toast.success(`Calling ${data.leadName} (${data.leadPhone})...`);
+      } else if (data?.completed) {
+        toast.info(data.message);
+      }
+      fetchCampaigns();
+    }
   };
 
   const handleDelete = async () => {
