@@ -9,11 +9,9 @@ type ActiveLead = {
 
 export const CampaignCallStatus = ({
   campaignId,
-  campaignName,
   campaignStatus,
 }: {
   campaignId: string;
-  campaignName: string;
   campaignStatus: string;
 }) => {
   const [activeLead, setActiveLead] = useState<ActiveLead | null>(null);
