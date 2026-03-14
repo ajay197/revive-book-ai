@@ -11,6 +11,26 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+interface BookingField {
+  name: string;
+  type: string;
+  label: string;
+  required: boolean;
+  placeholder: string;
+  options?: { label: string; value: string }[];
+  hidden: boolean;
+  editable: string;
+}
+
+interface EventType {
+  id: number;
+  title: string;
+  slug: string;
+  length: number;
+  description?: string;
+  bookingFields?: BookingField[];
+}
+
 interface Booking {
   id: string;
   calcom_booking_id: number | null;
