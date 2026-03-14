@@ -347,9 +347,19 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
                   <Input id="retry-delay" type="number" min="1" max="168" value={retryDelay} onChange={(e) => setRetryDelay(e.target.value)} />
                 </div>
               </div>
+              {campaignType === "Old Lead Reactivation" && (
+                <div className="space-y-2">
+                  <Label htmlFor="call-interval" className="text-sm font-medium">Next Call After (minutes)</Label>
+                  <Input id="call-interval" type="number" min="1" max="120" value={callInterval} onChange={(e) => setCallInterval(e.target.value)} />
+                  <p className="text-xs text-muted-foreground">
+                    Time to wait between each call. If a call is still ongoing when the timer expires, the next call starts immediately after it ends.
+                  </p>
+                </div>
+              )}
               <div className="rounded-lg bg-muted/50 px-4 py-3 text-xs text-muted-foreground">
                 <Clock className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" />
                 Calls run {windowStart} – {windowEnd} daily ({timezone.replace(/_/g, " ")}). Up to {maxRetries} retries with {retryDelay}h delay.
+                {campaignType === "Old Lead Reactivation" && ` Next call after ${callInterval} min.`}
               </div>
             </div>
           )}
