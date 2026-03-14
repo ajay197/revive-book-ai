@@ -181,10 +181,21 @@ const CampaignDetail = () => {
       </div>
 
       {/* Campaign settings summary */}
-      <div className="rounded-lg border bg-muted/30 px-4 py-3 text-xs text-muted-foreground space-y-1">
-        <div className="flex items-center gap-2">
-          <Clock className="h-3.5 w-3.5 shrink-0" />
-          <span>Calling window: {windowStart} – {windowEnd} ({tz})</span>
+      <div className="rounded-lg border bg-muted/30 px-4 py-3 text-xs text-muted-foreground space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Clock className="h-3.5 w-3.5 shrink-0" />
+            <span>Calling window: {windowStart} – {windowEnd} ({tz})</span>
+          </div>
+          <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium ${
+            windowStatus.inside
+              ? "bg-green-500/10 text-green-600 dark:text-green-400"
+              : "bg-orange-500/10 text-orange-600 dark:text-orange-400"
+          }`}>
+            <CircleDot className="h-3 w-3" />
+            {windowStatus.inside ? "Active now" : "Outside window"}
+            {windowStatus.localTime && <span className="opacity-70">({windowStatus.localTime} local)</span>}
+          </div>
         </div>
         {(campaign.max_retries || 0) > 0 && (
           <div className="flex items-center gap-2">
