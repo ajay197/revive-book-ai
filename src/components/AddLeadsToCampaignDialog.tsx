@@ -31,7 +31,7 @@ export function AddLeadsToCampaignDialog({
   onUpdated,
 }: AddLeadsToCampaignDialogProps) {
   const { user } = useAuth();
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<Set<string> | null>(null);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
 
