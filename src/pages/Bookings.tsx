@@ -523,7 +523,7 @@ const Bookings = () => {
                       status: "accepted",
                       attendee_name: newBooking.name,
                       attendee_email: newBooking.email,
-                      attendee_phone: newBooking.phone || null,
+                      attendee_phone: `${newBooking.countryCode}${newBooking.phone}`,
                     });
                     if (error) throw error;
                   }
