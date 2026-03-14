@@ -371,6 +371,89 @@ const Bookings = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* New Booking Dialog */}
+      <Dialog open={showNewBooking} onOpenChange={setShowNewBooking}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Book a New Meeting</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            {eventTypes.length > 0 && (
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-foreground">Event Type</label>
+                <Select value={newBooking.eventTypeId} onValueChange={(v) => setNewBooking({ ...newBooking, eventTypeId: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select event type" /></SelectTrigger>
+                  <SelectContent>
+                    {eventTypes.map((et) => (
+                      <SelectItem key={et.id} value={String(et.id)}>{et.title} ({et.length} min)</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Attendee Name</label>
+              <Input placeholder="John Doe" value={newBooking.name} onChange={(e) => setNewBooking({ ...newBooking, name: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Attendee Email</label>
+              <Input type="email" placeholder="john@example.com" value={newBooking.email} onChange={(e) => setNewBooking({ ...newBooking, email: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Phone (optional)</label>
+              <Input type="tel" placeholder="+1234567890" value={newBooking.phone} onChange={(e) => setNewBooking({ ...newBooking, phone: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Date & Time</label>
+              <Input type="datetime-local" id="booking-datetime" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNewBooking(false)}>Cancel</Button>
+            <Button
+              disabled={creatingBooking || !newBooking.name || !newBooking.email}
+              onClick={async () => {
+                setCreatingBooking(true);
+                try {
+                  const datetimeInput = (document.getElementById("booking-datetime") as HTMLInputElement)?.value;
+                  if (!datetimeInput) { toast.error("Please select a date and time"); setCreatingBooking(false); return; }
+                  
+                  const selectedEvent = eventTypes.find((et) => String(et.id) === newBooking.eventTypeId);
+                  const startTime = new Date(datetimeInput).toISOString();
+                  const endTime = new Date(new Date(datetimeInput).getTime() + (selectedEvent?.length || 30) * 60000).toISOString();
+
+                  const { error } = await supabase.from("bookings").insert({
+                    user_id: user!.id,
+                    title: selectedEvent ? `${selectedEvent.title} with ${newBooking.name}` : `Meeting with ${newBooking.name}`,
+                    start_time: startTime,
+                    end_time: endTime,
+                    status: "accepted",
+                    attendee_name: newBooking.name,
+                    attendee_email: newBooking.email,
+                    attendee_phone: newBooking.phone || null,
+                    event_type_name: selectedEvent?.title || null,
+                    event_type_id: selectedEvent?.id || null,
+                  });
+
+                  if (error) throw error;
+                  toast.success("Meeting booked successfully!");
+                  setShowNewBooking(false);
+                  setNewBooking({ name: "", email: "", phone: "", eventTypeId: "" });
+                  refetch();
+                } catch (err: any) {
+                  toast.error(err.message || "Failed to book meeting");
+                } finally {
+                  setCreatingBooking(false);
+                }
+              }}
+            >
+              {creatingBooking ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Book Meeting
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
