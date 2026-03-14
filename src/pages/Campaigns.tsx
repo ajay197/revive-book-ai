@@ -7,6 +7,7 @@ import { CreateCampaignSheet } from "@/components/CreateCampaignSheet";
 import { AddLeadsToCampaignDialog } from "@/components/AddLeadsToCampaignDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCredits } from "@/contexts/CreditsContext";
@@ -203,9 +204,16 @@ const Campaigns = () => {
                           </Button>
                         )}
                         {(c.status === "Draft" || c.status === "Paused" || c.status === "Completed") && (
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStatusToggle(c)}>
-                            <Play className="h-3.5 w-3.5 text-primary" />
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStatusToggle(c)}>
+                                <Play className="h-3.5 w-3.5 text-primary" />
+                              </Button>
+                            </TooltipTrigger>
+                            {c.status === "Completed" && (
+                              <TooltipContent>Resume calling new leads</TooltipContent>
+                            )}
+                          </Tooltip>
                         )}
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
