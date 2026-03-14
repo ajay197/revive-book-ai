@@ -481,7 +481,7 @@ const Bookings = () => {
           )}
         </DialogContent>
       </Dialog>
-      <Dialog open={showNewBooking} onOpenChange={(open) => { setShowNewBooking(open); if (!open) setCustomFieldValues({}); }}>
+      <Dialog open={showNewBooking} onOpenChange={(open) => { setShowNewBooking(open); if (!open) { setCustomFieldValues({}); setBookingDate(undefined); setBookingTimeSlot(""); setAvailableSlots({}); } }}>
         <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Book a New Meeting</DialogTitle>
