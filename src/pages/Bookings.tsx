@@ -448,21 +448,83 @@ const Bookings = () => {
 
               {/* Reschedule form */}
               {rescheduling && (
-                <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+                <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
                   <label className="text-sm font-medium text-foreground">New Date & Time</label>
-                  <Input type="datetime-local" value={rescheduleDateTime} onChange={(e) => setRescheduleDateTime(e.target.value)} />
+
+                  <div className="rounded-lg border bg-background p-1">
+                    <CalendarComponent
+                      mode="single"
+                      selected={rescheduleDate}
+                      onSelect={setRescheduleDate}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      className="p-2 pointer-events-auto"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">Time</label>
+                    <Input type="time" value={rescheduleTime} onChange={(e) => setRescheduleTime(e.target.value)} />
+                  </div>
+
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => { setRescheduling(false); setRescheduleDateTime(""); }}>Cancel</Button>
-                    <Button size="sm" disabled={!rescheduleDateTime} onClick={async () => {
-                      if (!rescheduleDateTime || !selectedBooking) return;
-                      const selectedEvent = eventTypes.find((et) => et.id === selectedBooking.event_type_id);
-                      const newStart = new Date(rescheduleDateTime).toISOString();
-                      const newEnd = new Date(new Date(rescheduleDateTime).getTime() + (selectedEvent?.length || 30) * 60000).toISOString();
-                      const { error } = await supabase.from("bookings").update({ start_time: newStart, end_time: newEnd, updated_at: new Date().toISOString() }).eq("id", selectedBooking.id);
-                      if (error) { toast.error("Failed to reschedule"); return; }
-                      toast.success("Booking rescheduled!");
-                      setRescheduling(false); setRescheduleDateTime(""); setSelectedBooking(null); refetch();
-                    }}>Confirm Reschedule</Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setRescheduling(false);
+                        setRescheduleDate(undefined);
+                        setRescheduleTime("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      disabled={!rescheduleDate || !rescheduleTime}
+                      onClick={async () => {
+                        if (!selectedBooking || !rescheduleDate || !rescheduleTime) return;
+
+                        const [hoursRaw, minutesRaw] = rescheduleTime.split(":");
+                        const hours = Number(hoursRaw);
+                        const minutes = Number(minutesRaw);
+
+                        if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+                          toast.error("Please choose a valid time");
+                          return;
+                        }
+
+                        const nextStart = new Date(rescheduleDate);
+                        nextStart.setHours(hours, minutes, 0, 0);
+
+                        if (Number.isNaN(nextStart.getTime())) {
+                          toast.error("Please choose a valid date and time");
+                          return;
+                        }
+
+                        const selectedEvent = eventTypes.find((et) => et.id === selectedBooking.event_type_id);
+                        const newStart = nextStart.toISOString();
+                        const newEnd = new Date(nextStart.getTime() + (selectedEvent?.length || 30) * 60000).toISOString();
+
+                        const { error } = await supabase
+                          .from("bookings")
+                          .update({ start_time: newStart, end_time: newEnd, updated_at: new Date().toISOString() })
+                          .eq("id", selectedBooking.id);
+
+                        if (error) {
+                          toast.error("Failed to reschedule");
+                          return;
+                        }
+
+                        toast.success("Booking rescheduled!");
+                        setRescheduling(false);
+                        setRescheduleDate(undefined);
+                        setRescheduleTime("");
+                        setSelectedBooking(null);
+                        refetch();
+                      }}
+                    >
+                      Confirm Reschedule
+                    </Button>
                   </div>
                 </div>
               )}
