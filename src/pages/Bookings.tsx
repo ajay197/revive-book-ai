@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Calendar, ChevronLeft, ChevronRight, RefreshCw, Loader2, ExternalLink, Clock, User, Mail, Phone, Video, Plus } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, RefreshCw, Loader2, ExternalLink, Clock, User, Mail, Phone, Video, Plus, XCircle, CalendarClock } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
