@@ -88,7 +88,27 @@ serve(async (req) => {
       });
     }
 
-    if (action === "sync_bookings") {
+    if (action === "fetch_slots") {
+      const { eventTypeId: slotEventTypeId, startTime: slotStart, endTime: slotEnd, timeZone: slotTz } = body;
+      if (!slotEventTypeId || !slotStart || !slotEnd) {
+        return new Response(JSON.stringify({ error: "Missing eventTypeId, startTime, or endTime" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const tz = slotTz || "America/New_York";
+      const slotsUrl = `${calcomBase}/slots?apiKey=${calcomApiKey}&eventTypeId=${slotEventTypeId}&startTime=${slotStart}&endTime=${slotEnd}&timeZone=${encodeURIComponent(tz)}`;
+      const res = await fetch(slotsUrl);
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Cal.com slots API error: ${res.status} ${errText}`);
+      }
+      const data = await res.json();
+      return new Response(JSON.stringify({ slots: data.slots || {} }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
       // Fetch bookings from Cal.com - must query each status separately
       const statuses = ["upcoming", "past", "cancelled"];
       let allBookings: any[] = [];
