@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
-import { ArrowLeft, Phone, Clock, Loader2, RefreshCw, Settings2 } from "lucide-react";
+import { ArrowLeft, Phone, Clock, Loader2, RefreshCw, Settings2, CircleDot } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { EditCampaignSettingsDialog } from "@/components/EditCampaignSettingsDialog";
