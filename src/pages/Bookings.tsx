@@ -532,7 +532,17 @@ const Bookings = () => {
               {/* Action buttons */}
               {selectedBooking.status !== "cancelled" && !rescheduling && (
                 <div className="flex gap-2 pt-2 border-t">
-                  <Button variant="outline" size="sm" onClick={() => setRescheduling(true)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (!selectedBooking) return;
+                      const currentStart = parseISO(selectedBooking.start_time);
+                      setRescheduleDate(isValid(currentStart) ? currentStart : new Date());
+                      setRescheduleTime(isValid(currentStart) ? format(currentStart, "HH:mm") : "09:00");
+                      setRescheduling(true);
+                    }}
+                  >
                     <CalendarClock className="mr-1.5 h-3.5 w-3.5" /> Reschedule
                   </Button>
                   <Button variant="destructive" size="sm" disabled={cancellingBooking} onClick={async () => {
