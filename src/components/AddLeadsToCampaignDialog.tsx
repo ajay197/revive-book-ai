@@ -36,8 +36,9 @@ export function AddLeadsToCampaignDialog({
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Fetch all leads
   const { data: leads = [], isLoading } = useQuery({
-    queryKey: ["leads-for-campaign", user?.id, campaign?.id],
+    queryKey: ["leads-for-campaign", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("leads")
@@ -47,6 +48,20 @@ export function AddLeadsToCampaignDialog({
       return data as Tables<"leads">[];
     },
     enabled: !!user && open,
+  });
+
+  // Fetch leads already assigned to this campaign via junction table
+  const { data: assignedLeadIds = new Set<string>() } = useQuery({
+    queryKey: ["campaign-leads-assigned", campaign?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("campaign_leads")
+        .select("lead_id")
+        .eq("campaign_id", campaign!.id);
+      if (error) throw error;
+      return new Set((data || []).map((r: any) => r.lead_id));
+    },
+    enabled: !!campaign?.id && open,
   });
 
   // Fetch leads that have been called in this campaign (locked from removal)
@@ -63,16 +78,9 @@ export function AddLeadsToCampaignDialog({
     enabled: !!campaign?.id && open,
   });
 
-  // Initialize selected with already-assigned leads
-  const assignedIds = new Set(
-    leads
-      .filter((l) => l.campaign === campaign?.name || l.campaign === campaign?.id)
-      .map((l) => l.id)
-  );
-
   // Lazy-init selected from assigned leads
   if (selected === null && leads.length > 0) {
-    setSelected(new Set(assignedIds));
+    setSelected(new Set(assignedLeadIds));
   }
 
   const sel = selected ?? new Set<string>();
@@ -91,7 +99,7 @@ export function AddLeadsToCampaignDialog({
   const isLocked = (id: string) => calledLeadIds.has(id);
 
   const toggleSelect = (id: string) => {
-    if (isLocked(id)) return; // prevent deselecting called leads
+    if (isLocked(id)) return;
     setSelected((prev) => {
       const next = new Set(prev ?? []);
       if (next.has(id)) next.delete(id);
@@ -101,13 +109,11 @@ export function AddLeadsToCampaignDialog({
   };
 
   const toggleAll = () => {
-    // When toggling all, keep locked leads always selected
     const unlocked = filtered.filter((l) => !isLocked(l.id));
     const allUnlockedSelected = unlocked.every((l) => sel.has(l.id));
     const lockedSelected = new Set(filtered.filter((l) => isLocked(l.id)).map((l) => l.id));
 
     if (allUnlockedSelected) {
-      // Deselect unlocked, keep locked
       setSelected(new Set(lockedSelected));
     } else {
       setSelected(new Set(filtered.map((l) => l.id)));
@@ -115,18 +121,21 @@ export function AddLeadsToCampaignDialog({
   };
 
   const handleAssign = async () => {
-    if (!campaign) return;
+    if (!campaign || !user) return;
     setSaving(true);
 
-    const toAssign = Array.from(sel).filter((id) => !assignedIds.has(id));
-    const toUnassign = Array.from(assignedIds).filter((id) => !sel.has(id) && !isLocked(id));
+    const toAssign = Array.from(sel).filter((id) => !assignedLeadIds.has(id));
+    const toUnassign = Array.from(assignedLeadIds).filter((id) => !sel.has(id) && !isLocked(id));
 
-    // Assign new leads
+    // Insert new campaign_leads rows
     if (toAssign.length > 0) {
-      const { error } = await supabase
-        .from("leads")
-        .update({ campaign: campaign.name })
-        .in("id", toAssign);
+      const rows = toAssign.map((leadId) => ({
+        campaign_id: campaign.id,
+        lead_id: leadId,
+        user_id: user.id,
+        status: "New",
+      }));
+      const { error } = await supabase.from("campaign_leads").insert(rows);
       if (error) {
         toast.error("Failed to assign leads");
         setSaving(false);
@@ -134,16 +143,14 @@ export function AddLeadsToCampaignDialog({
       }
     }
 
-    // Unassign removed leads (only unlocked ones)
+    // Remove unassigned leads from junction table (only unlocked ones)
     if (toUnassign.length > 0) {
-      const { error } = await supabase
-        .from("leads")
-        .update({ campaign: null })
-        .in("id", toUnassign);
-      if (error) {
-        toast.error("Failed to unassign leads");
-        setSaving(false);
-        return;
+      for (const leadId of toUnassign) {
+        await supabase
+          .from("campaign_leads")
+          .delete()
+          .eq("campaign_id", campaign.id)
+          .eq("lead_id", leadId);
       }
     }
 
@@ -165,8 +172,8 @@ export function AddLeadsToCampaignDialog({
 
   const handleClose = (val: boolean) => {
     if (!val) {
-    setSelected(null);
-    setSearch("");
+      setSelected(null);
+      setSearch("");
     }
     onOpenChange(val);
   };

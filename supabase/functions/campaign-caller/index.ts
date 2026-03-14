@@ -46,7 +46,7 @@ serve(async (req) => {
       });
     }
 
-    // Enforce calling window FIRST: only allow calls during window_start–window_end in campaign timezone
+    // Enforce calling window
     const campaignTimezone = campaign.timezone || "America/New_York";
     const windowStart = campaign.window_start || "09:00";
     const windowEnd = campaign.window_end || "17:00";
@@ -114,9 +114,8 @@ serve(async (req) => {
     const callIntervalMinutes = campaign.call_interval_minutes || 0;
     const now = new Date().toISOString();
 
-    // For reactivation campaigns with a call interval, check if enough time has passed
+    // For reactivation campaigns with a call interval, check timing
     if (callIntervalMinutes > 0) {
-      // Check if there's an ongoing call for this campaign
       const { data: ongoingCall } = await supabase
         .from("call_logs")
         .select("id, status")
@@ -135,7 +134,6 @@ serve(async (req) => {
         });
       }
 
-      // Check if the last completed call ended recently enough
       const { data: lastCall } = await supabase
         .from("call_logs")
         .select("ended_at")
@@ -164,30 +162,30 @@ serve(async (req) => {
       }
     }
 
-    // Find next lead: fresh leads first, then retry-eligible leads whose next_retry_at has passed
+    // Find next lead via campaign_leads junction table
+    let nextCampaignLead = null;
     let nextLead = null;
 
     // 1. Try fresh leads (New/Queued, no retell_call_id)
-    const { data: freshLead } = await supabase
-      .from("leads")
-      .select("*")
-      .eq("campaign", campaign.name)
-      .eq("user_id", userId)
+    const { data: freshCL } = await supabase
+      .from("campaign_leads")
+      .select("*, leads(*)")
+      .eq("campaign_id", campaignId)
       .in("status", ["New", "Queued"])
       .is("retell_call_id", null)
       .order("created_at", { ascending: true })
       .limit(1)
       .maybeSingle();
 
-    if (freshLead) {
-      nextLead = freshLead;
+    if (freshCL && freshCL.leads) {
+      nextCampaignLead = freshCL;
+      nextLead = freshCL.leads;
     } else if (maxRetries > 0) {
       // 2. Try retry-eligible leads
-      const { data: retryLead } = await supabase
-        .from("leads")
-        .select("*")
-        .eq("campaign", campaign.name)
-        .eq("user_id", userId)
+      const { data: retryCL } = await supabase
+        .from("campaign_leads")
+        .select("*, leads(*)")
+        .eq("campaign_id", campaignId)
         .in("status", ["No Answer", "Voicemail", "Unsuccessful"])
         .lt("retry_count", maxRetries)
         .lte("next_retry_at", now)
@@ -195,12 +193,13 @@ serve(async (req) => {
         .limit(1)
         .maybeSingle();
 
-      if (retryLead) {
-        nextLead = retryLead;
+      if (retryCL && retryCL.leads) {
+        nextCampaignLead = retryCL;
+        nextLead = retryCL.leads;
       }
     }
 
-    if (!nextLead) {
+    if (!nextCampaignLead || !nextLead) {
       await supabase.from("campaigns").update({ status: "Completed" }).eq("id", campaignId);
       return new Response(JSON.stringify({ message: "No more leads to call. Campaign completed.", completed: true }), {
         status: 200,
@@ -224,7 +223,7 @@ serve(async (req) => {
       });
     }
 
-    const attemptNumber = (nextLead.retry_count || 0) + 1;
+    const attemptNumber = (nextCampaignLead.retry_count || 0) + 1;
 
     // Create the outbound call via Retell AI
     const callRes = await fetch("https://api.retellai.com/v2/create-phone-call", {
@@ -247,6 +246,7 @@ serve(async (req) => {
         metadata: {
           lead_id: nextLead.id,
           campaign_id: campaign.id,
+          campaign_lead_id: nextCampaignLead.id,
           campaign_name: campaign.name,
           user_id: userId,
           attempt_number: attemptNumber,
@@ -257,9 +257,10 @@ serve(async (req) => {
     if (!callRes.ok) {
       const errText = await callRes.text();
       console.error("Retell create call error:", callRes.status, errText);
-      await supabase.from("leads").update({ status: "Unsuccessful" }).eq("id", nextLead.id);
 
-      // Log the failed attempt
+      // Update campaign_leads status
+      await supabase.from("campaign_leads").update({ status: "Unsuccessful" }).eq("id", nextCampaignLead.id);
+
       await supabase.from("call_logs").insert({
         user_id: userId,
         campaign_id: campaign.id,
@@ -282,11 +283,11 @@ serve(async (req) => {
     const callData = await callRes.json();
     const callId = callData.call_id;
 
-    // Update lead with call ID and status
-    await supabase.from("leads").update({
+    // Update campaign_leads with call ID and status
+    await supabase.from("campaign_leads").update({
       status: "Queued",
       retell_call_id: callId,
-    }).eq("id", nextLead.id);
+    }).eq("id", nextCampaignLead.id);
 
     // Create call log entry
     await supabase.from("call_logs").insert({

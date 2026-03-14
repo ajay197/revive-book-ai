@@ -89,6 +89,60 @@ export type Database = {
           },
         ]
       }
+      campaign_leads: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          id: string
+          lead_id: string
+          next_retry_at: string | null
+          retell_call_id: string | null
+          retry_count: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          next_retry_at?: string | null
+          retell_call_id?: string | null
+          retry_count?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          next_retry_at?: string | null
+          retell_call_id?: string | null
+          retry_count?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_leads_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_leads_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
           agent_id: string | null

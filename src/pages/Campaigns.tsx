@@ -104,8 +104,7 @@ const Campaigns = () => {
   const handleDelete = async () => {
     if (!deleteCampaign) return;
     setDeleting(true);
-    // Also unassign leads from this campaign
-    await supabase.from("leads").update({ campaign: null }).eq("campaign", deleteCampaign.name);
+    // campaign_leads are cascade-deleted automatically
     const { error } = await supabase.from("campaigns").delete().eq("id", deleteCampaign.id);
     if (error) {
       toast.error("Failed to delete campaign");
