@@ -74,6 +74,11 @@ const Bookings = () => {
   const [cancellingBooking, setCancellingBooking] = useState(false);
   const [rescheduling, setRescheduling] = useState(false);
   const [rescheduleDateTime, setRescheduleDateTime] = useState("");
+  const [bookingDate, setBookingDate] = useState<Date | undefined>(undefined);
+  const [bookingTimeSlot, setBookingTimeSlot] = useState("");
+  const [availableSlots, setAvailableSlots] = useState<Record<string, string[]>>({});
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   // Check if Cal.com is connected
   useEffect(() => {
