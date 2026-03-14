@@ -177,8 +177,8 @@ export function AddLeadsToCampaignDialog({
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-10 text-sm text-muted-foreground">
-              {availableLeads.length === 0
-                ? "All leads are already assigned to this campaign."
+              {leads.length === 0
+                ? "No leads found."
                 : "No leads match your search."}
             </div>
           ) : (
