@@ -13,6 +13,7 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
 import Campaigns from "./pages/Campaigns";
+import CampaignDetail from "./pages/CampaignDetail";
 import Agents from "./pages/Agents";
 import Scripts from "./pages/Scripts";
 import Analytics from "./pages/Analytics";
