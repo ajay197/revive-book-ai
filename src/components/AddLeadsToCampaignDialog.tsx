@@ -10,11 +10,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, UserPlus } from "lucide-react";
+import { Loader2, Search, UserPlus, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Tables } from "@/integrations/supabase/types";
 
 interface AddLeadsToCampaignDialogProps {
@@ -48,6 +49,20 @@ export function AddLeadsToCampaignDialog({
     enabled: !!user && open,
   });
 
+  // Fetch leads that have been called in this campaign (locked from removal)
+  const { data: calledLeadIds = new Set<string>() } = useQuery({
+    queryKey: ["called-leads", campaign?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("call_logs")
+        .select("lead_id")
+        .eq("campaign_id", campaign!.id);
+      if (error) throw error;
+      return new Set((data || []).map((r) => r.lead_id).filter(Boolean) as string[]);
+    },
+    enabled: !!campaign?.id && open,
+  });
+
   // Initialize selected with already-assigned leads
   const assignedIds = new Set(
     leads
@@ -73,7 +88,10 @@ export function AddLeadsToCampaignDialog({
     );
   });
 
+  const isLocked = (id: string) => calledLeadIds.has(id);
+
   const toggleSelect = (id: string) => {
+    if (isLocked(id)) return; // prevent deselecting called leads
     setSelected((prev) => {
       const next = new Set(prev ?? []);
       if (next.has(id)) next.delete(id);
@@ -83,8 +101,14 @@ export function AddLeadsToCampaignDialog({
   };
 
   const toggleAll = () => {
-    if (sel.size === filtered.length) {
-      setSelected(new Set());
+    // When toggling all, keep locked leads always selected
+    const unlocked = filtered.filter((l) => !isLocked(l.id));
+    const allUnlockedSelected = unlocked.every((l) => sel.has(l.id));
+    const lockedSelected = new Set(filtered.filter((l) => isLocked(l.id)).map((l) => l.id));
+
+    if (allUnlockedSelected) {
+      // Deselect unlocked, keep locked
+      setSelected(new Set(lockedSelected));
     } else {
       setSelected(new Set(filtered.map((l) => l.id)));
     }
@@ -95,7 +119,7 @@ export function AddLeadsToCampaignDialog({
     setSaving(true);
 
     const toAssign = Array.from(sel).filter((id) => !assignedIds.has(id));
-    const toUnassign = Array.from(assignedIds).filter((id) => !sel.has(id));
+    const toUnassign = Array.from(assignedIds).filter((id) => !sel.has(id) && !isLocked(id));
 
     // Assign new leads
     if (toAssign.length > 0) {
@@ -110,7 +134,7 @@ export function AddLeadsToCampaignDialog({
       }
     }
 
-    // Unassign removed leads
+    // Unassign removed leads (only unlocked ones)
     if (toUnassign.length > 0) {
       const { error } = await supabase
         .from("leads")
@@ -134,7 +158,7 @@ export function AddLeadsToCampaignDialog({
     const parts: string[] = [];
     if (added > 0) parts.push(`${added} added`);
     if (removed > 0) parts.push(`${removed} removed`);
-    toast.success(`Leads updated: ${parts.join(", ")}`);
+    toast.success(`Leads updated: ${parts.join(", ") || "no changes"}`);
     onOpenChange(false);
     onUpdated?.();
   };
@@ -147,6 +171,8 @@ export function AddLeadsToCampaignDialog({
     onOpenChange(val);
   };
 
+  const lockedCount = Array.from(sel).filter((id) => isLocked(id)).length;
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg max-h-[80vh] flex flex-col">
@@ -156,7 +182,7 @@ export function AddLeadsToCampaignDialog({
             Add Leads to {campaign?.name}
           </DialogTitle>
           <DialogDescription>
-            Select leads to assign to this campaign.
+            Select leads to assign to this campaign. Leads with completed calls cannot be removed.
           </DialogDescription>
         </DialogHeader>
 
@@ -197,26 +223,41 @@ export function AddLeadsToCampaignDialog({
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((lead) => (
-                  <tr
-                    key={lead.id}
-                    className="border-b last:border-0 hover:bg-muted/30 cursor-pointer"
-                    onClick={() => toggleSelect(lead.id)}
-                  >
-                    <td className="px-3 py-2">
-                      <Checkbox
-                        checked={sel.has(lead.id)}
-                        onCheckedChange={() => toggleSelect(lead.id)}
-                      />
-                    </td>
-                    <td className="px-3 py-2">
-                      <p className="font-medium text-foreground">{lead.name}</p>
-                      <p className="text-xs text-muted-foreground">{lead.email}</p>
-                    </td>
-                    <td className="px-3 py-2 text-muted-foreground">{lead.phone}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{lead.company || "—"}</td>
-                  </tr>
-                ))}
+                {filtered.map((lead) => {
+                  const locked = isLocked(lead.id);
+                  return (
+                    <tr
+                      key={lead.id}
+                      className={`border-b last:border-0 hover:bg-muted/30 ${locked ? "opacity-80 cursor-not-allowed" : "cursor-pointer"}`}
+                      onClick={() => toggleSelect(lead.id)}
+                    >
+                      <td className="px-3 py-2">
+                        {locked ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center">
+                                <Checkbox checked disabled className="opacity-60" />
+                                <Lock className="ml-1 h-3 w-3 text-muted-foreground" />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>Call already made — cannot remove</TooltipContent>
+                          </Tooltip>
+                        ) : (
+                          <Checkbox
+                            checked={sel.has(lead.id)}
+                            onCheckedChange={() => toggleSelect(lead.id)}
+                          />
+                        )}
+                      </td>
+                      <td className="px-3 py-2">
+                        <p className="font-medium text-foreground">{lead.name}</p>
+                        <p className="text-xs text-muted-foreground">{lead.email}</p>
+                      </td>
+                      <td className="px-3 py-2 text-muted-foreground">{lead.phone}</td>
+                      <td className="px-3 py-2 text-muted-foreground">{lead.company || "—"}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
@@ -226,6 +267,9 @@ export function AddLeadsToCampaignDialog({
           <div className="flex items-center justify-between w-full">
             <p className="text-sm text-muted-foreground">
               {sel.size} lead{sel.size !== 1 ? "s" : ""} selected
+              {lockedCount > 0 && (
+                <span className="ml-1 text-xs">({lockedCount} locked)</span>
+              )}
             </p>
             <Button
               onClick={handleAssign}
