@@ -69,7 +69,6 @@ serve(async (req) => {
       .single();
 
     if (!credits || credits.balance_credits <= 5) {
-      // Pause campaign due to insufficient credits
       await supabase.from("campaigns").update({ status: "Paused" }).eq("id", campaignId);
       return new Response(JSON.stringify({ error: "Insufficient credits. Campaign paused." }), {
         status: 402,
@@ -77,8 +76,14 @@ serve(async (req) => {
       });
     }
 
-    // Find next lead to call: assigned to this campaign with status 'New' or 'Queued'
-    const { data: nextLead, error: leadError } = await supabase
+    const maxRetries = campaign.max_retries || 0;
+    const now = new Date().toISOString();
+
+    // Find next lead: fresh leads first, then retry-eligible leads whose next_retry_at has passed
+    let nextLead = null;
+
+    // 1. Try fresh leads (New/Queued, no retell_call_id)
+    const { data: freshLead } = await supabase
       .from("leads")
       .select("*")
       .eq("campaign", campaign.name)
@@ -87,10 +92,30 @@ serve(async (req) => {
       .is("retell_call_id", null)
       .order("created_at", { ascending: true })
       .limit(1)
-      .single();
+      .maybeSingle();
 
-    if (leadError || !nextLead) {
-      // No more leads to call — mark campaign as Completed
+    if (freshLead) {
+      nextLead = freshLead;
+    } else if (maxRetries > 0) {
+      // 2. Try retry-eligible leads
+      const { data: retryLead } = await supabase
+        .from("leads")
+        .select("*")
+        .eq("campaign", campaign.name)
+        .eq("user_id", userId)
+        .in("status", ["No Answer", "Voicemail", "Unsuccessful"])
+        .lt("retry_count", maxRetries)
+        .lte("next_retry_at", now)
+        .order("next_retry_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (retryLead) {
+        nextLead = retryLead;
+      }
+    }
+
+    if (!nextLead) {
       await supabase.from("campaigns").update({ status: "Completed" }).eq("id", campaignId);
       return new Response(JSON.stringify({ message: "No more leads to call. Campaign completed.", completed: true }), {
         status: 200,
@@ -113,6 +138,8 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const attemptNumber = (nextLead.retry_count || 0) + 1;
 
     // Create the outbound call via Retell AI
     const callRes = await fetch("https://api.retellai.com/v2/create-phone-call", {
@@ -137,6 +164,7 @@ serve(async (req) => {
           campaign_id: campaign.id,
           campaign_name: campaign.name,
           user_id: userId,
+          attempt_number: attemptNumber,
         },
       }),
     });
@@ -144,9 +172,21 @@ serve(async (req) => {
     if (!callRes.ok) {
       const errText = await callRes.text();
       console.error("Retell create call error:", callRes.status, errText);
-
-      // Mark lead as failed so we can try next one
       await supabase.from("leads").update({ status: "Unsuccessful" }).eq("id", nextLead.id);
+
+      // Log the failed attempt
+      await supabase.from("call_logs").insert({
+        user_id: userId,
+        campaign_id: campaign.id,
+        lead_id: nextLead.id,
+        lead_name: nextLead.name,
+        lead_phone: nextLead.phone,
+        status: "Failed",
+        attempt_number: attemptNumber,
+        disconnection_reason: `API error: ${callRes.status}`,
+        started_at: now,
+        ended_at: now,
+      });
 
       return new Response(JSON.stringify({ error: `Failed to create call: ${errText}` }), {
         status: 500,
@@ -163,6 +203,19 @@ serve(async (req) => {
       retell_call_id: callId,
     }).eq("id", nextLead.id);
 
+    // Create call log entry
+    await supabase.from("call_logs").insert({
+      user_id: userId,
+      campaign_id: campaign.id,
+      lead_id: nextLead.id,
+      retell_call_id: callId,
+      lead_name: nextLead.name,
+      lead_phone: nextLead.phone,
+      status: "Queued",
+      attempt_number: attemptNumber,
+      started_at: now,
+    });
+
     // Increment calls_completed on campaign
     await supabase.from("campaigns").update({
       calls_completed: (campaign.calls_completed || 0) + 1,
@@ -174,6 +227,7 @@ serve(async (req) => {
       leadId: nextLead.id,
       leadName: nextLead.name,
       leadPhone: nextLead.phone,
+      attemptNumber,
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
