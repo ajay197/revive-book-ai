@@ -161,9 +161,12 @@ serve(async (req) => {
         });
       }
 
+      const phone = attendeePhone || "";
       const responses: Record<string, any> = {
         name: attendeeName,
         email: attendeeEmail,
+        attendeePhoneNumber: phone,
+        smsReminderNumber: phone,
       };
       if (attendeePhone) responses.phone = attendeePhone;
 
