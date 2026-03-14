@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Phone, Database, Webhook, Facebook, Zap, Wrench, CheckCircle, Clock } from "lucide-react";
+import { Phone, Database, Webhook, Facebook, Zap, Wrench, CheckCircle, Clock, Calendar } from "lucide-react";
 import { RetellConnectDialog } from "@/components/RetellConnectDialog";
+import { CalComConnectDialog } from "@/components/CalComConnectDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Integrations = () => {
   const [retellDialogOpen, setRetellDialogOpen] = useState(false);
