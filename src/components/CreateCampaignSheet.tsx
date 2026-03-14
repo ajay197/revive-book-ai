@@ -65,6 +65,7 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
   const [timezone, setTimezone] = useState("America/New_York");
   const [maxRetries, setMaxRetries] = useState("3");
   const [retryDelay, setRetryDelay] = useState("24");
+  const [callInterval, setCallInterval] = useState("5");
   const [saving, setSaving] = useState(false);
   const { user } = useAuth();
 
