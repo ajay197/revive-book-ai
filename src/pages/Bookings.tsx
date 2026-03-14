@@ -530,7 +530,7 @@ const Bookings = () => {
 
                   toast.success("Meeting booked successfully!");
                   setShowNewBooking(false);
-                  setNewBooking({ name: "", email: "", phone: "", eventTypeId: "" });
+                  setNewBooking({ name: "", email: "", phone: "", countryCode: "+1", eventTypeId: "" });
                   refetch();
                 } catch (err: any) {
                   toast.error(err.message || "Failed to book meeting");
