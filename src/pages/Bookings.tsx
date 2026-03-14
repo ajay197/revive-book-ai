@@ -438,8 +438,8 @@ const Bookings = () => {
           )}
         </DialogContent>
       </Dialog>
-      <Dialog open={showNewBooking} onOpenChange={setShowNewBooking}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={showNewBooking} onOpenChange={(open) => { setShowNewBooking(open); if (!open) setCustomFieldValues({}); }}>
+        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Book a New Meeting</DialogTitle>
           </DialogHeader>
@@ -447,7 +447,7 @@ const Bookings = () => {
             {eventTypes.length > 0 && (
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-foreground">Event Type</label>
-                <Select value={newBooking.eventTypeId} onValueChange={(v) => setNewBooking({ ...newBooking, eventTypeId: v })}>
+                <Select value={newBooking.eventTypeId} onValueChange={(v) => { setNewBooking({ ...newBooking, eventTypeId: v }); setCustomFieldValues({}); }}>
                   <SelectTrigger><SelectValue placeholder="Select event type" /></SelectTrigger>
                   <SelectContent>
                     {eventTypes.map((et) => (
@@ -457,50 +457,130 @@ const Bookings = () => {
                 </Select>
               </div>
             )}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground">Attendee Name</label>
-              <Input placeholder="John Doe" value={newBooking.name} onChange={(e) => setNewBooking({ ...newBooking, name: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground">Attendee Email</label>
-              <Input type="email" placeholder="john@example.com" value={newBooking.email} onChange={(e) => setNewBooking({ ...newBooking, email: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground">Phone number <span className="text-destructive">*</span></label>
-              <div className="flex gap-2">
-                <Select value={newBooking.countryCode} onValueChange={(v) => setNewBooking({ ...newBooking, countryCode: v })}>
-                  <SelectTrigger className="w-[100px] shrink-0">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[
-                      { code: "+1", label: "🇺🇸 +1" },
-                      { code: "+44", label: "🇬🇧 +44" },
-                      { code: "+91", label: "🇮🇳 +91" },
-                      { code: "+61", label: "🇦🇺 +61" },
-                      { code: "+49", label: "🇩🇪 +49" },
-                      { code: "+33", label: "🇫🇷 +33" },
-                      { code: "+81", label: "🇯🇵 +81" },
-                      { code: "+86", label: "🇨🇳 +86" },
-                      { code: "+55", label: "🇧🇷 +55" },
-                      { code: "+971", label: "🇦🇪 +971" },
-                      { code: "+966", label: "🇸🇦 +966" },
-                      { code: "+234", label: "🇳🇬 +234" },
-                      { code: "+27", label: "🇿🇦 +27" },
-                      { code: "+52", label: "🇲🇽 +52" },
-                      { code: "+65", label: "🇸🇬 +65" },
-                    ].map((c) => (
-                      <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input type="tel" placeholder="1234567890" value={newBooking.phone} onChange={(e) => setNewBooking({ ...newBooking, phone: e.target.value.replace(/\D/g, "") })} />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground">Date & Time</label>
-              <Input type="datetime-local" id="booking-datetime" />
-            </div>
+
+            {/* Dynamic booking fields from Cal.com event type */}
+            {(() => {
+              const selectedEvent = eventTypes.find((et) => String(et.id) === newBooking.eventTypeId);
+              const fields = selectedEvent?.bookingFields || [];
+              // Filter out system fields we handle separately and hidden fields
+              const customFields = fields.filter(
+                (f) => !["name", "email", "attendeePhoneNumber", "smsReminderNumber", "rescheduleReason"].includes(f.name) && !f.hidden && f.editable !== "system"
+              );
+
+              return (
+                <>
+                  {/* Always show core fields */}
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-foreground">Attendee Name <span className="text-destructive">*</span></label>
+                    <Input placeholder="John Doe" value={newBooking.name} onChange={(e) => setNewBooking({ ...newBooking, name: e.target.value })} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-foreground">Attendee Email <span className="text-destructive">*</span></label>
+                    <Input type="email" placeholder="john@example.com" value={newBooking.email} onChange={(e) => setNewBooking({ ...newBooking, email: e.target.value })} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-foreground">Phone number <span className="text-destructive">*</span></label>
+                    <div className="flex gap-2">
+                      <Select value={newBooking.countryCode} onValueChange={(v) => setNewBooking({ ...newBooking, countryCode: v })}>
+                        <SelectTrigger className="w-[100px] shrink-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[
+                            { code: "+1", label: "🇺🇸 +1" },
+                            { code: "+44", label: "🇬🇧 +44" },
+                            { code: "+91", label: "🇮🇳 +91" },
+                            { code: "+61", label: "🇦🇺 +61" },
+                            { code: "+49", label: "🇩🇪 +49" },
+                            { code: "+33", label: "🇫🇷 +33" },
+                            { code: "+81", label: "🇯🇵 +81" },
+                            { code: "+86", label: "🇨🇳 +86" },
+                            { code: "+55", label: "🇧🇷 +55" },
+                            { code: "+971", label: "🇦🇪 +971" },
+                            { code: "+966", label: "🇸🇦 +966" },
+                            { code: "+234", label: "🇳🇬 +234" },
+                            { code: "+27", label: "🇿🇦 +27" },
+                            { code: "+52", label: "🇲🇽 +52" },
+                            { code: "+65", label: "🇸🇬 +65" },
+                          ].map((c) => (
+                            <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input type="tel" placeholder="1234567890" value={newBooking.phone} onChange={(e) => setNewBooking({ ...newBooking, phone: e.target.value.replace(/\D/g, "") })} />
+                    </div>
+                  </div>
+
+                  {/* Render custom booking fields */}
+                  {customFields.length > 0 && (
+                    <div className="border-t pt-3 space-y-3">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Additional Information</p>
+                      {customFields.map((field) => (
+                        <div key={field.name} className="space-y-1.5">
+                          <label className="text-sm font-medium text-foreground">
+                            {field.label}
+                            {field.required && <span className="text-destructive"> *</span>}
+                          </label>
+                          {field.type === "select" || field.type === "radio" ? (
+                            <Select value={customFieldValues[field.name] || ""} onValueChange={(v) => setCustomFieldValues({ ...customFieldValues, [field.name]: v })}>
+                              <SelectTrigger><SelectValue placeholder={field.placeholder || `Select ${field.label}`} /></SelectTrigger>
+                              <SelectContent>
+                                {(field.options || []).map((opt) => (
+                                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : field.type === "textarea" || field.type === "multiline" ? (
+                            <textarea
+                              className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                              placeholder={field.placeholder || ""}
+                              value={customFieldValues[field.name] || ""}
+                              onChange={(e) => setCustomFieldValues({ ...customFieldValues, [field.name]: e.target.value })}
+                            />
+                          ) : field.type === "boolean" || field.type === "checkbox" ? (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={customFieldValues[field.name] === "true"}
+                                onChange={(e) => setCustomFieldValues({ ...customFieldValues, [field.name]: String(e.target.checked) })}
+                                className="h-4 w-4 rounded border-border"
+                              />
+                              <span className="text-sm text-muted-foreground">{field.placeholder || field.label}</span>
+                            </div>
+                          ) : field.type === "number" ? (
+                            <Input
+                              type="number"
+                              placeholder={field.placeholder || ""}
+                              value={customFieldValues[field.name] || ""}
+                              onChange={(e) => setCustomFieldValues({ ...customFieldValues, [field.name]: e.target.value })}
+                            />
+                          ) : field.type === "phone" ? (
+                            <Input
+                              type="tel"
+                              placeholder={field.placeholder || "+1234567890"}
+                              value={customFieldValues[field.name] || ""}
+                              onChange={(e) => setCustomFieldValues({ ...customFieldValues, [field.name]: e.target.value })}
+                            />
+                          ) : (
+                            <Input
+                              type={field.type === "email" ? "email" : "text"}
+                              placeholder={field.placeholder || ""}
+                              value={customFieldValues[field.name] || ""}
+                              onChange={(e) => setCustomFieldValues({ ...customFieldValues, [field.name]: e.target.value })}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-foreground">Date & Time <span className="text-destructive">*</span></label>
+                    <Input type="datetime-local" id="booking-datetime" />
+                  </div>
+                </>
+              );
+            })()}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewBooking(false)}>Cancel</Button>
@@ -514,9 +594,23 @@ const Bookings = () => {
                   
                   const selectedEvent = eventTypes.find((et) => String(et.id) === newBooking.eventTypeId);
                   const startTime = new Date(datetimeInput).toISOString();
+                  const fullPhone = `${newBooking.countryCode}${newBooking.phone}`;
+
+                  // Validate required custom fields
+                  if (selectedEvent?.bookingFields) {
+                    const customFields = selectedEvent.bookingFields.filter(
+                      (f) => !["name", "email", "attendeePhoneNumber", "smsReminderNumber", "rescheduleReason"].includes(f.name) && !f.hidden && f.editable !== "system"
+                    );
+                    for (const field of customFields) {
+                      if (field.required && !customFieldValues[field.name]?.trim()) {
+                        toast.error(`Please fill in "${field.label}"`);
+                        setCreatingBooking(false);
+                        return;
+                      }
+                    }
+                  }
 
                   if (selectedEvent) {
-                    // Create booking on Cal.com via edge function
                     const { data, error } = await supabase.functions.invoke("calcom-sync", {
                       body: {
                         action: "create_booking",
@@ -524,17 +618,16 @@ const Bookings = () => {
                         startTime,
                         attendeeName: newBooking.name,
                         attendeeEmail: newBooking.email,
-                        attendeePhone: `${newBooking.countryCode}${newBooking.phone}`,
+                        attendeePhone: fullPhone,
                         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        customResponses: customFieldValues,
                       },
                     });
                     if (error) throw error;
                     if (data?.error) throw new Error(data.error);
 
-                    // Sync bookings after creating to pull the new one
                     await supabase.functions.invoke("calcom-sync", { body: { action: "sync_bookings" } });
                   } else {
-                    // No event type selected - create local-only booking
                     const endTime = new Date(new Date(datetimeInput).getTime() + 30 * 60000).toISOString();
                     const { error } = await supabase.from("bookings").insert({
                       user_id: user!.id,
@@ -544,7 +637,7 @@ const Bookings = () => {
                       status: "accepted",
                       attendee_name: newBooking.name,
                       attendee_email: newBooking.email,
-                      attendee_phone: `${newBooking.countryCode}${newBooking.phone}`,
+                      attendee_phone: fullPhone,
                     });
                     if (error) throw error;
                   }
@@ -552,6 +645,7 @@ const Bookings = () => {
                   toast.success("Meeting booked successfully!");
                   setShowNewBooking(false);
                   setNewBooking({ name: "", email: "", phone: "", countryCode: "+1", eventTypeId: "" });
+                  setCustomFieldValues({});
                   refetch();
                 } catch (err: any) {
                   toast.error(err.message || "Failed to book meeting");
