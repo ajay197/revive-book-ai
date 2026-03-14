@@ -44,7 +44,7 @@ const Bookings = () => {
   const [syncing, setSyncing] = useState(false);
   const [calcomConnected, setCalcomConnected] = useState(false);
   const [showNewBooking, setShowNewBooking] = useState(false);
-  const [newBooking, setNewBooking] = useState({ name: "", email: "", phone: "", eventTypeId: "" });
+  const [newBooking, setNewBooking] = useState({ name: "", email: "", phone: "", countryCode: "+1", eventTypeId: "" });
   const [eventTypes, setEventTypes] = useState<{ id: number; title: string; slug: string; length: number }[]>([]);
   const [creatingBooking, setCreatingBooking] = useState(false);
   const [cancellingBooking, setCancellingBooking] = useState(false);
