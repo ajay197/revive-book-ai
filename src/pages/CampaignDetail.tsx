@@ -118,8 +118,29 @@ const CampaignDetail = () => {
 
   const windowStart = campaign.window_start || "09:00";
   const windowEnd = campaign.window_end || "17:00";
-  const tz = (campaign.timezone || "America/New_York").replace(/_/g, " ");
+  const campaignTz = campaign.timezone || "America/New_York";
+  const tz = campaignTz.replace(/_/g, " ");
   const isReactivation = campaign.type === "Old Lead Reactivation";
+
+  // Compute whether we're inside the calling window right now
+  const getWindowStatus = () => {
+    try {
+      const nowInTz = new Date().toLocaleString("en-US", { timeZone: campaignTz });
+      const localDate = new Date(nowInTz);
+      const currentMinutes = localDate.getHours() * 60 + localDate.getMinutes();
+      const [startH, startM] = windowStart.split(":").map(Number);
+      const [endH, endM] = windowEnd.split(":").map(Number);
+      const startMin = startH * 60 + startM;
+      const endMin = endH * 60 + endM;
+      const inside = currentMinutes >= startMin && currentMinutes < endMin;
+      const localTime = `${String(localDate.getHours()).padStart(2, "0")}:${String(localDate.getMinutes()).padStart(2, "0")}`;
+      return { inside, localTime };
+    } catch {
+      return { inside: true, localTime: "" };
+    }
+  };
+
+  const windowStatus = getWindowStatus();
 
   return (
     <div className="space-y-6">
