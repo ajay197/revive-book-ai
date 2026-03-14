@@ -503,7 +503,7 @@ const Bookings = () => {
                         startTime,
                         attendeeName: newBooking.name,
                         attendeeEmail: newBooking.email,
-                        attendeePhone: newBooking.phone || undefined,
+                        attendeePhone: `${newBooking.countryCode}${newBooking.phone}`,
                         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                       },
                     });
