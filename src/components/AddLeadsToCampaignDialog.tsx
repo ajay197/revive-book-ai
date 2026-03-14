@@ -187,7 +187,7 @@ export function AddLeadsToCampaignDialog({
                 <tr className="border-b">
                   <th className="px-3 py-2 text-left w-10">
                     <Checkbox
-                      checked={selected.size === filtered.length && filtered.length > 0}
+                      checked={sel.size === filtered.length && filtered.length > 0}
                       onCheckedChange={toggleAll}
                     />
                   </th>
