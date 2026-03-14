@@ -1,0 +1,213 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, serviceKey);
+
+    // Get user from auth header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const body = await req.json();
+    const { action, apiKey: providedApiKey, eventTypeId } = body;
+
+    // Get or use provided API key
+    let calcomApiKey = providedApiKey;
+    if (!calcomApiKey) {
+      const { data: integration } = await supabase
+        .from("user_integrations")
+        .select("api_key")
+        .eq("user_id", user.id)
+        .eq("provider", "calcom")
+        .single();
+      calcomApiKey = integration?.api_key;
+    }
+
+    if (!calcomApiKey) {
+      return new Response(JSON.stringify({ error: "Cal.com API key not configured" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const calcomBase = "https://api.cal.com/v1";
+
+    if (action === "fetch_event_types") {
+      const res = await fetch(`${calcomBase}/event-types?apiKey=${calcomApiKey}`);
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Cal.com API error: ${res.status} ${errText}`);
+      }
+      const data = await res.json();
+      const eventTypes = (data.event_types || []).map((et: any) => ({
+        id: et.id,
+        title: et.title,
+        slug: et.slug,
+        length: et.length,
+        description: et.description,
+      }));
+      return new Response(JSON.stringify({ event_types: eventTypes }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "sync_bookings") {
+      // Fetch bookings from Cal.com
+      let url = `${calcomBase}/bookings?apiKey=${calcomApiKey}&status=upcoming,past,cancelled`;
+      if (eventTypeId) {
+        url += `&eventTypeId=${eventTypeId}`;
+      }
+
+      const res = await fetch(url);
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Cal.com API error: ${res.status} ${errText}`);
+      }
+      const data = await res.json();
+      const bookings = data.bookings || [];
+
+      let synced = 0;
+      for (const booking of bookings) {
+        const attendee = booking.attendees?.[0];
+        const bookingData = {
+          user_id: user.id,
+          calcom_booking_id: booking.id,
+          title: booking.title || "Booking",
+          description: booking.description || null,
+          start_time: booking.startTime,
+          end_time: booking.endTime,
+          status: booking.status || "accepted",
+          attendee_name: attendee?.name || null,
+          attendee_email: attendee?.email || null,
+          attendee_phone: attendee?.phone || booking.metadata?.phone || null,
+          event_type_name: booking.eventType?.title || null,
+          event_type_id: booking.eventType?.id || null,
+          meeting_url: booking.metadata?.videoCallUrl || booking.location || null,
+          location: booking.location || null,
+          metadata: {
+            responses: booking.responses || {},
+            source: booking.source || null,
+            uid: booking.uid,
+          },
+          updated_at: new Date().toISOString(),
+        };
+
+        const { error: upsertError } = await supabase
+          .from("bookings")
+          .upsert(bookingData, {
+            onConflict: "calcom_booking_id,user_id",
+          });
+
+        if (!upsertError) synced++;
+      }
+
+      // Save API key if provided for the first time
+      if (providedApiKey) {
+        await supabase.from("user_integrations").upsert(
+          {
+            user_id: user.id,
+            provider: "calcom",
+            api_key: providedApiKey,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id,provider" }
+        );
+      }
+
+      return new Response(JSON.stringify({ synced, total: bookings.length }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "connect") {
+      // Verify API key by fetching event types
+      const res = await fetch(`${calcomBase}/event-types?apiKey=${calcomApiKey}`);
+      if (!res.ok) {
+        throw new Error("Invalid Cal.com API key");
+      }
+      const data = await res.json();
+
+      // Save API key
+      // Need unique constraint on user_id + provider for upsert
+      const { data: existing } = await supabase
+        .from("user_integrations")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("provider", "calcom")
+        .single();
+
+      if (existing) {
+        await supabase.from("user_integrations").update({
+          api_key: calcomApiKey,
+          updated_at: new Date().toISOString(),
+        }).eq("id", existing.id);
+      } else {
+        await supabase.from("user_integrations").insert({
+          user_id: user.id,
+          provider: "calcom",
+          api_key: calcomApiKey,
+        });
+      }
+
+      const eventTypes = (data.event_types || []).map((et: any) => ({
+        id: et.id,
+        title: et.title,
+        slug: et.slug,
+        length: et.length,
+      }));
+
+      return new Response(JSON.stringify({ connected: true, event_types: eventTypes }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "disconnect") {
+      await supabase.from("user_integrations")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("provider", "calcom");
+
+      return new Response(JSON.stringify({ disconnected: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ error: "Unknown action" }), {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("calcom-sync error:", error);
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});

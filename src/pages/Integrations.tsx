@@ -1,13 +1,20 @@
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Phone, Database, Webhook, Facebook, Zap, Wrench, CheckCircle, Clock } from "lucide-react";
+import { Phone, Database, Webhook, Facebook, Zap, Wrench, CheckCircle, Clock, Calendar } from "lucide-react";
 import { RetellConnectDialog } from "@/components/RetellConnectDialog";
+import { CalComConnectDialog } from "@/components/CalComConnectDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Integrations = () => {
+  const { user } = useAuth();
   const [retellDialogOpen, setRetellDialogOpen] = useState(false);
   const [retellConnected, setRetellConnected] = useState(false);
   const [retellAgentName, setRetellAgentName] = useState("");
+  const [calcomDialogOpen, setCalcomDialogOpen] = useState(false);
+  const [calcomConnected, setCalcomConnected] = useState(false);
 
   useEffect(() => {
     const connected = localStorage.getItem("retell_connected") === "true";
@@ -15,7 +22,18 @@ const Integrations = () => {
     const agentCount = storedAgents ? JSON.parse(storedAgents).length : 0;
     setRetellConnected(connected);
     setRetellAgentName(connected ? `${agentCount} agent(s)` : "");
-  }, []);
+
+    // Check Cal.com connection
+    if (user) {
+      supabase
+        .from("user_integrations")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("provider", "calcom")
+        .single()
+        .then(({ data }) => setCalcomConnected(!!data));
+    }
+  }, [user]);
 
   const handleRetellConnected = (_apiKey: string, agents: { agent_id: string; agent_name: string }[]) => {
     setRetellConnected(true);
@@ -28,6 +46,22 @@ const Integrations = () => {
     localStorage.removeItem("retell_agents");
     setRetellConnected(false);
     setRetellAgentName("");
+  };
+
+  const handleCalcomConnected = () => {
+    setCalcomConnected(true);
+  };
+
+  const handleDisconnectCalcom = async () => {
+    try {
+      await supabase.functions.invoke("calcom-sync", {
+        body: { action: "disconnect" },
+      });
+      setCalcomConnected(false);
+      toast.success("Cal.com disconnected");
+    } catch {
+      toast.error("Failed to disconnect Cal.com");
+    }
   };
 
   const integrations = [
@@ -56,6 +90,16 @@ const Integrations = () => {
       status: "Connected" as const,
       details: ["Retell webhook active", "1,247 events processed", "0 errors"],
       action: "configure" as const,
+    },
+    {
+      name: "Cal.com",
+      description: "Calendar & booking management",
+      icon: Calendar,
+      status: calcomConnected ? ("Connected" as const) : ("Not Connected" as const),
+      details: calcomConnected
+        ? ["Syncing bookings", "Calendar view enabled", "Attendee tracking active"]
+        : ["Connect your Cal.com account", "View bookings from AI agents"],
+      action: calcomConnected ? "configure" : "connect",
     },
     {
       name: "Facebook Leads",
@@ -134,7 +178,22 @@ const Integrations = () => {
                 </Button>
               </div>
             )}
-            {integration.action === "configure" && integration.name !== "Retell AI" && (
+            {integration.name === "Cal.com" && !calcomConnected && (
+              <Button size="sm" className="mt-4 w-full" onClick={() => setCalcomDialogOpen(true)}>
+                Connect
+              </Button>
+            )}
+            {integration.name === "Cal.com" && calcomConnected && (
+              <div className="mt-4 flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => window.location.href = "/app/bookings"}>
+                  View Bookings
+                </Button>
+                <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={handleDisconnectCalcom}>
+                  Disconnect
+                </Button>
+              </div>
+            )}
+            {integration.action === "configure" && integration.name !== "Retell AI" && integration.name !== "Cal.com" && (
               <Button variant="outline" size="sm" className="mt-4 w-full">
                 Configure
               </Button>
@@ -147,6 +206,12 @@ const Integrations = () => {
         open={retellDialogOpen}
         onOpenChange={setRetellDialogOpen}
         onConnected={handleRetellConnected}
+      />
+
+      <CalComConnectDialog
+        open={calcomDialogOpen}
+        onOpenChange={setCalcomDialogOpen}
+        onConnected={handleCalcomConnected}
       />
     </div>
   );

@@ -1,0 +1,354 @@
+import { useState, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, ChevronLeft, ChevronRight, RefreshCw, Loader2, ExternalLink, Clock, User, Mail, Phone, Video } from "lucide-react";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, parseISO } from "date-fns";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+interface Booking {
+  id: string;
+  calcom_booking_id: number | null;
+  title: string;
+  description: string | null;
+  start_time: string;
+  end_time: string;
+  status: string;
+  attendee_name: string | null;
+  attendee_email: string | null;
+  attendee_phone: string | null;
+  event_type_name: string | null;
+  meeting_url: string | null;
+  location: string | null;
+  metadata: any;
+}
+
+const statusColors: Record<string, string> = {
+  accepted: "bg-success/10 text-success border-success/20",
+  pending: "bg-warning/10 text-warning border-warning/20",
+  cancelled: "bg-destructive/10 text-destructive border-destructive/20",
+  rejected: "bg-destructive/10 text-destructive border-destructive/20",
+};
+
+const Bookings = () => {
+  const { user } = useAuth();
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [calcomConnected, setCalcomConnected] = useState(false);
+
+  // Check if Cal.com is connected
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_integrations")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("provider", "calcom")
+      .single()
+      .then(({ data }) => setCalcomConnected(!!data));
+  }, [user]);
+
+  const { data: bookings = [], isLoading, refetch } = useQuery({
+    queryKey: ["bookings", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("start_time", { ascending: true });
+      if (error) throw error;
+      return data as Booking[];
+    },
+    enabled: !!user,
+  });
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("calcom-sync", {
+        body: { action: "sync_bookings" },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success(`Synced ${data.synced} booking(s) from Cal.com`);
+      refetch();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to sync bookings");
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  // Calendar data
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 });
+  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+  const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+
+  const bookingsByDate = useMemo(() => {
+    const map = new Map<string, Booking[]>();
+    bookings.forEach((b) => {
+      const key = format(parseISO(b.start_time), "yyyy-MM-dd");
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(b);
+    });
+    return map;
+  }, [bookings]);
+
+  const selectedDateBookings = selectedDate
+    ? bookingsByDate.get(format(selectedDate, "yyyy-MM-dd")) || []
+    : [];
+
+  const totalBookings = bookings.length;
+  const upcoming = bookings.filter((b) => new Date(b.start_time) > new Date() && b.status !== "cancelled").length;
+  const cancelled = bookings.filter((b) => b.status === "cancelled").length;
+
+  if (!calcomConnected) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-foreground">Bookings</h1>
+          <p className="mt-1 text-sm text-muted-foreground">View appointments booked by your AI agents</p>
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-xl border bg-card p-12 text-center shadow-card">
+          <Calendar className="h-12 w-12 text-muted-foreground/50 mb-4" />
+          <h3 className="font-display text-lg font-semibold text-foreground">Connect Cal.com</h3>
+          <p className="mt-2 text-sm text-muted-foreground max-w-md">
+            Connect your Cal.com account in the Integrations page to see bookings made by your AI agents here.
+          </p>
+          <Button className="mt-4" onClick={() => window.location.href = "/app/integrations"}>
+            Go to Integrations
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-foreground">Bookings</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Appointments booked by your AI agents via Cal.com</p>
+        </div>
+        <Button variant="outline" onClick={handleSync} disabled={syncing}>
+          {syncing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+          Sync from Cal.com
+        </Button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid gap-4 grid-cols-3">
+        <div className="rounded-xl border bg-card p-4 shadow-card">
+          <p className="text-xs font-medium text-muted-foreground">Total Bookings</p>
+          <p className="mt-1 font-display text-2xl font-bold text-foreground">{totalBookings}</p>
+        </div>
+        <div className="rounded-xl border bg-card p-4 shadow-card">
+          <p className="text-xs font-medium text-muted-foreground">Upcoming</p>
+          <p className="mt-1 font-display text-2xl font-bold text-success">{upcoming}</p>
+        </div>
+        <div className="rounded-xl border bg-card p-4 shadow-card">
+          <p className="text-xs font-medium text-muted-foreground">Cancelled</p>
+          <p className="mt-1 font-display text-2xl font-bold text-destructive">{cancelled}</p>
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        {/* Calendar */}
+        <div className="rounded-xl border bg-card p-5 shadow-card">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-lg font-semibold text-foreground">
+              {format(currentMonth, "MMMM yyyy")}
+            </h2>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" className="text-xs" onClick={() => setCurrentMonth(new Date())}>
+                Today
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Day headers */}
+          <div className="grid grid-cols-7 mb-1">
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+              <div key={day} className="py-2 text-center text-xs font-medium text-muted-foreground">
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Calendar grid */}
+          <div className="grid grid-cols-7">
+            {calendarDays.map((day) => {
+              const dateKey = format(day, "yyyy-MM-dd");
+              const dayBookings = bookingsByDate.get(dateKey) || [];
+              const isToday = isSameDay(day, new Date());
+              const isCurrentMonth = isSameMonth(day, currentMonth);
+              const isSelected = selectedDate && isSameDay(day, selectedDate);
+
+              return (
+                <button
+                  key={dateKey}
+                  onClick={() => setSelectedDate(day)}
+                  className={`relative flex flex-col items-center p-2 min-h-[72px] border border-border/30 transition-colors
+                    ${!isCurrentMonth ? "opacity-30" : ""}
+                    ${isSelected ? "bg-primary/10 border-primary/30" : "hover:bg-muted/50"}
+                    ${isToday ? "font-bold" : ""}
+                  `}
+                >
+                  <span className={`text-xs ${isToday ? "flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground" : "text-foreground"}`}>
+                    {format(day, "d")}
+                  </span>
+                  {dayBookings.length > 0 && (
+                    <div className="mt-1 flex flex-col gap-0.5 w-full px-0.5">
+                      {dayBookings.slice(0, 2).map((b) => (
+                        <div
+                          key={b.id}
+                          className="truncate rounded px-1 py-0.5 text-[10px] font-medium bg-primary/15 text-primary"
+                        >
+                          {format(parseISO(b.start_time), "HH:mm")}
+                        </div>
+                      ))}
+                      {dayBookings.length > 2 && (
+                        <span className="text-[10px] text-muted-foreground text-center">
+                          +{dayBookings.length - 2} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Selected day sidebar */}
+        <div className="rounded-xl border bg-card p-5 shadow-card">
+          <h3 className="font-display text-sm font-semibold text-foreground mb-3">
+            {selectedDate ? format(selectedDate, "EEEE, MMMM d, yyyy") : "Select a date"}
+          </h3>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : selectedDateBookings.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-8 text-center">
+              {selectedDate ? "No bookings on this day" : "Click a date to view bookings"}
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {selectedDateBookings.map((booking) => (
+                <button
+                  key={booking.id}
+                  onClick={() => setSelectedBooking(booking)}
+                  className="w-full text-left rounded-lg border bg-background p-3 hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-medium text-foreground truncate">{booking.title}</p>
+                    <Badge variant="outline" className={`shrink-0 text-[10px] ${statusColors[booking.status] || "bg-muted text-muted-foreground"}`}>
+                      {booking.status}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {format(parseISO(booking.start_time), "h:mm a")} – {format(parseISO(booking.end_time), "h:mm a")}
+                  </p>
+                  {booking.attendee_name && (
+                    <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
+                      <User className="h-3 w-3" />
+                      {booking.attendee_name}
+                    </p>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Booking detail dialog */}
+      <Dialog open={!!selectedBooking} onOpenChange={() => setSelectedBooking(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedBooking?.title}</DialogTitle>
+          </DialogHeader>
+          {selectedBooking && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className={statusColors[selectedBooking.status] || ""}>
+                  {selectedBooking.status}
+                </Badge>
+                {selectedBooking.event_type_name && (
+                  <Badge variant="secondary">{selectedBooking.event_type_name}</Badge>
+                )}
+              </div>
+
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-foreground">
+                    {format(parseISO(selectedBooking.start_time), "EEEE, MMMM d, yyyy")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-foreground">
+                    {format(parseISO(selectedBooking.start_time), "h:mm a")} – {format(parseISO(selectedBooking.end_time), "h:mm a")}
+                  </span>
+                </div>
+
+                {selectedBooking.attendee_name && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-foreground">{selectedBooking.attendee_name}</span>
+                  </div>
+                )}
+                {selectedBooking.attendee_email && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-foreground">{selectedBooking.attendee_email}</span>
+                  </div>
+                )}
+                {selectedBooking.attendee_phone && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-foreground">{selectedBooking.attendee_phone}</span>
+                  </div>
+                )}
+                {selectedBooking.meeting_url && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Video className="h-4 w-4 text-muted-foreground" />
+                    <a href={selectedBooking.meeting_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                      Join Meeting <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {selectedBooking.description && (
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Description</p>
+                  <p className="text-sm text-foreground">{selectedBooking.description}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default Bookings;

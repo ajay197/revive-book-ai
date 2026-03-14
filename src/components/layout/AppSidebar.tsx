@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, Users, Megaphone, Bot, FileText, BarChart3, Plug, Settings, Phone, LogOut, CreditCard, History, Shield,
+  LayoutDashboard, Users, Megaphone, Bot, FileText, BarChart3, Plug, Settings, Phone, LogOut, CreditCard, History, Shield, CalendarCheck,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -14,6 +14,7 @@ const mainItems = [
   { title: "Dashboard", url: "/app", icon: LayoutDashboard },
   { title: "Leads", url: "/app/leads", icon: Users },
   { title: "Campaigns", url: "/app/campaigns", icon: Megaphone },
+  { title: "Bookings", url: "/app/bookings", icon: CalendarCheck },
   { title: "Agents", url: "/app/agents", icon: Bot },
   { title: "Phone Numbers", url: "/app/phone-numbers", icon: Phone },
   { title: "Scripts", url: "/app/scripts", icon: FileText },
