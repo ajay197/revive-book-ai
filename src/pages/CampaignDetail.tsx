@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/StatusBadge";
-import { ArrowLeft, Phone, Clock, Loader2, RefreshCw } from "lucide-react";
+import { ArrowLeft, Phone, Clock, Loader2, RefreshCw, Timer, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface CallLog {
   id: string;
@@ -31,6 +33,7 @@ interface CampaignInfo {
   cost: number | null;
   max_retries: number | null;
   retry_delay: number | null;
+  call_interval_minutes: number | null;
 }
 
 const formatDuration = (seconds: number | null) => {
@@ -47,7 +50,8 @@ const CampaignDetail = () => {
   const [campaign, setCampaign] = useState<CampaignInfo | null>(null);
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [callInterval, setCallInterval] = useState<string>("");
+  const [savingInterval, setSavingInterval] = useState(false);
   const fetchData = async () => {
     if (!user || !id) return;
     setLoading(true);
@@ -62,9 +66,30 @@ const CampaignDetail = () => {
         .order("created_at", { ascending: false }),
     ]);
 
-    if (campRes.data) setCampaign(campRes.data);
+    if (campRes.data) {
+      setCampaign(campRes.data);
+      setCallInterval(String(campRes.data.call_interval_minutes || 0));
+    }
     if (logsRes.data) setCallLogs(logsRes.data);
     setLoading(false);
+  };
+
+  const handleSaveInterval = async () => {
+    if (!campaign) return;
+    const minutes = parseInt(callInterval) || 0;
+    if (minutes < 0) return;
+    setSavingInterval(true);
+    const { error } = await supabase
+      .from("campaigns")
+      .update({ call_interval_minutes: minutes })
+      .eq("id", campaign.id);
+    if (error) {
+      toast.error("Failed to update call interval");
+    } else {
+      toast.success(`Call interval updated to ${minutes} minutes`);
+      setCampaign({ ...campaign, call_interval_minutes: minutes });
+    }
+    setSavingInterval(false);
   };
 
   useEffect(() => {
@@ -153,7 +178,32 @@ const CampaignDetail = () => {
         </div>
       )}
 
-      {/* Call logs table */}
+      {/* Call interval setting for Old Lead Reactivation */}
+      {campaign.type === "Old Lead Reactivation" && (
+        <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3 shadow-sm">
+          <Timer className="h-4 w-4 text-muted-foreground shrink-0" />
+          <span className="text-sm font-medium text-foreground whitespace-nowrap">Next call after:</span>
+          <Input
+            type="number"
+            min={0}
+            value={callInterval}
+            onChange={(e) => setCallInterval(e.target.value)}
+            className="w-24 h-8 text-sm"
+            placeholder="0"
+          />
+          <span className="text-sm text-muted-foreground">minutes</span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8"
+            disabled={savingInterval || String(campaign.call_interval_minutes || 0) === callInterval}
+            onClick={handleSaveInterval}
+          >
+            {savingInterval ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+          </Button>
+        </div>
+      )}
+
       <div className="rounded-xl border bg-card shadow-card">
         <div className="px-5 py-3 border-b">
           <h2 className="font-display text-sm font-semibold text-foreground">Call History</h2>
