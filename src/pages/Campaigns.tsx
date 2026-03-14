@@ -203,9 +203,16 @@ const Campaigns = () => {
                           </Button>
                         )}
                         {(c.status === "Draft" || c.status === "Paused" || c.status === "Completed") && (
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStatusToggle(c)}>
-                            <Play className="h-3.5 w-3.5 text-primary" />
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStatusToggle(c)}>
+                                <Play className="h-3.5 w-3.5 text-primary" />
+                              </Button>
+                            </TooltipTrigger>
+                            {c.status === "Completed" && (
+                              <TooltipContent>Resume calling new leads</TooltipContent>
+                            )}
+                          </Tooltip>
                         )}
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
