@@ -225,7 +225,7 @@ export function AddLeadsToCampaignDialog({
         <DialogFooter>
           <div className="flex items-center justify-between w-full">
             <p className="text-sm text-muted-foreground">
-              {selected.size} lead{selected.size !== 1 ? "s" : ""} selected
+              {sel.size} lead{sel.size !== 1 ? "s" : ""} selected
             </p>
             <Button
               onClick={handleAssign}
