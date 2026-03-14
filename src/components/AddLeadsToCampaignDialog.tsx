@@ -51,7 +51,7 @@ export function AddLeadsToCampaignDialog({
   });
 
   // Fetch leads already assigned to this campaign via junction table
-  const { data: assignedLeadIds = new Set<string>() } = useQuery({
+  const { data: assignedLeadIds = new Set<string>(), isLoading: assignedLoading } = useQuery({
     queryKey: ["campaign-leads-assigned", campaign?.id],
     queryFn: async () => {
       const { data, error } = await supabase
