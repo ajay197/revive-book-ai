@@ -152,6 +152,48 @@ serve(async (req) => {
       });
     }
 
+    if (action === "create_booking") {
+      const { attendeeName, attendeeEmail, attendeePhone, eventTypeId, startTime, timeZone } = body;
+      if (!eventTypeId || !startTime || !attendeeName || !attendeeEmail) {
+        return new Response(JSON.stringify({ error: "Missing required fields" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const responses: Record<string, any> = {
+        name: attendeeName,
+        email: attendeeEmail,
+      };
+      if (attendeePhone) responses.phone = attendeePhone;
+
+      const bookingPayload = {
+        eventTypeId: Number(eventTypeId),
+        start: startTime,
+        responses,
+        timeZone: timeZone || "America/New_York",
+        language: "en",
+        metadata: {},
+      };
+
+      const res = await fetch(`${calcomBase}/bookings?apiKey=${calcomApiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookingPayload),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Cal.com create booking error:", errText);
+        throw new Error(`Failed to create booking on Cal.com: ${res.status}`);
+      }
+
+      const result = await res.json();
+      return new Response(JSON.stringify({ success: true, booking: result }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (action === "connect") {
       // Verify API key by fetching event types
       const res = await fetch(`${calcomBase}/event-types?apiKey=${calcomApiKey}`);
