@@ -109,7 +109,7 @@ serve(async (req) => {
           description: booking.description || null,
           start_time: booking.startTime,
           end_time: booking.endTime,
-          status: booking.status || "accepted",
+          status: (booking.status || "accepted").toLowerCase(),
           attendee_name: attendee?.name || null,
           attendee_email: attendee?.email || null,
           attendee_phone: attendee?.phone || booking.metadata?.phone || null,
