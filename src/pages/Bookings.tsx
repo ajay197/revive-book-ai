@@ -460,7 +460,7 @@ const Bookings = () => {
                       }}
                       disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                       className="p-2 pointer-events-auto"
-                      onDayClick={(e) => e.stopPropagation()}
+                      initialFocus
                     />
                   </div>
 
