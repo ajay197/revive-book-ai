@@ -199,6 +199,48 @@ serve(async (req) => {
       }
     }
 
+    // Backward-compatibility fallback: if no campaign_leads row exists yet, seed from legacy leads.campaign mapping
+    if (!nextCampaignLead || !nextLead) {
+      const { data: legacyLeads } = await supabase
+        .from("leads")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("campaign", campaign.name)
+        .limit(1000);
+
+      if (legacyLeads && legacyLeads.length > 0) {
+        await supabase
+          .from("campaign_leads")
+          .upsert(
+            legacyLeads.map((lead) => ({
+              campaign_id: campaignId,
+              lead_id: lead.id,
+              user_id: userId,
+              status: "New",
+              retry_count: 0,
+              retell_call_id: null,
+              next_retry_at: null,
+            })),
+            { onConflict: "campaign_id,lead_id", ignoreDuplicates: true }
+          );
+
+        const { data: fallbackCL } = await supabase
+          .from("campaign_leads")
+          .select("*, leads(*)")
+          .eq("campaign_id", campaignId)
+          .in("status", ["New", "Queued"])
+          .is("retell_call_id", null)
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        if (fallbackCL && fallbackCL.leads) {
+          nextCampaignLead = fallbackCL;
+          nextLead = fallbackCL.leads;
+        }
+      }
+    }
+
     if (!nextCampaignLead || !nextLead) {
       await supabase.from("campaigns").update({ status: "Completed" }).eq("id", campaignId);
       return new Response(JSON.stringify({ message: "No more leads to call. Campaign completed.", completed: true }), {
