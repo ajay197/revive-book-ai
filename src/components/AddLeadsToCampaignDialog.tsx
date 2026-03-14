@@ -280,7 +280,7 @@ export function AddLeadsToCampaignDialog({
             </p>
             <Button
               onClick={handleAssign}
-              disabled={saving}
+              disabled={saving || assignedLoading || calledLoading}
               className="bg-gradient-primary"
             >
               {saving && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
