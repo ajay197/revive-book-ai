@@ -1,15 +1,18 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Calendar, ChevronLeft, ChevronRight, RefreshCw, Loader2, ExternalLink, Clock, User, Mail, Phone, Video, Plus, XCircle, CalendarClock } from "lucide-react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, parseISO } from "date-fns";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar, ChevronLeft, ChevronRight, RefreshCw, Loader2, ExternalLink, Clock, User, Mail, Phone, Video, Plus, XCircle, CalendarClock, CalendarIcon, Globe } from "lucide-react";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, parseISO, addDays } from "date-fns";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 interface BookingField {
   name: string;
@@ -71,6 +74,11 @@ const Bookings = () => {
   const [cancellingBooking, setCancellingBooking] = useState(false);
   const [rescheduling, setRescheduling] = useState(false);
   const [rescheduleDateTime, setRescheduleDateTime] = useState("");
+  const [bookingDate, setBookingDate] = useState<Date | undefined>(undefined);
+  const [bookingTimeSlot, setBookingTimeSlot] = useState("");
+  const [availableSlots, setAvailableSlots] = useState<Record<string, string[]>>({});
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   // Check if Cal.com is connected
   useEffect(() => {
@@ -95,6 +103,41 @@ const Bookings = () => {
       if (!error && data?.event_types) setEventTypes(data.event_types);
     } catch {}
   };
+
+  const fetchAvailableSlots = useCallback(async (eventTypeId: string, date: Date) => {
+    setLoadingSlots(true);
+    setAvailableSlots({});
+    setBookingTimeSlot("");
+    try {
+      const startTime = format(date, "yyyy-MM-dd");
+      const endDate = addDays(date, 1);
+      const endTime = format(endDate, "yyyy-MM-dd");
+      const { data, error } = await supabase.functions.invoke("calcom-sync", {
+        body: {
+          action: "fetch_slots",
+          eventTypeId: Number(eventTypeId),
+          startTime,
+          endTime,
+          timeZone: userTimezone,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setAvailableSlots(data?.slots || {});
+    } catch (err: any) {
+      console.error("Failed to fetch slots:", err);
+      toast.error("Failed to load available time slots");
+    } finally {
+      setLoadingSlots(false);
+    }
+  }, [userTimezone]);
+
+  // Fetch slots when date or event type changes
+  useEffect(() => {
+    if (bookingDate && newBooking.eventTypeId) {
+      fetchAvailableSlots(newBooking.eventTypeId, bookingDate);
+    }
+  }, [bookingDate, newBooking.eventTypeId, fetchAvailableSlots]);
 
   const { data: bookings = [], isLoading, refetch } = useQuery({
     queryKey: ["bookings", user?.id],
@@ -438,7 +481,7 @@ const Bookings = () => {
           )}
         </DialogContent>
       </Dialog>
-      <Dialog open={showNewBooking} onOpenChange={(open) => { setShowNewBooking(open); if (!open) setCustomFieldValues({}); }}>
+      <Dialog open={showNewBooking} onOpenChange={(open) => { setShowNewBooking(open); if (!open) { setCustomFieldValues({}); setBookingDate(undefined); setBookingTimeSlot(""); setAvailableSlots({}); } }}>
         <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Book a New Meeting</DialogTitle>
@@ -574,9 +617,82 @@ const Bookings = () => {
                     </div>
                   )}
 
+                  {/* Date picker */}
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-foreground">Date & Time <span className="text-destructive">*</span></label>
-                    <Input type="datetime-local" id="booking-datetime" />
+                    <label className="text-sm font-medium text-foreground">Select Date <span className="text-destructive">*</span></label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn("w-full justify-start text-left font-normal", !bookingDate && "text-muted-foreground")}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {bookingDate ? format(bookingDate, "PPP") : "Pick a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={bookingDate}
+                          onSelect={setBookingDate}
+                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* Time slots */}
+                  {bookingDate && newBooking.eventTypeId && (
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-foreground">Select Time <span className="text-destructive">*</span></label>
+                      {loadingSlots ? (
+                        <div className="flex items-center justify-center py-6">
+                          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                          <span className="ml-2 text-sm text-muted-foreground">Loading available slots...</span>
+                        </div>
+                      ) : (() => {
+                        const dateKey = format(bookingDate, "yyyy-MM-dd");
+                        const daySlots = availableSlots[dateKey] || [];
+                        if (daySlots.length === 0) {
+                          return (
+                            <div className="rounded-lg border border-dashed bg-muted/30 p-4 text-center">
+                              <Clock className="mx-auto h-5 w-5 text-muted-foreground/50 mb-1" />
+                              <p className="text-sm text-muted-foreground">No available slots on this date</p>
+                              <p className="text-xs text-muted-foreground mt-1">Try selecting a different date</p>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="grid grid-cols-3 gap-2 max-h-[180px] overflow-y-auto pr-1">
+                            {daySlots.map((slot: string) => {
+                              const slotTime = parseISO(slot);
+                              const timeLabel = format(slotTime, "h:mm a");
+                              const isSelected = bookingTimeSlot === slot;
+                              return (
+                                <Button
+                                  key={slot}
+                                  type="button"
+                                  variant={isSelected ? "default" : "outline"}
+                                  size="sm"
+                                  className={cn("text-xs", isSelected && "ring-2 ring-primary")}
+                                  onClick={() => setBookingTimeSlot(slot)}
+                                >
+                                  {timeLabel}
+                                </Button>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+
+                  {/* Timezone indicator */}
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Globe className="h-3.5 w-3.5" />
+                    <span>Timezone: {userTimezone}</span>
                   </div>
                 </>
               );
@@ -585,16 +701,25 @@ const Bookings = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewBooking(false)}>Cancel</Button>
             <Button
-              disabled={creatingBooking || !newBooking.name || !newBooking.email || !newBooking.phone}
+              disabled={creatingBooking || !newBooking.name || !newBooking.email || !newBooking.phone || (!bookingTimeSlot && !!newBooking.eventTypeId) || (!bookingDate && !newBooking.eventTypeId)}
               onClick={async () => {
                 setCreatingBooking(true);
                 try {
-                  const datetimeInput = (document.getElementById("booking-datetime") as HTMLInputElement)?.value;
-                  if (!datetimeInput) { toast.error("Please select a date and time"); setCreatingBooking(false); return; }
-                  
                   const selectedEvent = eventTypes.find((et) => String(et.id) === newBooking.eventTypeId);
-                  const startTime = new Date(datetimeInput).toISOString();
                   const fullPhone = `${newBooking.countryCode}${newBooking.phone}`;
+
+                  if (!bookingTimeSlot && selectedEvent) {
+                    toast.error("Please select an available time slot");
+                    setCreatingBooking(false);
+                    return;
+                  }
+                  if (!bookingDate && !selectedEvent) {
+                    toast.error("Please select a date");
+                    setCreatingBooking(false);
+                    return;
+                  }
+
+                  const startTime = selectedEvent ? bookingTimeSlot : (bookingDate ? bookingDate.toISOString() : "");
 
                   // Validate required custom fields
                   if (selectedEvent?.bookingFields) {
@@ -619,7 +744,7 @@ const Bookings = () => {
                         attendeeName: newBooking.name,
                         attendeeEmail: newBooking.email,
                         attendeePhone: fullPhone,
-                        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        timeZone: userTimezone,
                         customResponses: customFieldValues,
                       },
                     });
@@ -628,8 +753,7 @@ const Bookings = () => {
 
                     await supabase.functions.invoke("calcom-sync", { body: { action: "sync_bookings" } });
                   } else {
-                    const endTime = new Date(new Date(datetimeInput).getTime() + 30 * 60000).toISOString();
-                    // Auto-link to lead by email or phone
+                    const endTime = new Date(new Date(startTime).getTime() + 30 * 60000).toISOString();
                     let leadId: string | null = null;
                     const { data: leadByEmail } = await supabase.from("leads").select("id").eq("user_id", user!.id).eq("email", newBooking.email).limit(1).maybeSingle();
                     if (leadByEmail) { leadId = leadByEmail.id; }
@@ -655,6 +779,9 @@ const Bookings = () => {
                   setShowNewBooking(false);
                   setNewBooking({ name: "", email: "", phone: "", countryCode: "+1", eventTypeId: "" });
                   setCustomFieldValues({});
+                  setBookingDate(undefined);
+                  setBookingTimeSlot("");
+                  setAvailableSlots({});
                   refetch();
                 } catch (err: any) {
                   toast.error(err.message || "Failed to book meeting");
