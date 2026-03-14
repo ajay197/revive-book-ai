@@ -23,6 +23,7 @@ interface Booking {
   attendee_email: string | null;
   attendee_phone: string | null;
   event_type_name: string | null;
+  event_type_id: number | null;
   meeting_url: string | null;
   location: string | null;
   metadata: any;
