@@ -657,7 +657,9 @@ const Bookings = () => {
                         </div>
                       ) : (() => {
                         const dateKey = format(bookingDate, "yyyy-MM-dd");
-                        const daySlots = availableSlots[dateKey] || [];
+                        const rawDaySlots = availableSlots[dateKey];
+                        const daySlots = Array.isArray(rawDaySlots) ? rawDaySlots : [];
+
                         if (daySlots.length === 0) {
                           return (
                             <div className="rounded-lg border border-dashed bg-muted/30 p-4 text-center">
@@ -669,18 +671,27 @@ const Bookings = () => {
                         }
                         return (
                           <div className="grid grid-cols-3 gap-2 max-h-[180px] overflow-y-auto pr-1">
-                            {daySlots.map((slot: string) => {
-                              const slotTime = parseISO(slot);
+                            {daySlots.map((slot: unknown, idx: number) => {
+                              const slotIso = typeof slot === "string"
+                                ? slot
+                                : (slot && typeof slot === "object" && "time" in slot && typeof (slot as { time?: unknown }).time === "string"
+                                    ? (slot as { time: string }).time
+                                    : null);
+                              if (!slotIso) return null;
+
+                              const slotTime = parseISO(slotIso);
+                              if (!isValid(slotTime)) return null;
+
                               const timeLabel = format(slotTime, "h:mm a");
-                              const isSelected = bookingTimeSlot === slot;
+                              const isSelected = bookingTimeSlot === slotIso;
                               return (
                                 <Button
-                                  key={slot}
+                                  key={`${slotIso}-${idx}`}
                                   type="button"
                                   variant={isSelected ? "default" : "outline"}
                                   size="sm"
                                   className={cn("text-xs", isSelected && "ring-2 ring-primary")}
-                                  onClick={() => setBookingTimeSlot(slot)}
+                                  onClick={() => setBookingTimeSlot(slotIso)}
                                 >
                                   {timeLabel}
                                 </Button>
