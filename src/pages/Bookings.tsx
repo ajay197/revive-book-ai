@@ -80,7 +80,7 @@ const Bookings = () => {
       .select("id")
       .eq("user_id", user.id)
       .eq("provider", "calcom")
-      .single()
+      .maybeSingle()
       .then(({ data }) => {
         setCalcomConnected(!!data);
         if (data) fetchEventTypes();
