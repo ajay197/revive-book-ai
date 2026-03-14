@@ -42,6 +42,10 @@ const Bookings = () => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [calcomConnected, setCalcomConnected] = useState(false);
+  const [showNewBooking, setShowNewBooking] = useState(false);
+  const [newBooking, setNewBooking] = useState({ name: "", email: "", phone: "", eventTypeId: "" });
+  const [eventTypes, setEventTypes] = useState<{ id: number; title: string; slug: string; length: number }[]>([]);
+  const [creatingBooking, setCreatingBooking] = useState(false);
 
   // Check if Cal.com is connected
   useEffect(() => {
