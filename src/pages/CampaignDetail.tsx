@@ -50,7 +50,8 @@ const CampaignDetail = () => {
   const [campaign, setCampaign] = useState<CampaignInfo | null>(null);
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [callInterval, setCallInterval] = useState<string>("");
+  const [savingInterval, setSavingInterval] = useState(false);
   const fetchData = async () => {
     if (!user || !id) return;
     setLoading(true);
