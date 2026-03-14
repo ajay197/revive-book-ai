@@ -109,6 +109,7 @@ serve(async (req) => {
       });
     }
 
+    if (action === "sync_bookings") {
       // Fetch bookings from Cal.com - must query each status separately
       const statuses = ["upcoming", "past", "cancelled"];
       let allBookings: any[] = [];
