@@ -70,7 +70,6 @@ const Bookings = () => {
       if (!error && data?.event_types) setEventTypes(data.event_types);
     } catch {}
   };
-  }, [user]);
 
   const { data: bookings = [], isLoading, refetch } = useQuery({
     queryKey: ["bookings", user?.id],
