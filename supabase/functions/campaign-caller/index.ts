@@ -184,7 +184,7 @@ serve(async (req) => {
       // 2. Try retry-eligible leads
       const { data: retryCL } = await supabase
         .from("campaign_leads")
-        .select("*, leads(*)")
+        .select("*, leads!campaign_leads_lead_id_fkey(*)")
         .eq("campaign_id", campaignId)
         .in("status", ["No Answer", "Voicemail", "Unsuccessful"])
         .lt("retry_count", maxRetries)
