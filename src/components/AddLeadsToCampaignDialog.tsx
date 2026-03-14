@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -51,7 +51,7 @@ export function AddLeadsToCampaignDialog({
   });
 
   // Fetch leads already assigned to this campaign via junction table
-  const { data: assignedLeadIds = new Set<string>() } = useQuery({
+  const { data: assignedLeadIds = new Set<string>(), isLoading: assignedLoading } = useQuery({
     queryKey: ["campaign-leads-assigned", campaign?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -65,7 +65,7 @@ export function AddLeadsToCampaignDialog({
   });
 
   // Fetch leads that have been called in this campaign (locked from removal)
-  const { data: calledLeadIds = new Set<string>() } = useQuery({
+  const { data: calledLeadIds = new Set<string>(), isLoading: calledLoading } = useQuery({
     queryKey: ["called-leads", campaign?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -78,10 +78,10 @@ export function AddLeadsToCampaignDialog({
     enabled: !!campaign?.id && open,
   });
 
-  // Lazy-init selected from assigned leads
-  if (selected === null && leads.length > 0) {
+  useEffect(() => {
+    if (!open) return;
     setSelected(new Set(assignedLeadIds));
-  }
+  }, [open, campaign?.id, assignedLeadIds]);
 
   const sel = selected ?? new Set<string>();
 
@@ -280,7 +280,7 @@ export function AddLeadsToCampaignDialog({
             </p>
             <Button
               onClick={handleAssign}
-              disabled={saving}
+              disabled={saving || assignedLoading || calledLoading}
               className="bg-gradient-primary"
             >
               {saving && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}

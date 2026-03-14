@@ -169,7 +169,7 @@ serve(async (req) => {
     // 1. Try fresh leads (New/Queued, no retell_call_id)
     const { data: freshCL } = await supabase
       .from("campaign_leads")
-      .select("*, leads(*)")
+      .select("*, leads!campaign_leads_lead_id_fkey(*)")
       .eq("campaign_id", campaignId)
       .in("status", ["New", "Queued"])
       .is("retell_call_id", null)
@@ -184,7 +184,7 @@ serve(async (req) => {
       // 2. Try retry-eligible leads
       const { data: retryCL } = await supabase
         .from("campaign_leads")
-        .select("*, leads(*)")
+        .select("*, leads!campaign_leads_lead_id_fkey(*)")
         .eq("campaign_id", campaignId)
         .in("status", ["No Answer", "Voicemail", "Unsuccessful"])
         .lt("retry_count", maxRetries)
@@ -196,6 +196,48 @@ serve(async (req) => {
       if (retryCL && retryCL.leads) {
         nextCampaignLead = retryCL;
         nextLead = retryCL.leads;
+      }
+    }
+
+    // Backward-compatibility fallback: if no campaign_leads row exists yet, seed from legacy leads.campaign mapping
+    if (!nextCampaignLead || !nextLead) {
+      const { data: legacyLeads } = await supabase
+        .from("leads")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("campaign", campaign.name)
+        .limit(1000);
+
+      if (legacyLeads && legacyLeads.length > 0) {
+        await supabase
+          .from("campaign_leads")
+          .upsert(
+            legacyLeads.map((lead) => ({
+              campaign_id: campaignId,
+              lead_id: lead.id,
+              user_id: userId,
+              status: "New",
+              retry_count: 0,
+              retell_call_id: null,
+              next_retry_at: null,
+            })),
+            { onConflict: "campaign_id,lead_id", ignoreDuplicates: true }
+          );
+
+        const { data: fallbackCL } = await supabase
+          .from("campaign_leads")
+          .select("*, leads!campaign_leads_lead_id_fkey(*)")
+          .eq("campaign_id", campaignId)
+          .in("status", ["New", "Queued"])
+          .is("retell_call_id", null)
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        if (fallbackCL && fallbackCL.leads) {
+          nextCampaignLead = fallbackCL;
+          nextLead = fallbackCL.leads;
+        }
       }
     }
 
