@@ -30,6 +30,7 @@ serve(async (req) => {
     const metadata = call?.metadata || {};
     const leadId = metadata.lead_id;
     const campaignId = metadata.campaign_id;
+    const campaignLeadId = metadata.campaign_lead_id;
     const userId = metadata.user_id;
     const attemptNumber = metadata.attempt_number || 1;
 
@@ -75,9 +76,10 @@ serve(async (req) => {
       ended_at: new Date().toISOString(),
     }).eq("retell_call_id", callId);
 
-    // Check if this lead should be retried
+    // Update campaign_leads status (per-campaign tracking)
     let shouldRetry = false;
-    if (campaignId && (isNoAnswer || isVoicemail || leadStatus === "Unsuccessful")) {
+
+    if (campaignId && campaignLeadId && (isNoAnswer || isVoicemail || leadStatus === "Unsuccessful")) {
       const { data: campaign } = await supabase
         .from("campaigns")
         .select("max_retries, retry_delay, status")
@@ -85,35 +87,41 @@ serve(async (req) => {
         .single();
 
       if (campaign && campaign.max_retries && campaign.max_retries > 0) {
-        const { data: lead } = await supabase
-          .from("leads")
+        // Get current retry count from campaign_leads
+        const { data: cl } = await supabase
+          .from("campaign_leads")
           .select("retry_count")
-          .eq("id", leadId)
+          .eq("id", campaignLeadId)
           .single();
 
-        const currentRetries = lead?.retry_count || 0;
+        const currentRetries = cl?.retry_count || 0;
         if (currentRetries < campaign.max_retries) {
           shouldRetry = true;
           const retryDelayMinutes = campaign.retry_delay || 60;
           const nextRetryAt = new Date(Date.now() + retryDelayMinutes * 60 * 1000).toISOString();
 
-          // Mark lead for retry
-          await supabase.from("leads").update({
+          // Mark campaign_lead for retry
+          await supabase.from("campaign_leads").update({
             status: leadStatus,
-            retell_call_id: null, // Clear so it can be picked up again
+            retell_call_id: null,
             retry_count: currentRetries + 1,
             next_retry_at: nextRetryAt,
-          }).eq("id", leadId);
+          }).eq("id", campaignLeadId);
         }
       }
     }
 
-    // If not retrying, just update lead status normally
-    if (!shouldRetry) {
-      await supabase.from("leads").update({
+    // If not retrying, update campaign_leads status
+    if (!shouldRetry && campaignLeadId) {
+      await supabase.from("campaign_leads").update({
         status: leadStatus,
-      }).eq("id", leadId);
+      }).eq("id", campaignLeadId);
     }
+
+    // Also update the lead's global status for display purposes
+    await supabase.from("leads").update({
+      status: leadStatus,
+    }).eq("id", leadId);
 
     // Deduct credits
     if (durationSeconds > 0 && userId) {
