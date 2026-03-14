@@ -79,19 +79,25 @@ serve(async (req) => {
     }
 
     if (action === "sync_bookings") {
-      // Fetch bookings from Cal.com
-      let url = `${calcomBase}/bookings?apiKey=${calcomApiKey}&status=upcoming,past,cancelled`;
-      if (eventTypeId) {
-        url += `&eventTypeId=${eventTypeId}`;
+      // Fetch bookings from Cal.com - must query each status separately
+      const statuses = ["upcoming", "past", "cancelled"];
+      let allBookings: any[] = [];
+
+      for (const status of statuses) {
+        let url = `${calcomBase}/bookings?apiKey=${calcomApiKey}&status=${status}`;
+        if (eventTypeId) {
+          url += `&eventTypeId=${eventTypeId}`;
+        }
+        const res = await fetch(url);
+        if (!res.ok) {
+          console.warn(`Cal.com fetch for status=${status} failed: ${res.status}`);
+          continue;
+        }
+        const data = await res.json();
+        allBookings = allBookings.concat(data.bookings || []);
       }
 
-      const res = await fetch(url);
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(`Cal.com API error: ${res.status} ${errText}`);
-      }
-      const data = await res.json();
-      const bookings = data.bookings || [];
+      const bookings = allBookings;
 
       let synced = 0;
       for (const booking of bookings) {
