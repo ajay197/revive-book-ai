@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/StatusBadge";
-import { ArrowLeft, Phone, Clock, Loader2, RefreshCw, Timer, Check } from "lucide-react";
+import { ArrowLeft, Phone, Clock, Loader2, RefreshCw, Settings2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
+import { EditCampaignSettingsDialog } from "@/components/EditCampaignSettingsDialog";
 
 interface CallLog {
   id: string;
@@ -34,6 +33,9 @@ interface CampaignInfo {
   max_retries: number | null;
   retry_delay: number | null;
   call_interval_minutes: number | null;
+  window_start: string | null;
+  window_end: string | null;
+  timezone: string | null;
 }
 
 const formatDuration = (seconds: number | null) => {
@@ -50,8 +52,8 @@ const CampaignDetail = () => {
   const [campaign, setCampaign] = useState<CampaignInfo | null>(null);
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [callInterval, setCallInterval] = useState<string>("");
-  const [savingInterval, setSavingInterval] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+
   const fetchData = async () => {
     if (!user || !id) return;
     setLoading(true);
@@ -66,30 +68,9 @@ const CampaignDetail = () => {
         .order("created_at", { ascending: false }),
     ]);
 
-    if (campRes.data) {
-      setCampaign(campRes.data);
-      setCallInterval(String(campRes.data.call_interval_minutes || 0));
-    }
+    if (campRes.data) setCampaign(campRes.data);
     if (logsRes.data) setCallLogs(logsRes.data);
     setLoading(false);
-  };
-
-  const handleSaveInterval = async () => {
-    if (!campaign) return;
-    const minutes = parseInt(callInterval) || 0;
-    if (minutes < 0) return;
-    setSavingInterval(true);
-    const { error } = await supabase
-      .from("campaigns")
-      .update({ call_interval_minutes: minutes })
-      .eq("id", campaign.id);
-    if (error) {
-      toast.error("Failed to update call interval");
-    } else {
-      toast.success(`Call interval updated to ${minutes} minutes`);
-      setCampaign({ ...campaign, call_interval_minutes: minutes });
-    }
-    setSavingInterval(false);
   };
 
   useEffect(() => {
@@ -135,6 +116,11 @@ const CampaignDetail = () => {
   const answeredCalls = callLogs.filter(l => !["Queued", "Failed", "No Answer"].includes(l.status)).length;
   const retriedCalls = callLogs.filter(l => (l.attempt_number || 1) > 1).length;
 
+  const windowStart = campaign.window_start || "09:00";
+  const windowEnd = campaign.window_end || "17:00";
+  const tz = (campaign.timezone || "America/New_York").replace(/_/g, " ");
+  const isReactivation = campaign.type === "Old Lead Reactivation";
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -148,6 +134,9 @@ const CampaignDetail = () => {
           </div>
           <p className="text-sm text-muted-foreground mt-0.5">{campaign.type}</p>
         </div>
+        <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+          <Settings2 className="mr-1.5 h-3.5 w-3.5" /> Edit Settings
+        </Button>
         <Button variant="outline" size="sm" onClick={fetchData}>
           <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Refresh
         </Button>
@@ -170,40 +159,27 @@ const CampaignDetail = () => {
         ))}
       </div>
 
-      {/* Retry config info */}
-      {(campaign.max_retries || 0) > 0 && (
-        <div className="flex items-center gap-2 rounded-lg border bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
-          <RefreshCw className="h-3.5 w-3.5" />
-          Retry policy: up to {campaign.max_retries} retries, {campaign.retry_delay || 60} min delay
+      {/* Campaign settings summary */}
+      <div className="rounded-lg border bg-muted/30 px-4 py-3 text-xs text-muted-foreground space-y-1">
+        <div className="flex items-center gap-2">
+          <Clock className="h-3.5 w-3.5 shrink-0" />
+          <span>Calling window: {windowStart} – {windowEnd} ({tz})</span>
         </div>
-      )}
+        {(campaign.max_retries || 0) > 0 && (
+          <div className="flex items-center gap-2">
+            <RefreshCw className="h-3.5 w-3.5 shrink-0" />
+            <span>Retry policy: up to {campaign.max_retries} retries, {campaign.retry_delay || 24}h delay</span>
+          </div>
+        )}
+        {isReactivation && (campaign.call_interval_minutes || 0) > 0 && (
+          <div className="flex items-center gap-2">
+            <Clock className="h-3.5 w-3.5 shrink-0" />
+            <span>Next call after: {campaign.call_interval_minutes} minutes</span>
+          </div>
+        )}
+      </div>
 
-      {/* Call interval setting for Old Lead Reactivation */}
-      {campaign.type === "Old Lead Reactivation" && (
-        <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3 shadow-sm">
-          <Timer className="h-4 w-4 text-muted-foreground shrink-0" />
-          <span className="text-sm font-medium text-foreground whitespace-nowrap">Next call after:</span>
-          <Input
-            type="number"
-            min={0}
-            value={callInterval}
-            onChange={(e) => setCallInterval(e.target.value)}
-            className="w-24 h-8 text-sm"
-            placeholder="0"
-          />
-          <span className="text-sm text-muted-foreground">minutes</span>
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-8"
-            disabled={savingInterval || String(campaign.call_interval_minutes || 0) === callInterval}
-            onClick={handleSaveInterval}
-          >
-            {savingInterval ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-          </Button>
-        </div>
-      )}
-
+      {/* Call logs table */}
       <div className="rounded-xl border bg-card shadow-card">
         <div className="px-5 py-3 border-b">
           <h2 className="font-display text-sm font-semibold text-foreground">Call History</h2>
@@ -266,6 +242,16 @@ const CampaignDetail = () => {
           </div>
         )}
       </div>
+
+      {/* Edit Settings Dialog */}
+      {campaign && (
+        <EditCampaignSettingsDialog
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          campaign={campaign}
+          onSaved={(updated) => setCampaign({ ...campaign, ...updated })}
+        />
+      )}
     </div>
   );
 };
