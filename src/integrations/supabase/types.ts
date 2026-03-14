@@ -175,6 +175,7 @@ export type Database = {
           name: string
           notes: string | null
           phone: string
+          retell_call_id: string | null
           source: string | null
           state: string | null
           status: string | null
@@ -192,6 +193,7 @@ export type Database = {
           name: string
           notes?: string | null
           phone: string
+          retell_call_id?: string | null
           source?: string | null
           state?: string | null
           status?: string | null
@@ -209,6 +211,7 @@ export type Database = {
           name?: string
           notes?: string | null
           phone?: string
+          retell_call_id?: string | null
           source?: string | null
           state?: string | null
           status?: string | null
@@ -315,6 +318,33 @@ export type Database = {
           balance_credits?: number
           created_at?: string
           id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_integrations: {
+        Row: {
+          api_key: string
+          created_at: string
+          id: string
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          id?: string
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          id?: string
+          provider?: string
           updated_at?: string
           user_id?: string
         }
