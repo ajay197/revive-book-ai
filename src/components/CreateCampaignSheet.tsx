@@ -92,6 +92,7 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
     setTimezone("America/New_York");
     setMaxRetries("3");
     setRetryDelay("24");
+    setCallInterval("5");
   };
 
   const handleClose = (val: boolean) => {
