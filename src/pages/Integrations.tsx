@@ -9,9 +9,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 const Integrations = () => {
+  const { user } = useAuth();
   const [retellDialogOpen, setRetellDialogOpen] = useState(false);
   const [retellConnected, setRetellConnected] = useState(false);
   const [retellAgentName, setRetellAgentName] = useState("");
+  const [calcomDialogOpen, setCalcomDialogOpen] = useState(false);
+  const [calcomConnected, setCalcomConnected] = useState(false);
 
   useEffect(() => {
     const connected = localStorage.getItem("retell_connected") === "true";
@@ -19,7 +22,18 @@ const Integrations = () => {
     const agentCount = storedAgents ? JSON.parse(storedAgents).length : 0;
     setRetellConnected(connected);
     setRetellAgentName(connected ? `${agentCount} agent(s)` : "");
-  }, []);
+
+    // Check Cal.com connection
+    if (user) {
+      supabase
+        .from("user_integrations")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("provider", "calcom")
+        .single()
+        .then(({ data }) => setCalcomConnected(!!data));
+    }
+  }, [user]);
 
   const handleRetellConnected = (_apiKey: string, agents: { agent_id: string; agent_name: string }[]) => {
     setRetellConnected(true);
@@ -32,6 +46,22 @@ const Integrations = () => {
     localStorage.removeItem("retell_agents");
     setRetellConnected(false);
     setRetellAgentName("");
+  };
+
+  const handleCalcomConnected = () => {
+    setCalcomConnected(true);
+  };
+
+  const handleDisconnectCalcom = async () => {
+    try {
+      await supabase.functions.invoke("calcom-sync", {
+        body: { action: "disconnect" },
+      });
+      setCalcomConnected(false);
+      toast.success("Cal.com disconnected");
+    } catch {
+      toast.error("Failed to disconnect Cal.com");
+    }
   };
 
   const integrations = [
