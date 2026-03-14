@@ -455,9 +455,12 @@ const Bookings = () => {
                     <CalendarComponent
                       mode="single"
                       selected={rescheduleDate}
-                      onSelect={setRescheduleDate}
+                      onSelect={(day) => {
+                        if (day) setRescheduleDate(day);
+                      }}
                       disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                       className="p-2 pointer-events-auto"
+                      initialFocus
                     />
                   </div>
 
