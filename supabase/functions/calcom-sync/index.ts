@@ -72,6 +72,16 @@ serve(async (req) => {
         slug: et.slug,
         length: et.length,
         description: et.description,
+        bookingFields: (et.bookingFields || []).map((f: any) => ({
+          name: f.name,
+          type: f.type,
+          label: f.label || f.name,
+          required: f.required ?? false,
+          placeholder: f.placeholder || "",
+          options: f.options || undefined,
+          hidden: f.hidden ?? false,
+          editable: f.editable ?? "user",
+        })),
       }));
       return new Response(JSON.stringify({ event_types: eventTypes }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
