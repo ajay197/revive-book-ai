@@ -701,16 +701,25 @@ const Bookings = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewBooking(false)}>Cancel</Button>
             <Button
-              disabled={creatingBooking || !newBooking.name || !newBooking.email || !newBooking.phone}
+              disabled={creatingBooking || !newBooking.name || !newBooking.email || !newBooking.phone || (!bookingTimeSlot && !!newBooking.eventTypeId) || (!bookingDate && !newBooking.eventTypeId)}
               onClick={async () => {
                 setCreatingBooking(true);
                 try {
-                  const datetimeInput = (document.getElementById("booking-datetime") as HTMLInputElement)?.value;
-                  if (!datetimeInput) { toast.error("Please select a date and time"); setCreatingBooking(false); return; }
-                  
                   const selectedEvent = eventTypes.find((et) => String(et.id) === newBooking.eventTypeId);
-                  const startTime = new Date(datetimeInput).toISOString();
                   const fullPhone = `${newBooking.countryCode}${newBooking.phone}`;
+
+                  if (!bookingTimeSlot && selectedEvent) {
+                    toast.error("Please select an available time slot");
+                    setCreatingBooking(false);
+                    return;
+                  }
+                  if (!bookingDate && !selectedEvent) {
+                    toast.error("Please select a date");
+                    setCreatingBooking(false);
+                    return;
+                  }
+
+                  const startTime = selectedEvent ? bookingTimeSlot : (bookingDate ? bookingDate.toISOString() : "");
 
                   // Validate required custom fields
                   if (selectedEvent?.bookingFields) {
@@ -735,7 +744,7 @@ const Bookings = () => {
                         attendeeName: newBooking.name,
                         attendeeEmail: newBooking.email,
                         attendeePhone: fullPhone,
-                        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        timeZone: userTimezone,
                         customResponses: customFieldValues,
                       },
                     });
@@ -744,8 +753,7 @@ const Bookings = () => {
 
                     await supabase.functions.invoke("calcom-sync", { body: { action: "sync_bookings" } });
                   } else {
-                    const endTime = new Date(new Date(datetimeInput).getTime() + 30 * 60000).toISOString();
-                    // Auto-link to lead by email or phone
+                    const endTime = new Date(new Date(startTime).getTime() + 30 * 60000).toISOString();
                     let leadId: string | null = null;
                     const { data: leadByEmail } = await supabase.from("leads").select("id").eq("user_id", user!.id).eq("email", newBooking.email).limit(1).maybeSingle();
                     if (leadByEmail) { leadId = leadByEmail.id; }
@@ -771,6 +779,9 @@ const Bookings = () => {
                   setShowNewBooking(false);
                   setNewBooking({ name: "", email: "", phone: "", countryCode: "+1", eventTypeId: "" });
                   setCustomFieldValues({});
+                  setBookingDate(undefined);
+                  setBookingTimeSlot("");
+                  setAvailableSlots({});
                   refetch();
                 } catch (err: any) {
                   toast.error(err.message || "Failed to book meeting");
