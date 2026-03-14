@@ -126,6 +126,7 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
       timezone,
       max_retries: parseInt(maxRetries) || 3,
       retry_delay: parseInt(retryDelay) || 24,
+      call_interval_minutes: campaignType === "Old Lead Reactivation" ? (parseInt(callInterval) || 5) : 0,
     } as any).select("id").single();
 
     if (error || !campaignData) {
