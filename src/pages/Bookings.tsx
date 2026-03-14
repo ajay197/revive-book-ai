@@ -465,11 +465,28 @@ const Bookings = () => {
                   <Button variant="destructive" size="sm" disabled={cancellingBooking} onClick={async () => {
                     if (!selectedBooking) return;
                     setCancellingBooking(true);
-                    const { error } = await supabase.from("bookings").update({ status: "cancelled", updated_at: new Date().toISOString() }).eq("id", selectedBooking.id);
-                    setCancellingBooking(false);
-                    if (error) { toast.error("Failed to cancel booking"); return; }
-                    toast.success("Booking cancelled");
-                    setSelectedBooking(null); refetch();
+                    try {
+                      // Cancel on Cal.com first if it has a calcom_booking_id
+                      if (selectedBooking.calcom_booking_id) {
+                        const { data: cancelData, error: cancelError } = await supabase.functions.invoke("calcom-sync", {
+                          body: { action: "cancel_booking", calcomBookingId: selectedBooking.calcom_booking_id },
+                        });
+                        if (cancelError || cancelData?.error) {
+                          toast.error(cancelData?.error || "Failed to cancel on Cal.com");
+                          setCancellingBooking(false);
+                          return;
+                        }
+                      }
+                      // Update local DB
+                      const { error } = await supabase.from("bookings").update({ status: "cancelled", updated_at: new Date().toISOString() }).eq("id", selectedBooking.id);
+                      if (error) { toast.error("Failed to update booking locally"); setCancellingBooking(false); return; }
+                      toast.success("Booking cancelled on Cal.com");
+                      setSelectedBooking(null); refetch();
+                    } catch (err) {
+                      toast.error("Failed to cancel booking");
+                    } finally {
+                      setCancellingBooking(false);
+                    }
                   }}>
                     {cancellingBooking ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <XCircle className="mr-1.5 h-3.5 w-3.5" />}
                     Cancel Booking

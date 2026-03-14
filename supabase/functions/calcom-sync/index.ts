@@ -293,6 +293,34 @@ serve(async (req) => {
       });
     }
 
+    if (action === "cancel_booking") {
+      const { calcomBookingId, uid } = body;
+      if (!calcomBookingId && !uid) {
+        return new Response(JSON.stringify({ error: "Missing calcomBookingId or uid" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Cal.com v1 cancel endpoint: DELETE /v1/bookings/:id
+      const bookingIdToCancel = calcomBookingId;
+      const cancelUrl = `${calcomBase}/bookings/${bookingIdToCancel}/cancel?apiKey=${calcomApiKey}`;
+      const res = await fetch(cancelUrl, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Cal.com cancel error:", errText);
+        throw new Error(`Failed to cancel booking on Cal.com: ${res.status}`);
+      }
+
+      return new Response(JSON.stringify({ success: true, cancelled: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (action === "connect") {
       // Verify API key by fetching event types
       const res = await fetch(`${calcomBase}/event-types?apiKey=${calcomApiKey}`);
