@@ -48,12 +48,21 @@ export function AddLeadsToCampaignDialog({
     enabled: !!user && open,
   });
 
-  // Filter leads not already assigned to this campaign
-  const availableLeads = leads.filter(
-    (l) => l.campaign !== campaign?.name && l.campaign !== campaign?.id
+  // Initialize selected with already-assigned leads
+  const assignedIds = new Set(
+    leads
+      .filter((l) => l.campaign === campaign?.name || l.campaign === campaign?.id)
+      .map((l) => l.id)
   );
 
-  const filtered = availableLeads.filter((l) => {
+  // Lazy-init selected from assigned leads
+  if (selected === null && leads.length > 0) {
+    setSelected(new Set(assignedIds));
+  }
+
+  const sel = selected ?? new Set<string>();
+
+  const filtered = leads.filter((l) => {
     if (!search) return true;
     const q = search.toLowerCase();
     return (
@@ -66,7 +75,7 @@ export function AddLeadsToCampaignDialog({
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev ?? []);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
@@ -74,7 +83,7 @@ export function AddLeadsToCampaignDialog({
   };
 
   const toggleAll = () => {
-    if (selected.size === filtered.length) {
+    if (sel.size === filtered.length) {
       setSelected(new Set());
     } else {
       setSelected(new Set(filtered.map((l) => l.id)));
@@ -82,30 +91,42 @@ export function AddLeadsToCampaignDialog({
   };
 
   const handleAssign = async () => {
-    if (!campaign || selected.size === 0) return;
+    if (!campaign) return;
     setSaving(true);
 
-    const { error } = await supabase
-      .from("leads")
-      .update({ campaign: campaign.name })
-      .in("id", Array.from(selected));
+    const toAssign = Array.from(sel).filter((id) => !assignedIds.has(id));
+    const toUnassign = Array.from(assignedIds).filter((id) => !sel.has(id));
 
-    if (error) {
-      toast.error("Failed to assign leads");
-      setSaving(false);
-      return;
+    // Assign new leads
+    if (toAssign.length > 0) {
+      const { error } = await supabase
+        .from("leads")
+        .update({ campaign: campaign.name })
+        .in("id", toAssign);
+      if (error) {
+        toast.error("Failed to assign leads");
+        setSaving(false);
+        return;
+      }
     }
 
-    // Update lead_count on campaign
-    const { data: countData } = await supabase
-      .from("leads")
-      .select("id", { count: "exact", head: true })
-      .eq("campaign", campaign.name);
+    // Unassign removed leads
+    if (toUnassign.length > 0) {
+      const { error } = await supabase
+        .from("leads")
+        .update({ campaign: null })
+        .in("id", toUnassign);
+      if (error) {
+        toast.error("Failed to unassign leads");
+        setSaving(false);
+        return;
+      }
+    }
 
-    const newCount = (countData as any)?.length ?? selected.size;
+    // Update lead_count
     await supabase
       .from("campaigns")
-      .update({ lead_count: newCount })
+      .update({ lead_count: sel.size })
       .eq("id", campaign.id);
 
     toast.success(`${selected.size} lead(s) added to "${campaign.name}"`);
