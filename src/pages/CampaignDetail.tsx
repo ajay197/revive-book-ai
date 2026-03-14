@@ -178,7 +178,32 @@ const CampaignDetail = () => {
         </div>
       )}
 
-      {/* Call logs table */}
+      {/* Call interval setting for Old Lead Reactivation */}
+      {campaign.type === "Old Lead Reactivation" && (
+        <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3 shadow-sm">
+          <Timer className="h-4 w-4 text-muted-foreground shrink-0" />
+          <span className="text-sm font-medium text-foreground whitespace-nowrap">Next call after:</span>
+          <Input
+            type="number"
+            min={0}
+            value={callInterval}
+            onChange={(e) => setCallInterval(e.target.value)}
+            className="w-24 h-8 text-sm"
+            placeholder="0"
+          />
+          <span className="text-sm text-muted-foreground">minutes</span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8"
+            disabled={savingInterval || String(campaign.call_interval_minutes || 0) === callInterval}
+            onClick={handleSaveInterval}
+          >
+            {savingInterval ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+          </Button>
+        </div>
+      )}
+
       <div className="rounded-xl border bg-card shadow-card">
         <div className="px-5 py-3 border-b">
           <h2 className="font-display text-sm font-semibold text-foreground">Call History</h2>
