@@ -620,7 +620,7 @@ const Bookings = () => {
                   {/* Date picker */}
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium text-foreground">Select Date <span className="text-destructive">*</span></label>
-                    <Popover>
+                    <Popover modal={true}>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
@@ -630,14 +630,16 @@ const Bookings = () => {
                           {bookingDate ? format(bookingDate, "PPP") : "Pick a date"}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
+                      <PopoverContent className="w-auto p-0 pointer-events-auto" align="start" side="bottom" sideOffset={4}>
                         <CalendarComponent
                           mode="single"
                           selected={bookingDate}
-                          onSelect={setBookingDate}
+                          onSelect={(date) => {
+                            setBookingDate(date);
+                          }}
                           disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                           initialFocus
-                          className={cn("p-3 pointer-events-auto")}
+                          className="p-3 pointer-events-auto"
                         />
                       </PopoverContent>
                     </Popover>
