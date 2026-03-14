@@ -383,6 +383,7 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
                   { label: "Timezone", value: timezone.replace(/_/g, " ") },
                   { label: "Max Retries", value: maxRetries },
                   { label: "Retry Delay", value: `${retryDelay} hours` },
+                  ...(campaignType === "Old Lead Reactivation" ? [{ label: "Next Call After", value: `${callInterval} minutes` }] : []),
                 ].map((row) => (
                   <div key={row.label} className="flex items-center justify-between px-4 py-3">
                     <span className="text-sm text-muted-foreground">{row.label}</span>
