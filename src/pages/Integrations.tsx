@@ -30,7 +30,7 @@ const Integrations = () => {
         .select("id")
         .eq("user_id", user.id)
         .eq("provider", "calcom")
-        .single()
+        .maybeSingle()
         .then(({ data }) => setCalcomConnected(!!data));
     }
   }, [user]);
