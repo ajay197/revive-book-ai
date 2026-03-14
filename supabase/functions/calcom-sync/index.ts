@@ -72,6 +72,16 @@ serve(async (req) => {
         slug: et.slug,
         length: et.length,
         description: et.description,
+        bookingFields: (et.bookingFields || []).map((f: any) => ({
+          name: f.name,
+          type: f.type,
+          label: f.label || f.name,
+          required: f.required ?? false,
+          placeholder: f.placeholder || "",
+          options: f.options || undefined,
+          hidden: f.hidden ?? false,
+          editable: f.editable ?? "user",
+        })),
       }));
       return new Response(JSON.stringify({ event_types: eventTypes }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -153,7 +163,7 @@ serve(async (req) => {
     }
 
     if (action === "create_booking") {
-      const { attendeeName, attendeeEmail, attendeePhone, eventTypeId, startTime, timeZone } = body;
+      const { attendeeName, attendeeEmail, attendeePhone, eventTypeId, startTime, timeZone, customResponses } = body;
       if (!eventTypeId || !startTime || !attendeeName || !attendeeEmail) {
         return new Response(JSON.stringify({ error: "Missing required fields" }), {
           status: 400,
@@ -169,6 +179,15 @@ serve(async (req) => {
         smsReminderNumber: phone,
       };
       if (attendeePhone) responses.phone = attendeePhone;
+
+      // Merge custom field responses
+      if (customResponses && typeof customResponses === "object") {
+        for (const [key, value] of Object.entries(customResponses)) {
+          if (value !== undefined && value !== "") {
+            responses[key] = value;
+          }
+        }
+      }
 
       const bookingPayload = {
         eventTypeId: Number(eventTypeId),
