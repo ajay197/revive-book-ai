@@ -78,10 +78,10 @@ export function AddLeadsToCampaignDialog({
     enabled: !!campaign?.id && open,
   });
 
-  // Lazy-init selected from assigned leads
-  if (selected === null && leads.length > 0) {
+  useEffect(() => {
+    if (!open) return;
     setSelected(new Set(assignedLeadIds));
-  }
+  }, [open, campaign?.id, assignedLeadIds]);
 
   const sel = selected ?? new Set<string>();
 
