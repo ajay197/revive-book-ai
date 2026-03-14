@@ -66,9 +66,30 @@ const CampaignDetail = () => {
         .order("created_at", { ascending: false }),
     ]);
 
-    if (campRes.data) setCampaign(campRes.data);
+    if (campRes.data) {
+      setCampaign(campRes.data);
+      setCallInterval(String(campRes.data.call_interval_minutes || 0));
+    }
     if (logsRes.data) setCallLogs(logsRes.data);
     setLoading(false);
+  };
+
+  const handleSaveInterval = async () => {
+    if (!campaign) return;
+    const minutes = parseInt(callInterval) || 0;
+    if (minutes < 0) return;
+    setSavingInterval(true);
+    const { error } = await supabase
+      .from("campaigns")
+      .update({ call_interval_minutes: minutes })
+      .eq("id", campaign.id);
+    if (error) {
+      toast.error("Failed to update call interval");
+    } else {
+      toast.success(`Call interval updated to ${minutes} minutes`);
+      setCampaign({ ...campaign, call_interval_minutes: minutes });
+    }
+    setSavingInterval(false);
   };
 
   useEffect(() => {
