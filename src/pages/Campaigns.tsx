@@ -177,6 +177,7 @@ const Campaigns = () => {
                     <td className="px-5 py-3">
                       <p className="font-medium text-foreground">{c.name}</p>
                       <p className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</p>
+                      <CampaignCallStatus campaignName={c.name} campaignStatus={c.status} />
                     </td>
                     <td className="px-5 py-3 text-muted-foreground">{c.type}</td>
                     <td className="px-5 py-3 text-muted-foreground">{c.lead_count.toLocaleString()}</td>
