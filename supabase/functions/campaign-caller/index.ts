@@ -169,7 +169,7 @@ serve(async (req) => {
     // 1. Try fresh leads (New/Queued, no retell_call_id)
     const { data: freshCL } = await supabase
       .from("campaign_leads")
-      .select("*, leads(*)")
+      .select("*, leads!campaign_leads_lead_id_fkey(*)")
       .eq("campaign_id", campaignId)
       .in("status", ["New", "Queued"])
       .is("retell_call_id", null)
