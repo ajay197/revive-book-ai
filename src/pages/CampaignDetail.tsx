@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
-import { ArrowLeft, Phone, Clock, Loader2, RefreshCw, Settings2 } from "lucide-react";
+import { ArrowLeft, Phone, Clock, Loader2, RefreshCw, Settings2, CircleDot } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { EditCampaignSettingsDialog } from "@/components/EditCampaignSettingsDialog";
@@ -118,8 +118,29 @@ const CampaignDetail = () => {
 
   const windowStart = campaign.window_start || "09:00";
   const windowEnd = campaign.window_end || "17:00";
-  const tz = (campaign.timezone || "America/New_York").replace(/_/g, " ");
+  const campaignTz = campaign.timezone || "America/New_York";
+  const tz = campaignTz.replace(/_/g, " ");
   const isReactivation = campaign.type === "Old Lead Reactivation";
+
+  // Compute whether we're inside the calling window right now
+  const getWindowStatus = () => {
+    try {
+      const nowInTz = new Date().toLocaleString("en-US", { timeZone: campaignTz });
+      const localDate = new Date(nowInTz);
+      const currentMinutes = localDate.getHours() * 60 + localDate.getMinutes();
+      const [startH, startM] = windowStart.split(":").map(Number);
+      const [endH, endM] = windowEnd.split(":").map(Number);
+      const startMin = startH * 60 + startM;
+      const endMin = endH * 60 + endM;
+      const inside = currentMinutes >= startMin && currentMinutes < endMin;
+      const localTime = `${String(localDate.getHours()).padStart(2, "0")}:${String(localDate.getMinutes()).padStart(2, "0")}`;
+      return { inside, localTime };
+    } catch {
+      return { inside: true, localTime: "" };
+    }
+  };
+
+  const windowStatus = getWindowStatus();
 
   return (
     <div className="space-y-6">
@@ -160,10 +181,21 @@ const CampaignDetail = () => {
       </div>
 
       {/* Campaign settings summary */}
-      <div className="rounded-lg border bg-muted/30 px-4 py-3 text-xs text-muted-foreground space-y-1">
-        <div className="flex items-center gap-2">
-          <Clock className="h-3.5 w-3.5 shrink-0" />
-          <span>Calling window: {windowStart} – {windowEnd} ({tz})</span>
+      <div className="rounded-lg border bg-muted/30 px-4 py-3 text-xs text-muted-foreground space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Clock className="h-3.5 w-3.5 shrink-0" />
+            <span>Calling window: {windowStart} – {windowEnd} ({tz})</span>
+          </div>
+          <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium ${
+            windowStatus.inside
+              ? "bg-green-500/10 text-green-600 dark:text-green-400"
+              : "bg-orange-500/10 text-orange-600 dark:text-orange-400"
+          }`}>
+            <CircleDot className="h-3 w-3" />
+            {windowStatus.inside ? "Active now" : "Outside window"}
+            {windowStatus.localTime && <span className="opacity-70">({windowStatus.localTime} local)</span>}
+          </div>
         </div>
         {(campaign.max_retries || 0) > 0 && (
           <div className="flex items-center gap-2">

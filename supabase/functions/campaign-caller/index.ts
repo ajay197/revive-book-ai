@@ -46,6 +46,40 @@ serve(async (req) => {
       });
     }
 
+    // Enforce calling window FIRST: only allow calls during window_start–window_end in campaign timezone
+    const campaignTimezone = campaign.timezone || "America/New_York";
+    const windowStart = campaign.window_start || "09:00";
+    const windowEnd = campaign.window_end || "17:00";
+
+    try {
+      const nowInTz = new Date().toLocaleString("en-US", { timeZone: campaignTimezone });
+      const localDate = new Date(nowInTz);
+      const currentHour = localDate.getHours();
+      const currentMinute = localDate.getMinutes();
+      const currentTimeMinutes = currentHour * 60 + currentMinute;
+
+      const [startH, startM] = windowStart.split(":").map(Number);
+      const [endH, endM] = windowEnd.split(":").map(Number);
+      const startMinutes = startH * 60 + startM;
+      const endMinutes = endH * 60 + endM;
+
+      if (currentTimeMinutes < startMinutes || currentTimeMinutes >= endMinutes) {
+        return new Response(JSON.stringify({
+          waiting: true,
+          outsideWindow: true,
+          message: `Outside calling window (${windowStart}–${windowEnd} ${campaignTimezone.replace(/_/g, " ")}). Current local time: ${String(currentHour).padStart(2, "0")}:${String(currentMinute).padStart(2, "0")}.`,
+          windowStart,
+          windowEnd,
+          timezone: campaignTimezone,
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } catch (tzError) {
+      console.error("Timezone check error:", tzError);
+    }
+
     // Get user's Retell API key
     const { data: integration } = await supabase
       .from("user_integrations")
@@ -79,41 +113,6 @@ serve(async (req) => {
     const maxRetries = campaign.max_retries || 0;
     const callIntervalMinutes = campaign.call_interval_minutes || 0;
     const now = new Date().toISOString();
-
-    // Enforce calling window: only allow calls during window_start–window_end in campaign timezone
-    const campaignTimezone = campaign.timezone || "America/New_York";
-    const windowStart = campaign.window_start || "09:00";
-    const windowEnd = campaign.window_end || "17:00";
-
-    try {
-      const nowInTz = new Date().toLocaleString("en-US", { timeZone: campaignTimezone });
-      const localDate = new Date(nowInTz);
-      const currentHour = localDate.getHours();
-      const currentMinute = localDate.getMinutes();
-      const currentTimeMinutes = currentHour * 60 + currentMinute;
-
-      const [startH, startM] = windowStart.split(":").map(Number);
-      const [endH, endM] = windowEnd.split(":").map(Number);
-      const startMinutes = startH * 60 + startM;
-      const endMinutes = endH * 60 + endM;
-
-      if (currentTimeMinutes < startMinutes || currentTimeMinutes >= endMinutes) {
-        return new Response(JSON.stringify({
-          waiting: true,
-          outsideWindow: true,
-          message: `Outside calling window (${windowStart}–${windowEnd} ${campaignTimezone.replace(/_/g, " ")}). Current local time: ${String(currentHour).padStart(2, "0")}:${String(currentMinute).padStart(2, "0")}.`,
-          windowStart,
-          windowEnd,
-          timezone: campaignTimezone,
-        }), {
-          status: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-    } catch (tzError) {
-      console.error("Timezone check error:", tzError);
-      // If timezone check fails, proceed with the call rather than blocking
-    }
 
     // For reactivation campaigns with a call interval, check if enough time has passed
     if (callIntervalMinutes > 0) {
