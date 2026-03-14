@@ -617,9 +617,82 @@ const Bookings = () => {
                     </div>
                   )}
 
+                  {/* Date picker */}
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-foreground">Date & Time <span className="text-destructive">*</span></label>
-                    <Input type="datetime-local" id="booking-datetime" />
+                    <label className="text-sm font-medium text-foreground">Select Date <span className="text-destructive">*</span></label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn("w-full justify-start text-left font-normal", !bookingDate && "text-muted-foreground")}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {bookingDate ? format(bookingDate, "PPP") : "Pick a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={bookingDate}
+                          onSelect={setBookingDate}
+                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* Time slots */}
+                  {bookingDate && newBooking.eventTypeId && (
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-foreground">Select Time <span className="text-destructive">*</span></label>
+                      {loadingSlots ? (
+                        <div className="flex items-center justify-center py-6">
+                          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                          <span className="ml-2 text-sm text-muted-foreground">Loading available slots...</span>
+                        </div>
+                      ) : (() => {
+                        const dateKey = format(bookingDate, "yyyy-MM-dd");
+                        const daySlots = availableSlots[dateKey] || [];
+                        if (daySlots.length === 0) {
+                          return (
+                            <div className="rounded-lg border border-dashed bg-muted/30 p-4 text-center">
+                              <Clock className="mx-auto h-5 w-5 text-muted-foreground/50 mb-1" />
+                              <p className="text-sm text-muted-foreground">No available slots on this date</p>
+                              <p className="text-xs text-muted-foreground mt-1">Try selecting a different date</p>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="grid grid-cols-3 gap-2 max-h-[180px] overflow-y-auto pr-1">
+                            {daySlots.map((slot: string) => {
+                              const slotTime = parseISO(slot);
+                              const timeLabel = format(slotTime, "h:mm a");
+                              const isSelected = bookingTimeSlot === slot;
+                              return (
+                                <Button
+                                  key={slot}
+                                  type="button"
+                                  variant={isSelected ? "default" : "outline"}
+                                  size="sm"
+                                  className={cn("text-xs", isSelected && "ring-2 ring-primary")}
+                                  onClick={() => setBookingTimeSlot(slot)}
+                                >
+                                  {timeLabel}
+                                </Button>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+
+                  {/* Timezone indicator */}
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Globe className="h-3.5 w-3.5" />
+                    <span>Timezone: {userTimezone}</span>
                   </div>
                 </>
               );
