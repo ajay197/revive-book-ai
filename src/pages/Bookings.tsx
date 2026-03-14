@@ -104,6 +104,41 @@ const Bookings = () => {
     } catch {}
   };
 
+  const fetchAvailableSlots = useCallback(async (eventTypeId: string, date: Date) => {
+    setLoadingSlots(true);
+    setAvailableSlots({});
+    setBookingTimeSlot("");
+    try {
+      const startTime = format(date, "yyyy-MM-dd");
+      const endDate = addDays(date, 1);
+      const endTime = format(endDate, "yyyy-MM-dd");
+      const { data, error } = await supabase.functions.invoke("calcom-sync", {
+        body: {
+          action: "fetch_slots",
+          eventTypeId: Number(eventTypeId),
+          startTime,
+          endTime,
+          timeZone: userTimezone,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setAvailableSlots(data?.slots || {});
+    } catch (err: any) {
+      console.error("Failed to fetch slots:", err);
+      toast.error("Failed to load available time slots");
+    } finally {
+      setLoadingSlots(false);
+    }
+  }, [userTimezone]);
+
+  // Fetch slots when date or event type changes
+  useEffect(() => {
+    if (bookingDate && newBooking.eventTypeId) {
+      fetchAvailableSlots(newBooking.eventTypeId, bookingDate);
+    }
+  }, [bookingDate, newBooking.eventTypeId, fetchAvailableSlots]);
+
   const { data: bookings = [], isLoading, refetch } = useQuery({
     queryKey: ["bookings", user?.id],
     queryFn: async () => {
