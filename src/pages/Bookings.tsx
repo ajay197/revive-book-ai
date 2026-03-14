@@ -371,7 +371,17 @@ const Bookings = () => {
       </div>
 
       {/* Booking detail dialog */}
-      <Dialog open={!!selectedBooking} onOpenChange={() => setSelectedBooking(null)}>
+      <Dialog
+        open={!!selectedBooking}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedBooking(null);
+            setRescheduling(false);
+            setRescheduleDate(undefined);
+            setRescheduleTime("");
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{selectedBooking?.title}</DialogTitle>
