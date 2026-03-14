@@ -129,10 +129,12 @@ export function AddLeadsToCampaignDialog({
       .update({ lead_count: sel.size })
       .eq("id", campaign.id);
 
-    toast.success(`${selected.size} lead(s) added to "${campaign.name}"`);
-    setSelected(new Set());
-    setSearch("");
-    setSaving(false);
+    const added = toAssign.length;
+    const removed = toUnassign.length;
+    const parts: string[] = [];
+    if (added > 0) parts.push(`${added} added`);
+    if (removed > 0) parts.push(`${removed} removed`);
+    toast.success(`Leads updated: ${parts.join(", ")}`);
     onOpenChange(false);
     onUpdated?.();
   };
