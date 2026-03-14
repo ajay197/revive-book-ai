@@ -207,6 +207,12 @@ const Integrations = () => {
         onOpenChange={setRetellDialogOpen}
         onConnected={handleRetellConnected}
       />
+
+      <CalComConnectDialog
+        open={calcomDialogOpen}
+        onOpenChange={setCalcomDialogOpen}
+        onConnected={handleCalcomConnected}
+      />
     </div>
   );
 };
