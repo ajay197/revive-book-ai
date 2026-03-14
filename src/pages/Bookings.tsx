@@ -156,10 +156,16 @@ const Bookings = () => {
           <h1 className="font-display text-2xl font-bold text-foreground">Bookings</h1>
           <p className="mt-1 text-sm text-muted-foreground">Appointments booked by your AI agents via Cal.com</p>
         </div>
-        <Button variant="outline" onClick={handleSync} disabled={syncing}>
-          {syncing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-          Sync from Cal.com
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleSync} disabled={syncing}>
+            {syncing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+            Sync from Cal.com
+          </Button>
+          <Button onClick={() => setShowNewBooking(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Book Meeting
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
