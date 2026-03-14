@@ -72,7 +72,8 @@ const Bookings = () => {
   const [creatingBooking, setCreatingBooking] = useState(false);
   const [cancellingBooking, setCancellingBooking] = useState(false);
   const [rescheduling, setRescheduling] = useState(false);
-  const [rescheduleDateTime, setRescheduleDateTime] = useState("");
+  const [rescheduleDate, setRescheduleDate] = useState<Date | undefined>(undefined);
+  const [rescheduleTime, setRescheduleTime] = useState("");
   const [bookingDate, setBookingDate] = useState<Date | undefined>(undefined);
   const [bookingTimeSlot, setBookingTimeSlot] = useState("");
   const [availableSlots, setAvailableSlots] = useState<Record<string, unknown>>({});
