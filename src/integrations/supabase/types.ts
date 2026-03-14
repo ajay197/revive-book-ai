@@ -94,6 +94,7 @@ export type Database = {
           agent_id: string | null
           agent_name: string | null
           appointments_booked: number | null
+          call_interval_minutes: number | null
           calls_completed: number | null
           cost: number | null
           created_at: string
@@ -117,6 +118,7 @@ export type Database = {
           agent_id?: string | null
           agent_name?: string | null
           appointments_booked?: number | null
+          call_interval_minutes?: number | null
           calls_completed?: number | null
           cost?: number | null
           created_at?: string
@@ -140,6 +142,7 @@ export type Database = {
           agent_id?: string | null
           agent_name?: string | null
           appointments_booked?: number | null
+          call_interval_minutes?: number | null
           calls_completed?: number | null
           cost?: number | null
           created_at?: string

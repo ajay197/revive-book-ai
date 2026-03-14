@@ -89,6 +89,8 @@ const Campaigns = () => {
         toast.error(data.error);
       } else if (data?.success) {
         toast.success(`Calling ${data.leadName} (${data.leadPhone})...`);
+      } else if (data?.waiting) {
+        toast.info(data.message);
       } else if (data?.completed) {
         toast.info(data.message);
       }

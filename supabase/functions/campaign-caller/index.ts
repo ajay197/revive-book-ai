@@ -77,7 +77,58 @@ serve(async (req) => {
     }
 
     const maxRetries = campaign.max_retries || 0;
+    const callIntervalMinutes = campaign.call_interval_minutes || 0;
     const now = new Date().toISOString();
+
+    // For reactivation campaigns with a call interval, check if enough time has passed
+    if (callIntervalMinutes > 0) {
+      // Check if there's an ongoing call for this campaign
+      const { data: ongoingCall } = await supabase
+        .from("call_logs")
+        .select("id, status")
+        .eq("campaign_id", campaignId)
+        .in("status", ["Queued", "In Progress"])
+        .limit(1)
+        .maybeSingle();
+
+      if (ongoingCall) {
+        return new Response(JSON.stringify({
+          waiting: true,
+          message: "A call is still in progress. Next call will start after it ends.",
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Check if the last completed call ended recently enough
+      const { data: lastCall } = await supabase
+        .from("call_logs")
+        .select("ended_at")
+        .eq("campaign_id", campaignId)
+        .not("ended_at", "is", null)
+        .order("ended_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (lastCall?.ended_at) {
+        const lastEndTime = new Date(lastCall.ended_at).getTime();
+        const requiredWait = callIntervalMinutes * 60 * 1000;
+        const elapsed = Date.now() - lastEndTime;
+
+        if (elapsed < requiredWait) {
+          const waitSeconds = Math.ceil((requiredWait - elapsed) / 1000);
+          return new Response(JSON.stringify({
+            waiting: true,
+            message: `Waiting ${waitSeconds}s before next call (${callIntervalMinutes}min interval).`,
+            nextCallAt: new Date(lastEndTime + requiredWait).toISOString(),
+          }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+    }
 
     // Find next lead: fresh leads first, then retry-eligible leads whose next_retry_at has passed
     let nextLead = null;

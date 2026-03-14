@@ -65,6 +65,7 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
   const [timezone, setTimezone] = useState("America/New_York");
   const [maxRetries, setMaxRetries] = useState("3");
   const [retryDelay, setRetryDelay] = useState("24");
+  const [callInterval, setCallInterval] = useState("5");
   const [saving, setSaving] = useState(false);
   const { user } = useAuth();
 
@@ -91,6 +92,7 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
     setTimezone("America/New_York");
     setMaxRetries("3");
     setRetryDelay("24");
+    setCallInterval("5");
   };
 
   const handleClose = (val: boolean) => {
@@ -124,6 +126,7 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
       timezone,
       max_retries: parseInt(maxRetries) || 3,
       retry_delay: parseInt(retryDelay) || 24,
+      call_interval_minutes: campaignType === "Old Lead Reactivation" ? (parseInt(callInterval) || 5) : 0,
     } as any).select("id").single();
 
     if (error || !campaignData) {
@@ -344,9 +347,19 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
                   <Input id="retry-delay" type="number" min="1" max="168" value={retryDelay} onChange={(e) => setRetryDelay(e.target.value)} />
                 </div>
               </div>
+              {campaignType === "Old Lead Reactivation" && (
+                <div className="space-y-2">
+                  <Label htmlFor="call-interval" className="text-sm font-medium">Next Call After (minutes)</Label>
+                  <Input id="call-interval" type="number" min="1" max="120" value={callInterval} onChange={(e) => setCallInterval(e.target.value)} />
+                  <p className="text-xs text-muted-foreground">
+                    Time to wait between each call. If a call is still ongoing when the timer expires, the next call starts immediately after it ends.
+                  </p>
+                </div>
+              )}
               <div className="rounded-lg bg-muted/50 px-4 py-3 text-xs text-muted-foreground">
                 <Clock className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" />
                 Calls run {windowStart} – {windowEnd} daily ({timezone.replace(/_/g, " ")}). Up to {maxRetries} retries with {retryDelay}h delay.
+                {campaignType === "Old Lead Reactivation" && ` Next call after ${callInterval} min.`}
               </div>
             </div>
           )}
@@ -370,6 +383,7 @@ export function CreateCampaignSheet({ open, onOpenChange, onCreated }: CreateCam
                   { label: "Timezone", value: timezone.replace(/_/g, " ") },
                   { label: "Max Retries", value: maxRetries },
                   { label: "Retry Delay", value: `${retryDelay} hours` },
+                  ...(campaignType === "Old Lead Reactivation" ? [{ label: "Next Call After", value: `${callInterval} minutes` }] : []),
                 ].map((row) => (
                   <div key={row.label} className="flex items-center justify-between px-4 py-3">
                     <span className="text-sm text-muted-foreground">{row.label}</span>
