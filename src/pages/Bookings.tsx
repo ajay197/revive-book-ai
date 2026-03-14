@@ -617,32 +617,34 @@ const Bookings = () => {
                     </div>
                   )}
 
-                  {/* Date picker */}
+                  {/* Date picker - inline to avoid Popover-in-Dialog focus conflicts */}
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium text-foreground">Select Date <span className="text-destructive">*</span></label>
-                    <Popover modal={true}>
-                      <PopoverTrigger asChild>
+                    {bookingDate ? (
+                      <div className="flex items-center gap-2">
                         <Button
                           variant="outline"
-                          className={cn("w-full justify-start text-left font-normal", !bookingDate && "text-muted-foreground")}
+                          className="flex-1 justify-start text-left font-normal"
+                          onClick={() => setBookingDate(undefined)}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {bookingDate ? format(bookingDate, "PPP") : "Pick a date"}
+                          {format(bookingDate, "PPP")}
                         </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 pointer-events-auto" align="start" side="bottom" sideOffset={4}>
+                        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => { setBookingDate(undefined); setBookingTimeSlot(""); }}>
+                          Change
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border bg-background p-1">
                         <CalendarComponent
                           mode="single"
                           selected={bookingDate}
-                          onSelect={(date) => {
-                            setBookingDate(date);
-                          }}
+                          onSelect={setBookingDate}
                           disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                          initialFocus
-                          className="p-3 pointer-events-auto"
+                          className="p-2 pointer-events-auto"
                         />
-                      </PopoverContent>
-                    </Popover>
+                      </div>
+                    )}
                   </div>
 
                   {/* Time slots */}
