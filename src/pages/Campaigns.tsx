@@ -196,13 +196,13 @@ const Campaigns = () => {
                     <td className="px-5 py-3 text-muted-foreground">{c.appointments_booked}</td>
                     <td className="px-5 py-3 text-right text-muted-foreground">${Number(c.cost).toFixed(2)}</td>
                     <td className="px-5 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
+                       <div className="flex items-center justify-end gap-1">
                         {c.status === "Running" && (
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStatusToggle(c)}>
                             <Pause className="h-3.5 w-3.5 text-muted-foreground" />
                           </Button>
                         )}
-                        {(c.status === "Draft" || c.status === "Paused") && (
+                        {(c.status === "Draft" || c.status === "Paused" || c.status === "Completed") && (
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStatusToggle(c)}>
                             <Play className="h-3.5 w-3.5 text-primary" />
                           </Button>
