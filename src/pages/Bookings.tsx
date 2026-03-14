@@ -445,8 +445,36 @@ const Bookings = () => {
               <Input type="email" placeholder="john@example.com" value={newBooking.email} onChange={(e) => setNewBooking({ ...newBooking, email: e.target.value })} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground">Phone (optional)</label>
-              <Input type="tel" placeholder="+1234567890" value={newBooking.phone} onChange={(e) => setNewBooking({ ...newBooking, phone: e.target.value })} />
+              <label className="text-sm font-medium text-foreground">Phone number <span className="text-destructive">*</span></label>
+              <div className="flex gap-2">
+                <Select value={newBooking.countryCode} onValueChange={(v) => setNewBooking({ ...newBooking, countryCode: v })}>
+                  <SelectTrigger className="w-[100px] shrink-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[
+                      { code: "+1", label: "🇺🇸 +1" },
+                      { code: "+44", label: "🇬🇧 +44" },
+                      { code: "+91", label: "🇮🇳 +91" },
+                      { code: "+61", label: "🇦🇺 +61" },
+                      { code: "+49", label: "🇩🇪 +49" },
+                      { code: "+33", label: "🇫🇷 +33" },
+                      { code: "+81", label: "🇯🇵 +81" },
+                      { code: "+86", label: "🇨🇳 +86" },
+                      { code: "+55", label: "🇧🇷 +55" },
+                      { code: "+971", label: "🇦🇪 +971" },
+                      { code: "+966", label: "🇸🇦 +966" },
+                      { code: "+234", label: "🇳🇬 +234" },
+                      { code: "+27", label: "🇿🇦 +27" },
+                      { code: "+52", label: "🇲🇽 +52" },
+                      { code: "+65", label: "🇸🇬 +65" },
+                    ].map((c) => (
+                      <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input type="tel" placeholder="1234567890" value={newBooking.phone} onChange={(e) => setNewBooking({ ...newBooking, phone: e.target.value.replace(/\D/g, "") })} />
+              </div>
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground">Date & Time</label>
