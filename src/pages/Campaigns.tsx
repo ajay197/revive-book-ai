@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Plus, Play, Pause, Loader2, AlertTriangle, MoreHorizontal, UserPlus, Trash2 } from "lucide-react";
+import { CampaignCallStatus } from "@/components/CampaignCallStatus";
 import { CreateCampaignSheet } from "@/components/CreateCampaignSheet";
 import { AddLeadsToCampaignDialog } from "@/components/AddLeadsToCampaignDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
