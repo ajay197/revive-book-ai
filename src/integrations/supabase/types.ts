@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          attendee_email: string | null
+          attendee_name: string | null
+          attendee_phone: string | null
+          calcom_booking_id: number | null
+          campaign_id: string | null
+          created_at: string
+          description: string | null
+          end_time: string
+          event_type_id: number | null
+          event_type_name: string | null
+          id: string
+          lead_id: string | null
+          location: string | null
+          meeting_url: string | null
+          metadata: Json | null
+          start_time: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attendee_email?: string | null
+          attendee_name?: string | null
+          attendee_phone?: string | null
+          calcom_booking_id?: number | null
+          campaign_id?: string | null
+          created_at?: string
+          description?: string | null
+          end_time: string
+          event_type_id?: number | null
+          event_type_name?: string | null
+          id?: string
+          lead_id?: string | null
+          location?: string | null
+          meeting_url?: string | null
+          metadata?: Json | null
+          start_time: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attendee_email?: string | null
+          attendee_name?: string | null
+          attendee_phone?: string | null
+          calcom_booking_id?: number | null
+          campaign_id?: string | null
+          created_at?: string
+          description?: string | null
+          end_time?: string
+          event_type_id?: number | null
+          event_type_name?: string | null
+          id?: string
+          lead_id?: string | null
+          location?: string | null
+          meeting_url?: string | null
+          metadata?: Json | null
+          start_time?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       call_logs: {
         Row: {
           attempt_number: number | null
