@@ -484,7 +484,7 @@ const Bookings = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewBooking(false)}>Cancel</Button>
             <Button
-              disabled={creatingBooking || !newBooking.name || !newBooking.email}
+              disabled={creatingBooking || !newBooking.name || !newBooking.email || !newBooking.phone}
               onClick={async () => {
                 setCreatingBooking(true);
                 try {
