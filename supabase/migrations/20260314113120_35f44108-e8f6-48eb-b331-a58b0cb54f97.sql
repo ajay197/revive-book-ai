@@ -1,0 +1,1 @@
+ALTER TABLE public.campaigns ADD COLUMN call_interval_minutes integer DEFAULT 0;
