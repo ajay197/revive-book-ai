@@ -178,7 +178,22 @@ const Integrations = () => {
                 </Button>
               </div>
             )}
-            {integration.action === "configure" && integration.name !== "Retell AI" && (
+            {integration.name === "Cal.com" && !calcomConnected && (
+              <Button size="sm" className="mt-4 w-full" onClick={() => setCalcomDialogOpen(true)}>
+                Connect
+              </Button>
+            )}
+            {integration.name === "Cal.com" && calcomConnected && (
+              <div className="mt-4 flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => window.location.href = "/app/bookings"}>
+                  View Bookings
+                </Button>
+                <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={handleDisconnectCalcom}>
+                  Disconnect
+                </Button>
+              </div>
+            )}
+            {integration.action === "configure" && integration.name !== "Retell AI" && integration.name !== "Cal.com" && (
               <Button variant="outline" size="sm" className="mt-4 w-full">
                 Configure
               </Button>
