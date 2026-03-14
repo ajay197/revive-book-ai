@@ -141,8 +141,8 @@ export function AddLeadsToCampaignDialog({
 
   const handleClose = (val: boolean) => {
     if (!val) {
-      setSelected(new Set());
-      setSearch("");
+    setSelected(null);
+    setSearch("");
     }
     onOpenChange(val);
   };
