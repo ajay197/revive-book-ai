@@ -113,7 +113,6 @@ serve(async (req) => {
     const maxRetries = campaign.max_retries || 0;
     const callIntervalMinutes = campaign.call_interval_minutes || 0;
     const now = new Date().toISOString();
-    }
 
     // For reactivation campaigns with a call interval, check if enough time has passed
     if (callIntervalMinutes > 0) {
