@@ -465,22 +465,41 @@ const Bookings = () => {
                   
                   const selectedEvent = eventTypes.find((et) => String(et.id) === newBooking.eventTypeId);
                   const startTime = new Date(datetimeInput).toISOString();
-                  const endTime = new Date(new Date(datetimeInput).getTime() + (selectedEvent?.length || 30) * 60000).toISOString();
 
-                  const { error } = await supabase.from("bookings").insert({
-                    user_id: user!.id,
-                    title: selectedEvent ? `${selectedEvent.title} with ${newBooking.name}` : `Meeting with ${newBooking.name}`,
-                    start_time: startTime,
-                    end_time: endTime,
-                    status: "accepted",
-                    attendee_name: newBooking.name,
-                    attendee_email: newBooking.email,
-                    attendee_phone: newBooking.phone || null,
-                    event_type_name: selectedEvent?.title || null,
-                    event_type_id: selectedEvent?.id || null,
-                  });
+                  if (selectedEvent) {
+                    // Create booking on Cal.com via edge function
+                    const { data, error } = await supabase.functions.invoke("calcom-sync", {
+                      body: {
+                        action: "create_booking",
+                        eventTypeId: selectedEvent.id,
+                        startTime,
+                        attendeeName: newBooking.name,
+                        attendeeEmail: newBooking.email,
+                        attendeePhone: newBooking.phone || undefined,
+                        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                      },
+                    });
+                    if (error) throw error;
+                    if (data?.error) throw new Error(data.error);
 
-                  if (error) throw error;
+                    // Sync bookings after creating to pull the new one
+                    await supabase.functions.invoke("calcom-sync", { body: { action: "sync_bookings" } });
+                  } else {
+                    // No event type selected - create local-only booking
+                    const endTime = new Date(new Date(datetimeInput).getTime() + 30 * 60000).toISOString();
+                    const { error } = await supabase.from("bookings").insert({
+                      user_id: user!.id,
+                      title: `Meeting with ${newBooking.name}`,
+                      start_time: startTime,
+                      end_time: endTime,
+                      status: "accepted",
+                      attendee_name: newBooking.name,
+                      attendee_email: newBooking.email,
+                      attendee_phone: newBooking.phone || null,
+                    });
+                    if (error) throw error;
+                  }
+
                   toast.success("Meeting booked successfully!");
                   setShowNewBooking(false);
                   setNewBooking({ name: "", email: "", phone: "", eventTypeId: "" });
