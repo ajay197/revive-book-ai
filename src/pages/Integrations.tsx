@@ -92,6 +92,16 @@ const Integrations = () => {
       action: "configure" as const,
     },
     {
+      name: "Cal.com",
+      description: "Calendar & booking management",
+      icon: Calendar,
+      status: calcomConnected ? ("Connected" as const) : ("Not Connected" as const),
+      details: calcomConnected
+        ? ["Syncing bookings", "Calendar view enabled", "Attendee tracking active"]
+        : ["Connect your Cal.com account", "View bookings from AI agents"],
+      action: calcomConnected ? "configure" : "connect",
+    },
+    {
       name: "Facebook Leads",
       description: "Import leads from Facebook ads",
       icon: Facebook,
