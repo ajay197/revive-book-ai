@@ -629,6 +629,14 @@ const Bookings = () => {
                     await supabase.functions.invoke("calcom-sync", { body: { action: "sync_bookings" } });
                   } else {
                     const endTime = new Date(new Date(datetimeInput).getTime() + 30 * 60000).toISOString();
+                    // Auto-link to lead by email or phone
+                    let leadId: string | null = null;
+                    const { data: leadByEmail } = await supabase.from("leads").select("id").eq("user_id", user!.id).eq("email", newBooking.email).limit(1).maybeSingle();
+                    if (leadByEmail) { leadId = leadByEmail.id; }
+                    else {
+                      const { data: leadByPhone } = await supabase.from("leads").select("id").eq("user_id", user!.id).eq("phone", fullPhone).limit(1).maybeSingle();
+                      if (leadByPhone) leadId = leadByPhone.id;
+                    }
                     const { error } = await supabase.from("bookings").insert({
                       user_id: user!.id,
                       title: `Meeting with ${newBooking.name}`,
@@ -638,6 +646,7 @@ const Bookings = () => {
                       attendee_name: newBooking.name,
                       attendee_email: newBooking.email,
                       attendee_phone: fullPhone,
+                      lead_id: leadId,
                     });
                     if (error) throw error;
                   }

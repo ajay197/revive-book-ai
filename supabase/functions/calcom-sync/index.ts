@@ -112,6 +112,23 @@ serve(async (req) => {
       let synced = 0;
       for (const booking of bookings) {
         const attendee = booking.attendees?.[0];
+        const attendeeEmail = attendee?.email || null;
+        const attendeePhone = attendee?.phone || booking.metadata?.phone || null;
+
+        // Auto-link to lead by matching email or phone
+        let leadId: string | null = null;
+        if (attendeeEmail || attendeePhone) {
+          let query = supabase.from("leads").select("id").eq("user_id", user.id);
+          if (attendeeEmail) {
+            const { data: leadByEmail } = await query.eq("email", attendeeEmail).limit(1).maybeSingle();
+            if (leadByEmail) leadId = leadByEmail.id;
+          }
+          if (!leadId && attendeePhone) {
+            const { data: leadByPhone } = await supabase.from("leads").select("id").eq("user_id", user.id).eq("phone", attendeePhone).limit(1).maybeSingle();
+            if (leadByPhone) leadId = leadByPhone.id;
+          }
+        }
+
         const bookingData = {
           user_id: user.id,
           calcom_booking_id: booking.id,
@@ -121,12 +138,13 @@ serve(async (req) => {
           end_time: booking.endTime,
           status: (booking.status || "accepted").toLowerCase(),
           attendee_name: attendee?.name || null,
-          attendee_email: attendee?.email || null,
-          attendee_phone: attendee?.phone || booking.metadata?.phone || null,
+          attendee_email: attendeeEmail,
+          attendee_phone: attendeePhone,
           event_type_name: booking.eventType?.title || null,
           event_type_id: booking.eventType?.id || null,
           meeting_url: booking.metadata?.videoCallUrl || booking.location || null,
           location: booking.location || null,
+          lead_id: leadId,
           metadata: {
             responses: booking.responses || {},
             source: booking.source || null,
