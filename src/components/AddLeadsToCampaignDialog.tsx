@@ -65,7 +65,7 @@ export function AddLeadsToCampaignDialog({
   });
 
   // Fetch leads that have been called in this campaign (locked from removal)
-  const { data: calledLeadIds = new Set<string>() } = useQuery({
+  const { data: calledLeadIds = new Set<string>(), isLoading: calledLoading } = useQuery({
     queryKey: ["called-leads", campaign?.id],
     queryFn: async () => {
       const { data, error } = await supabase
