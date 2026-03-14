@@ -163,7 +163,7 @@ serve(async (req) => {
     }
 
     if (action === "create_booking") {
-      const { attendeeName, attendeeEmail, attendeePhone, eventTypeId, startTime, timeZone } = body;
+      const { attendeeName, attendeeEmail, attendeePhone, eventTypeId, startTime, timeZone, customResponses } = body;
       if (!eventTypeId || !startTime || !attendeeName || !attendeeEmail) {
         return new Response(JSON.stringify({ error: "Missing required fields" }), {
           status: 400,
@@ -179,6 +179,15 @@ serve(async (req) => {
         smsReminderNumber: phone,
       };
       if (attendeePhone) responses.phone = attendeePhone;
+
+      // Merge custom field responses
+      if (customResponses && typeof customResponses === "object") {
+        for (const [key, value] of Object.entries(customResponses)) {
+          if (value !== undefined && value !== "") {
+            responses[key] = value;
+          }
+        }
+      }
 
       const bookingPayload = {
         eventTypeId: Number(eventTypeId),
