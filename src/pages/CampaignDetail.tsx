@@ -33,6 +33,7 @@ interface CampaignInfo {
   cost: number | null;
   max_retries: number | null;
   retry_delay: number | null;
+  call_interval_minutes: number | null;
 }
 
 const formatDuration = (seconds: number | null) => {
