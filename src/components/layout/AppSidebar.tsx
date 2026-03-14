@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, Users, Megaphone, Bot, FileText, BarChart3, Plug, Settings, Phone, LogOut, CreditCard, History, Shield,
+  LayoutDashboard, Users, Megaphone, Bot, FileText, BarChart3, Plug, Settings, Phone, LogOut, CreditCard, History, Shield, CalendarCheck,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
