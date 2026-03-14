@@ -56,7 +56,20 @@ const Bookings = () => {
       .eq("user_id", user.id)
       .eq("provider", "calcom")
       .single()
-      .then(({ data }) => setCalcomConnected(!!data));
+      .then(({ data }) => {
+        setCalcomConnected(!!data);
+        if (data) fetchEventTypes();
+      });
+  }, [user]);
+
+  const fetchEventTypes = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("calcom-sync", {
+        body: { action: "fetch_event_types" },
+      });
+      if (!error && data?.event_types) setEventTypes(data.event_types);
+    } catch {}
+  };
   }, [user]);
 
   const { data: bookings = [], isLoading, refetch } = useQuery({
