@@ -48,11 +48,11 @@ const PhoneNumbers = () => {
   const activeNumbers = purchased.filter((p) => p.status === "active");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Phone Numbers</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Phone numbers are automatically registered when you create a campaign. Each number costs{" "}
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Phone Numbers</h1>
+        <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground">
+          Phone numbers are auto-registered with campaigns. Each costs{" "}
           <span className="font-semibold text-foreground">2 credits/month</span>.
         </p>
       </div>
