@@ -298,7 +298,6 @@ const Landing = () => {
                   "AI Voice Calling Agents",
                   "Cal.com Appointment Booking",
                   "Real-Time Campaign Analytics",
-                  "Multi-Tenant Workspaces",
                   "Webhooks & API Access",
                 ].map((feature, i) => (
                   <li key={i} className="flex items-center gap-3 text-sm text-white/80">
