@@ -12,12 +12,12 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 border-b bg-card/60 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-2.5">
+        <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="flex items-center gap-2.5 cursor-pointer">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary shadow-glow">
             <Phone className="h-4 w-4 text-primary-foreground" />
           </div>
           <span className="font-display text-lg font-bold text-foreground">Lead Revival AI</span>
-        </div>
+        </a>
 
         {/* Desktop nav */}
         <div className="hidden items-center gap-8 md:flex">
