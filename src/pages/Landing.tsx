@@ -106,7 +106,7 @@ const Landing = () => {
                 { label: "Total Calls", value: "2,847", change: "+12.3%" },
                 { label: "Answer Rate", value: "68.4%", change: "+3.2%" },
                 { label: "Booked", value: "312", change: "+18.7%" },
-                { label: "Total Cost", value: "$247.83", change: "-4.1%" },
+                { label: "Total Cost", value: "$2,247.83", change: "-4.1%" },
               ].map((stat, i) => (
                 <div key={i} className="rounded-lg border bg-card p-4 text-left">
                   <p className="text-xs text-muted-foreground">{stat.label}</p>
