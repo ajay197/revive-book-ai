@@ -7,6 +7,7 @@ import { useCredits } from "@/contexts/CreditsContext";
 import {
   Loader2, Plus, Search, History, Trash2, Users, CreditCard, Phone,
   Shield, Mail, Calendar, Clock, ChevronDown, ChevronUp, UserCog, Save, X,
+  KeyRound, Eye, EyeOff,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
