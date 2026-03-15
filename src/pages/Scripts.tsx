@@ -5,14 +5,14 @@ import { Plus, FileText, MoreHorizontal } from "lucide-react";
 
 const Scripts = () => {
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Scripts</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Manage your AI calling scripts</p>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Scripts</h1>
+          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground">Manage your AI calling scripts</p>
         </div>
-        <Button className="bg-gradient-primary">
-          <Plus className="mr-2 h-4 w-4" /> New Script
+        <Button size="sm" className="bg-gradient-primary w-full sm:w-auto">
+          <Plus className="mr-1.5 h-3.5 w-3.5" /> New Script
         </Button>
       </div>
 
