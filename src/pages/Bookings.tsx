@@ -242,41 +242,41 @@ const Bookings = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Bookings</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Appointments booked by your AI agents via Cal.com</p>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Bookings</h1>
+          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground">Appointments booked by your AI agents via Cal.com</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleSync} disabled={syncing}>
-            {syncing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-            Sync from Cal.com
+          <Button variant="outline" size="sm" onClick={handleSync} disabled={syncing}>
+            {syncing ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="mr-1.5 h-3.5 w-3.5" />}
+            Sync
           </Button>
-          <Button onClick={() => setShowNewBooking(true)}>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button size="sm" onClick={() => setShowNewBooking(true)}>
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
             Book Meeting
           </Button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 grid-cols-3">
-        <div className="rounded-xl border bg-card p-4 shadow-card">
-          <p className="text-xs font-medium text-muted-foreground">Total Bookings</p>
-          <p className="mt-1 font-display text-2xl font-bold text-foreground">{totalBookings}</p>
+      <div className="grid gap-3 grid-cols-3">
+        <div className="rounded-xl border bg-card p-3 sm:p-4 shadow-card">
+          <p className="text-[10px] sm:text-xs font-medium text-muted-foreground">Total</p>
+          <p className="mt-0.5 sm:mt-1 font-display text-lg sm:text-2xl font-bold text-foreground">{totalBookings}</p>
         </div>
-        <div className="rounded-xl border bg-card p-4 shadow-card">
-          <p className="text-xs font-medium text-muted-foreground">Upcoming</p>
-          <p className="mt-1 font-display text-2xl font-bold text-success">{upcoming}</p>
+        <div className="rounded-xl border bg-card p-3 sm:p-4 shadow-card">
+          <p className="text-[10px] sm:text-xs font-medium text-muted-foreground">Upcoming</p>
+          <p className="mt-0.5 sm:mt-1 font-display text-lg sm:text-2xl font-bold text-success">{upcoming}</p>
         </div>
-        <div className="rounded-xl border bg-card p-4 shadow-card">
-          <p className="text-xs font-medium text-muted-foreground">Cancelled</p>
-          <p className="mt-1 font-display text-2xl font-bold text-destructive">{cancelled}</p>
+        <div className="rounded-xl border bg-card p-3 sm:p-4 shadow-card">
+          <p className="text-[10px] sm:text-xs font-medium text-muted-foreground">Cancelled</p>
+          <p className="mt-0.5 sm:mt-1 font-display text-lg sm:text-2xl font-bold text-destructive">{cancelled}</p>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr_320px]">
         {/* Calendar */}
         <div className="rounded-xl border bg-card p-5 shadow-card">
           <div className="flex items-center justify-between mb-4">
