@@ -318,7 +318,7 @@ const Bookings = () => {
                 <button
                   key={dateKey}
                   onClick={() => setSelectedDate(day)}
-                  className={`relative flex flex-col items-center p-2 min-h-[72px] border border-border/30 transition-colors
+                  className={`relative flex flex-col items-center p-1 sm:p-2 min-h-[48px] sm:min-h-[72px] border border-border/30 transition-colors
                     ${!isCurrentMonth ? "opacity-30" : ""}
                     ${isSelected ? "bg-primary/10 border-primary/30" : "hover:bg-muted/50"}
                     ${isToday ? "font-bold" : ""}
