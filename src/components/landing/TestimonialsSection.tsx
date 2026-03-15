@@ -8,8 +8,8 @@ const testimonials = [
 ];
 
 const TestimonialsSection = () => (
-  <section className="py-24">
-    <div className="mx-auto max-w-6xl px-6">
+  <section className="py-16 sm:py-24">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6">
       <div className="text-center">
         <motion.span
           className="inline-block rounded-full border border-primary/20 bg-primary/5 px-4 py-1 font-display text-xs font-semibold text-primary"
@@ -20,7 +20,7 @@ const TestimonialsSection = () => (
           Testimonials
         </motion.span>
         <motion.h2
-          className="mt-4 font-display text-3xl font-bold text-foreground md:text-4xl"
+          className="mt-4 font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -28,11 +28,11 @@ const TestimonialsSection = () => (
           Loved by businesses
         </motion.h2>
       </div>
-      <div className="mt-16 grid gap-6 md:grid-cols-3">
+      <div className="mt-10 grid gap-4 sm:mt-16 sm:gap-6 md:grid-cols-3">
         {testimonials.map(({ name, role, quote, stars }, i) => (
           <motion.div
             key={i}
-            className="group relative overflow-hidden rounded-2xl border bg-card p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated"
+            className="group relative overflow-hidden rounded-2xl border bg-card p-5 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated sm:p-6"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

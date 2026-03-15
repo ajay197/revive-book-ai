@@ -26,19 +26,18 @@ const badges = [
 const PricingSection = () => (
   <section
     id="pricing"
-    className="relative overflow-hidden py-24"
+    className="relative overflow-hidden py-16 sm:py-24"
     style={{ background: "linear-gradient(135deg, hsl(220 20% 8%), hsl(260 30% 12%), hsl(220 20% 8%))" }}
   >
-    {/* Subtle glow orbs */}
     <div className="pointer-events-none absolute inset-0">
-      <div className="absolute left-1/4 top-1/4 h-64 w-64 rounded-full bg-purple-500/10 blur-[100px]" />
-      <div className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full bg-blue-500/10 blur-[100px]" />
+      <div className="absolute left-1/4 top-1/4 h-48 w-48 rounded-full bg-purple-500/10 blur-[100px] sm:h-64 sm:w-64" />
+      <div className="absolute bottom-1/4 right-1/4 h-48 w-48 rounded-full bg-blue-500/10 blur-[100px] sm:h-64 sm:w-64" />
     </div>
 
-    <div className="relative mx-auto max-w-6xl px-6">
+    <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
       <div className="text-center">
         <motion.h2
-          className="font-display text-3xl font-extrabold text-white md:text-5xl"
+          className="font-display text-2xl font-extrabold text-white sm:text-3xl md:text-5xl"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -46,7 +45,7 @@ const PricingSection = () => (
           Pay Once, Use Forever
         </motion.h2>
         <motion.p
-          className="mx-auto mt-4 max-w-2xl text-white/50"
+          className="mx-auto mt-4 max-w-2xl text-sm text-white/50 sm:text-base"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -63,7 +62,7 @@ const PricingSection = () => (
           <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer" className="mt-8 inline-block">
             <Button
               size="lg"
-              className="group rounded-full border border-white/20 bg-white/5 px-10 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:shadow-[0_0_30px_rgba(139,92,246,0.3)]"
+              className="group rounded-full border border-white/20 bg-white/5 px-8 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] sm:px-10 sm:text-base"
             >
               Start 500 Calls Trial
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -72,12 +71,12 @@ const PricingSection = () => (
         </motion.div>
       </div>
 
-      <div className="mx-auto mt-16 grid max-w-5xl gap-8 lg:grid-cols-2">
+      <div className="mx-auto mt-12 grid max-w-5xl gap-6 sm:mt-16 sm:gap-8 lg:grid-cols-2">
         <div className="space-y-3">
           {packs.map((pack, i) => (
             <motion.div
               key={i}
-              className={`relative rounded-xl border p-5 transition-all hover:scale-[1.01] ${
+              className={`relative rounded-xl border p-4 transition-all hover:scale-[1.01] sm:p-5 ${
                 pack.promo
                   ? "border-purple-500/50 bg-gradient-to-r from-purple-500/10 to-blue-500/10"
                   : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
@@ -93,25 +92,25 @@ const PricingSection = () => (
                   <span className="text-xs font-semibold text-white/90">{pack.promo.tag}</span>
                 </div>
               )}
-              <div className={`flex items-center justify-between ${pack.promo ? "mt-4" : ""}`}>
-                <div>
-                  <p className="font-display text-lg font-bold text-white">{pack.credits}</p>
-                  <p className="text-sm text-white/40">{pack.perCredit}</p>
+              <div className={`flex items-center justify-between gap-4 ${pack.promo ? "mt-4" : ""}`}>
+                <div className="min-w-0">
+                  <p className="font-display text-base font-bold text-white sm:text-lg">{pack.credits}</p>
+                  <p className="truncate text-xs text-white/40 sm:text-sm">{pack.perCredit}</p>
                 </div>
-                <p className="font-display text-2xl font-extrabold text-white">{pack.price}</p>
+                <p className="shrink-0 font-display text-xl font-extrabold text-white sm:text-2xl">{pack.price}</p>
               </div>
             </motion.div>
           ))}
         </div>
 
         <motion.div
-          className="rounded-xl border border-white/10 bg-white/[0.03] p-8"
+          className="rounded-xl border border-white/10 bg-white/[0.03] p-6 sm:p-8"
           initial={{ opacity: 0, x: 20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
         >
-          <h3 className="mb-6 font-display text-lg font-bold text-white">Included with all plans</h3>
-          <ul className="space-y-4">
+          <h3 className="mb-5 font-display text-base font-bold text-white sm:mb-6 sm:text-lg">Included with all plans</h3>
+          <ul className="space-y-3 sm:space-y-4">
             {includedFeatures.map((feature, i) => (
               <li key={i} className="flex items-center gap-3 text-sm text-white/70">
                 <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-blue-500">
@@ -123,11 +122,11 @@ const PricingSection = () => (
               </li>
             ))}
           </ul>
-          <div className="mt-8 grid grid-cols-2 gap-3">
+          <div className="mt-6 grid grid-cols-2 gap-2 sm:mt-8 sm:gap-3">
             {badges.map(({ icon: Icon, text }, i) => (
-              <div key={i} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5">
-                <Icon className="h-4 w-4 shrink-0 text-white/40" />
-                <span className="text-xs font-medium text-white/60">{text}</span>
+              <div key={i} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-2 sm:px-3 sm:py-2.5">
+                <Icon className="h-3.5 w-3.5 shrink-0 text-white/40 sm:h-4 sm:w-4" />
+                <span className="text-[11px] font-medium text-white/60 sm:text-xs">{text}</span>
               </div>
             ))}
           </div>
