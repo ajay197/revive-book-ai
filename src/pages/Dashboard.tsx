@@ -18,7 +18,7 @@ interface DashboardData {
     avgDuration: string;
     totalDuration: string;
     appointmentsBooked: number;
-    totalCost: number;
+    creditsUsed: number;
     positiveSentiment: number;
   };
   outcomeDistribution: { name: string; value: number; fill: string }[];
