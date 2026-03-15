@@ -68,7 +68,7 @@ const IndustriesSection = () => (
       </div>
 
       <motion.div
-        className="mt-10 grid grid-cols-2 gap-3 sm:mt-16 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5 lg:gap-5"
+        className="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-3 sm:mt-16 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5 lg:gap-5"
         variants={container}
         initial="hidden"
         whileInView="visible"
