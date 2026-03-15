@@ -16,7 +16,7 @@ import Campaigns from "./pages/Campaigns";
 import CampaignDetail from "./pages/CampaignDetail";
 import Agents from "./pages/Agents";
 import Scripts from "./pages/Scripts";
-import Analytics from "./pages/Analytics";
+
 import Integrations from "./pages/Integrations";
 import Settings from "./pages/Settings";
 import Billing from "./pages/Billing";
