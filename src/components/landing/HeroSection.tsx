@@ -93,7 +93,7 @@ const HeroSection = () => {
         />
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-4 text-center sm:px-6">
+      <motion.div className="relative mx-auto max-w-6xl px-4 text-center sm:px-6" style={{ y: textY }}>
         <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}>
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 font-display text-[11px] font-semibold text-primary sm:px-4 sm:text-xs">
             <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
