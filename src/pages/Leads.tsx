@@ -114,10 +114,14 @@ const Leads = () => {
       if (filters.sources.length > 0 && !filters.sources.includes(l.source || "")) return false;
       if (filters.companies.length > 0 && !filters.companies.includes(l.company || "")) return false;
       if (filters.campaigns.length > 0 && !filters.campaigns.includes(l.campaign || "")) return false;
+      if (filters.sentiments.length > 0) {
+        const s = sentimentMap[l.id] || "Unknown";
+        if (!filters.sentiments.includes(s)) return false;
+      }
 
       return true;
     });
-  }, [leads, searchQuery, filters]);
+  }, [leads, searchQuery, filters, sentimentMap]);
 
   const toggleFilter = (key: keyof Filters, value: string) => {
     setFilters((prev) => ({
