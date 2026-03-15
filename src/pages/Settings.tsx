@@ -63,7 +63,7 @@ const Settings = () => {
 
       <div className="space-y-4 sm:space-y-6">
         {/* Workspace */}
-        <div className="rounded-xl border bg-card p-6 shadow-card">
+        <div className="rounded-xl border bg-card p-4 sm:p-6 shadow-card">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
               <Building className="h-4 w-4 text-primary" />
