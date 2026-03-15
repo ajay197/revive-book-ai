@@ -3,7 +3,7 @@ import { Star, Quote } from "lucide-react";
 
 const testimonials = [
   { name: "Sarah K.", role: "Owner, Valley Dental Group", quote: "We reactivated 2,400 old patient leads and booked 89 appointments in the first week. The ROI is insane.", stars: 5 },
-  { name: "Marcus T.", role: "Agency Owner", quote: "I manage 12 clients on Ryngr AI. The multi-tenant workspace feature saves me hours every day.", stars: 5 }, "Marcus T.", role: "Agency Owner", quote: "I manage 12 clients on Ryngr AI. The multi-tenant workspace feature saves me hours every day.", stars: 5 },. The multi-tenant workspace feature saves me hours every day.", stars: 5 },
+  { name: "Marcus T.", role: "Agency Owner", quote: "I manage 12 clients on Ryngr AI. The multi-tenant workspace feature saves me hours every day.", stars: 5 },
   { name: "Jennifer L.", role: "Marketing Director, SunState HVAC", quote: "Our Facebook leads used to go cold within hours. Now they get called within minutes of submitting the form.", stars: 5 },
 ];
 
