@@ -32,26 +32,26 @@ const Billing = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Billing</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your calling credits</p>
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Billing</h1>
+        <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground">Manage your calling credits</p>
       </div>
 
       {/* Current Balance */}
-      <div className="rounded-xl border bg-card p-6 shadow-card">
+      <div className="rounded-xl border bg-card p-4 sm:p-6 shadow-card">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-            <CreditCard className="h-5 w-5 text-primary" />
+          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-primary/10">
+            <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           </div>
           <div>
-            <p className="text-xs font-medium text-muted-foreground">Current Balance</p>
-            <p className="font-display text-3xl font-bold text-foreground">{balance.toFixed(2)} <span className="text-lg text-muted-foreground">credits</span></p>
+            <p className="text-[10px] sm:text-xs font-medium text-muted-foreground">Current Balance</p>
+            <p className="font-display text-2xl sm:text-3xl font-bold text-foreground">{balance.toFixed(2)} <span className="text-base sm:text-lg text-muted-foreground">credits</span></p>
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="h-4 w-4" />
-          <span>Estimated remaining call time: <span className="font-medium text-foreground">{formatRemainingTime(balance)}</span></span>
+        <div className="mt-2 sm:mt-3 flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+          <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span>Estimated remaining: <span className="font-medium text-foreground">{formatRemainingTime(balance)}</span></span>
         </div>
       </div>
 
@@ -61,11 +61,11 @@ const Billing = () => {
         <p className="mt-1 text-sm text-muted-foreground">Select a pack to request credits. Admin will process your payment and add credits to your account.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
         {CREDIT_PACKS.map((pack) => (
           <div
             key={pack.name}
-            className={`relative rounded-xl border p-6 shadow-card transition-shadow hover:shadow-elevated ${
+            className={`relative rounded-xl border p-4 sm:p-6 shadow-card transition-shadow hover:shadow-elevated ${
               pack.popular ? "border-primary ring-1 ring-primary/20" : "bg-card"
             }`}
           >

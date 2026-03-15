@@ -282,13 +282,13 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Campaign performance overview</p>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground">Campaign performance overview</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Button variant="outline" size="sm" className="text-xs" onClick={() => navigate("/app/billing")}>
             <CreditCard className="mr-1.5 h-3 w-3" /> Add Credits
           </Button>
@@ -300,12 +300,12 @@ const Dashboard = () => {
       </div>
 
       {/* Time Range Tabs */}
-      <div className="flex flex-wrap gap-1.5 rounded-lg border bg-muted/30 p-1">
+      <div className="flex gap-1 overflow-x-auto rounded-lg border bg-muted/30 p-1 -mx-1 px-1 sm:mx-0 sm:flex-wrap">
         {(Object.keys(TIME_RANGE_LABELS) as TimeRange[]).map((key) => (
           <button
             key={key}
             onClick={() => setTimeRange(key)}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`shrink-0 rounded-md px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium transition-colors ${
               timeRange === key
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"

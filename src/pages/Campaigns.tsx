@@ -120,24 +120,24 @@ const Campaigns = () => {
   const canDelete = (campaign: Campaign) => campaign.status === "Draft";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {callsBlocked && (
-        <div className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+        <div className="flex flex-col gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 sm:flex-row sm:items-center sm:gap-3 sm:p-4">
           <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
           <div className="flex-1">
             <p className="text-sm font-medium text-destructive">Calls Blocked — Insufficient Credits</p>
             <p className="text-xs text-muted-foreground">You need more credits to start or resume campaigns.</p>
           </div>
-          <Button size="sm" className="bg-gradient-primary" onClick={() => navigate("/app/billing")}>Add Credits</Button>
+          <Button size="sm" className="bg-gradient-primary w-full sm:w-auto" onClick={() => navigate("/app/billing")}>Add Credits</Button>
         </div>
       )}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Campaigns</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{campaigns.length} campaign{campaigns.length !== 1 ? "s" : ""}</p>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Campaigns</h1>
+          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground">{campaigns.length} campaign{campaigns.length !== 1 ? "s" : ""}</p>
         </div>
-        <Button className="bg-gradient-primary" onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> New Campaign
+        <Button size="sm" className="bg-gradient-primary w-full sm:w-auto" onClick={() => setCreateOpen(true)}>
+          <Plus className="mr-1.5 h-3.5 w-3.5" /> New Campaign
         </Button>
       </div>
 

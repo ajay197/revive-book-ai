@@ -47,12 +47,12 @@ const CreditHistory = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Credit History</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Current balance: <span className="font-semibold text-foreground">{balance.toFixed(2)} credits</span>
-          {" · "}Remaining call time: <span className="font-semibold text-foreground">{formatRemainingTime(balance)}</span>
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Credit History</h1>
+        <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground">
+          Balance: <span className="font-semibold text-foreground">{balance.toFixed(2)} credits</span>
+          {" · "}Remaining: <span className="font-semibold text-foreground">{formatRemainingTime(balance)}</span>
         </p>
       </div>
 
