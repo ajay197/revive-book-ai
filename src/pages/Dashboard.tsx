@@ -186,54 +186,6 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Recent Calls */}
-      {data && data.recentCalls.length > 0 ? (
-        <div className="rounded-xl border bg-card shadow-card">
-          <div className="border-b px-5 py-4">
-            <h3 className="font-display text-sm font-semibold text-foreground">Recent Calls</h3>
-            <p className="mt-0.5 text-xs text-muted-foreground">Latest call activity across campaigns</p>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/30">
-                  <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Time</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Lead</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Campaign</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Duration</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Outcome</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Sentiment</th>
-                  <th className="px-5 py-3 text-right text-xs font-medium text-muted-foreground">Credits</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.recentCalls.map((call) => (
-                  <tr key={call.id} className="border-b last:border-0 hover:bg-muted/20">
-                    <td className="px-5 py-3 text-xs text-muted-foreground">{call.time}</td>
-                    <td className="px-5 py-3">
-                      <p className="font-medium text-foreground">{call.lead}</p>
-                      <p className="text-xs text-muted-foreground">{call.phone}</p>
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">{call.campaign}</td>
-                    <td className="px-5 py-3 text-muted-foreground">{call.duration}</td>
-                    <td className="px-5 py-3"><StatusBadge status={call.outcome} /></td>
-                    <td className="px-5 py-3"><StatusBadge status={call.sentiment} /></td>
-                    <td className="px-5 py-3 text-right text-muted-foreground">{call.credits.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : !loading && (
-        <div className="rounded-xl border bg-card p-12 text-center shadow-card">
-          <Phone className="mx-auto h-10 w-10 text-muted-foreground" />
-          <h3 className="mt-4 font-display text-lg font-semibold text-foreground">No call data yet</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Create campaigns and start calling to see live data here.
-          </p>
-        </div>
-      )}
     </div>
   );
 };
