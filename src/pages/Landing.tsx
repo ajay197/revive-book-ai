@@ -253,7 +253,7 @@ const Landing = () => {
               Pay Once, Use Forever
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-white/60">
-              Lead Revival AI's credit-based pricing means no monthly subscriptions. Pay as you go — credits never expire. You will have access to the full range of features with every plan.
+             Lead Revival AI's credit-based pricing means no monthly subscriptions. Pay as you go — credits never expire. You will have access to the full range of features with every plan.
             </p>
             <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer" className="mt-8 inline-block">
               <Button size="lg" className="rounded-full border border-white/20 bg-white/5 px-10 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:shadow-[0_0_30px_rgba(139,92,246,0.3)]">
@@ -267,8 +267,8 @@ const Landing = () => {
             <div className="space-y-3">
               {[
                 { credits: "500 Credits", perCredit: null, price: "Free", note: "No credit card required", promo: null },
-                { credits: "2,000 Credits", perCredit: "+5% bonus", price: "$149", note: null, promo: null },
-                { credits: "5,000 Credits", perCredit: "+10% bonus", price: "$349", note: null, promo: { label: "Most Popular", tag: "Best Value" } },
+                { credits: "2,100 Credits", perCredit: "+5% bonus", price: "$149", note: null, promo: null },
+                { credits: "6,000 Credits", perCredit: "+20% bonus", price: "$349", note: null, promo: { label: "Most Popular", tag: "Best Value" } },
               ].map((pack, i) => (
                 <div key={i} className={`relative rounded-xl border p-5 transition-all ${pack.promo ? 'border-purple-500/60 bg-gradient-to-r from-purple-500/10 to-blue-500/10' : 'border-white/10 bg-white/5'}`}>
                   {pack.promo && (
@@ -298,7 +298,6 @@ const Landing = () => {
                   "AI Voice Calling Agents",
                   "Cal.com Appointment Booking",
                   "Real-Time Campaign Analytics",
-                  "Multi-Tenant Workspaces",
                   "Webhooks & API Access",
                 ].map((feature, i) => (
                   <li key={i} className="flex items-center gap-3 text-sm text-white/80">
