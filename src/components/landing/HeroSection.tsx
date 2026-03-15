@@ -159,7 +159,7 @@ const HeroSection = () => (
                     className="flex-1 rounded-sm bg-gradient-primary opacity-60"
                     initial={{ height: 0 }}
                     animate={{ height: `${h}%` }}
-                    transition={{ delay: 1.2 + i * 0.05, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ delay: 1.2 + i * 0.05, duration: 0.6, ease: "easeOut" }}
                   />
                 ))}
               </div>
