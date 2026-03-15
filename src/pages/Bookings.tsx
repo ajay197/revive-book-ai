@@ -278,8 +278,8 @@ const Bookings = () => {
 
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr_320px]">
         {/* Calendar */}
-        <div className="rounded-xl border bg-card p-5 shadow-card">
-          <div className="flex items-center justify-between mb-4">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 shadow-card">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
             <h2 className="font-display text-lg font-semibold text-foreground">
               {format(currentMonth, "MMMM yyyy")}
             </h2>
