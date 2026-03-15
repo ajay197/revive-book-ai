@@ -298,8 +298,8 @@ const Bookings = () => {
 
           {/* Day headers */}
           <div className="grid grid-cols-7 mb-1">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-              <div key={day} className="py-2 text-center text-xs font-medium text-muted-foreground">
+            {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
+              <div key={i} className="py-1.5 sm:py-2 text-center text-[10px] sm:text-xs font-medium text-muted-foreground">
                 {day}
               </div>
             ))}
