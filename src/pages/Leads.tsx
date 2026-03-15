@@ -53,6 +53,28 @@ const Leads = () => {
     enabled: !!user,
   });
 
+  // Fetch latest sentiment per lead from call_logs
+  const { data: sentimentMap = {} } = useQuery({
+    queryKey: ["lead-sentiments", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("call_logs")
+        .select("lead_id, sentiment, created_at")
+        .eq("user_id", user!.id)
+        .not("lead_id", "is", null)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const map: Record<string, string> = {};
+      (data || []).forEach((c) => {
+        if (c.lead_id && !map[c.lead_id]) {
+          map[c.lead_id] = c.sentiment || "Unknown";
+        }
+      });
+      return map;
+    },
+    enabled: !!user,
+  });
+
   // Derive unique filter options from data
   const filterOptions = useMemo(() => {
     const statuses = new Set<string>();
