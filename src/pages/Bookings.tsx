@@ -351,8 +351,8 @@ const Bookings = () => {
         </div>
 
         {/* Selected day sidebar */}
-        <div className="rounded-xl border bg-card p-5 shadow-card">
-          <h3 className="font-display text-sm font-semibold text-foreground mb-3">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 shadow-card">
+          <h3 className="font-display text-xs sm:text-sm font-semibold text-foreground mb-3">
             {selectedDate ? format(selectedDate, "EEEE, MMMM d, yyyy") : "Select a date"}
           </h3>
           {isLoading ? (

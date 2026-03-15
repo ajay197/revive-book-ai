@@ -16,7 +16,7 @@ const Scripts = () => {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {scripts.map((script) => (
           <div key={script.id} className="rounded-xl border bg-card p-5 shadow-card transition-shadow hover:shadow-elevated">
             <div className="flex items-start justify-between">

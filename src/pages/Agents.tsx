@@ -130,9 +130,9 @@ const Agents = () => {
           </p>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {agents.map((agent) => (
-            <div key={agent.agent_id} className="rounded-xl border bg-card p-6 shadow-card transition-shadow hover:shadow-elevated">
+            <div key={agent.agent_id} className="rounded-xl border bg-card p-4 sm:p-6 shadow-card transition-shadow hover:shadow-elevated">
               <div className="flex items-start justify-between">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
                   <Bot className="h-5 w-5 text-primary" />

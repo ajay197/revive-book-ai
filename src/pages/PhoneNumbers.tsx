@@ -58,12 +58,12 @@ const PhoneNumbers = () => {
       </div>
 
       {/* Balance info */}
-      <div className="rounded-xl border bg-card p-4 shadow-card">
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Your balance: <span className="font-semibold text-foreground">{balance.toFixed(2)} credits</span>
+      <div className="rounded-xl border bg-card p-3 sm:p-4 shadow-card">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-xs sm:text-sm text-muted-foreground">
+            Balance: <span className="font-semibold text-foreground">{balance.toFixed(2)} credits</span>
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-xs sm:text-sm text-muted-foreground">
             Monthly cost:{" "}
             <span className="font-semibold text-foreground">
               {(activeNumbers.length * CREDIT_COST).toFixed(2)} credits/mo

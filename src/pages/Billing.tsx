@@ -65,7 +65,7 @@ const Billing = () => {
         {CREDIT_PACKS.map((pack) => (
           <div
             key={pack.name}
-            className={`relative rounded-xl border p-6 shadow-card transition-shadow hover:shadow-elevated ${
+            className={`relative rounded-xl border p-4 sm:p-6 shadow-card transition-shadow hover:shadow-elevated ${
               pack.popular ? "border-primary ring-1 ring-primary/20" : "bg-card"
             }`}
           >

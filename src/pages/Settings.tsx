@@ -146,7 +146,7 @@ const Settings = () => {
         </div>
 
         {/* Danger Zone */}
-        <div className="rounded-xl border border-destructive/20 bg-card p-6 shadow-card">
+        <div className="rounded-xl border border-destructive/20 bg-card p-4 sm:p-6 shadow-card">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-destructive/10">
               <AlertTriangle className="h-4 w-4 text-destructive" />

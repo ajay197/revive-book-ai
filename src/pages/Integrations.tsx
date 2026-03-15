@@ -128,13 +128,13 @@ const Integrations = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Integrations</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Connect your tools and services</p>
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Integrations</h1>
+        <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground">Connect your tools and services</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {integrations.map((integration) => (
           <div key={integration.name} className="rounded-xl border bg-card p-5 shadow-card">
             <div className="flex items-start justify-between">

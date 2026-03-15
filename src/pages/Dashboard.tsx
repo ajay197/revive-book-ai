@@ -300,12 +300,12 @@ const Dashboard = () => {
       </div>
 
       {/* Time Range Tabs */}
-      <div className="flex flex-wrap gap-1.5 rounded-lg border bg-muted/30 p-1">
+      <div className="flex gap-1 overflow-x-auto rounded-lg border bg-muted/30 p-1 -mx-1 px-1 sm:mx-0 sm:flex-wrap">
         {(Object.keys(TIME_RANGE_LABELS) as TimeRange[]).map((key) => (
           <button
             key={key}
             onClick={() => setTimeRange(key)}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`shrink-0 rounded-md px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium transition-colors ${
               timeRange === key
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"

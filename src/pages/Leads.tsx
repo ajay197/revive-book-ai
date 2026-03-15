@@ -185,25 +185,25 @@ const Leads = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Leads</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{leads.length} total leads across all campaigns</p>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Leads</h1>
+          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground">{leads.length} total leads across all campaigns</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <a
             href="/sample-leads.csv"
             download="sample-leads.csv"
-            className="text-sm text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
+            className="text-xs sm:text-sm text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
           >
             Download sample CSV
           </a>
-          <Button variant="outline" onClick={() => setAddOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Add Lead
+          <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
+            <Plus className="mr-1.5 h-3.5 w-3.5" /> Add Lead
           </Button>
-          <Button className="bg-gradient-primary" onClick={() => setUploadOpen(true)}>
-            <Upload className="mr-2 h-4 w-4" /> Upload CSV
+          <Button size="sm" className="bg-gradient-primary" onClick={() => setUploadOpen(true)}>
+            <Upload className="mr-1.5 h-3.5 w-3.5" /> Upload CSV
           </Button>
         </div>
       </div>
