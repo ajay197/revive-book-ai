@@ -100,10 +100,11 @@ serve(async (req) => {
       const voicemail = allCalls.filter((c) => c.disconnection_reason === "voicemail_reached" || c.call_analysis?.in_voicemail === true).length;
       const unsuccessful = totalCalls - booked - noAnswer - voicemail;
 
-      // Duration & cost
+      // Duration & credits (1 credit = 150 seconds = 2.5 minutes)
       const durations = allCalls.map((c) => (c.end_timestamp && c.start_timestamp) ? (c.end_timestamp - c.start_timestamp) : 0).filter((d) => d > 0);
       const avgDurationMs = durations.length > 0 ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
-      const totalCost = allCalls.reduce((sum, c) => sum + (c.cost || 0), 0);
+      const totalDurationSeconds = durations.reduce((a, b) => a + b, 0) / 1000;
+      const totalCreditsUsed = Math.round((totalDurationSeconds / 150) * 100) / 100;
 
       // Sentiment
       const sentiments = allCalls.map((c) => c.call_analysis?.user_sentiment).filter(Boolean);
