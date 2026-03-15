@@ -169,37 +169,52 @@ const Integrations = () => {
             </ul>
             <div className="mt-4">
               {integration.name === "Retell AI" && !retellConnected && (
-                <Button size="sm" className="w-full" onClick={() => setRetellDialogOpen(true)}>
+                <Button size="sm" className={singleActionButtonClass} onClick={() => setRetellDialogOpen(true)}>
                   Connect
                 </Button>
               )}
               {integration.name === "Retell AI" && retellConnected && (
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => setRetellDialogOpen(true)}>
+                <div className={splitActionGroupClass}>
+                  <Button variant="outline" size="sm" className={splitActionButtonClass} onClick={() => setRetellDialogOpen(true)}>
                     Configure
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={handleDisconnectRetell}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={`${splitActionButtonClass} text-destructive hover:text-destructive`}
+                    onClick={handleDisconnectRetell}
+                  >
                     Disconnect
                   </Button>
                 </div>
               )}
               {integration.name === "Cal.com" && !calcomConnected && (
-                <Button size="sm" className="w-full" onClick={() => setCalcomDialogOpen(true)}>
+                <Button size="sm" className={singleActionButtonClass} onClick={() => setCalcomDialogOpen(true)}>
                   Connect
                 </Button>
               )}
               {integration.name === "Cal.com" && calcomConnected && (
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => window.location.href = "/app/bookings"}>
+                <div className={splitActionGroupClass}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={splitActionButtonClass}
+                    onClick={() => (window.location.href = "/app/bookings")}
+                  >
                     View Bookings
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={handleDisconnectCalcom}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={`${splitActionButtonClass} text-destructive hover:text-destructive`}
+                    onClick={handleDisconnectCalcom}
+                  >
                     Disconnect
                   </Button>
                 </div>
               )}
               {integration.action === "configure" && integration.name !== "Retell AI" && integration.name !== "Cal.com" && (
-                <Button variant="outline" size="sm" className="w-full">
+                <Button variant="outline" size="sm" className={singleActionButtonClass}>
                   Configure
                 </Button>
               )}
