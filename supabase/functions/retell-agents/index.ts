@@ -178,7 +178,7 @@ serve(async (req) => {
             avgDuration: formatDuration(avgDurationMs),
             totalDuration: formatDuration(durations.reduce((a, b) => a + b, 0)),
             appointmentsBooked: booked,
-            totalCost,
+            creditsUsed: totalCreditsUsed,
             positiveSentiment: positivePct,
           },
           outcomeDistribution: [
