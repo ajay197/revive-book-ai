@@ -49,7 +49,7 @@ const HowItWorksSection = () => (
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ delay: i * 0.1, duration: 0.5, ease: "easeOut" }}
             >
               <div className="relative mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary font-display text-sm font-bold text-primary-foreground shadow-glow">
                 {step}

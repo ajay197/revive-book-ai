@@ -60,7 +60,7 @@ const HeroSection = () => (
             className="absolute -bottom-2 left-0 right-0 h-[3px] rounded-full bg-gradient-primary"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
-            transition={{ delay: 0.8, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ delay: 0.8, duration: 0.6, ease: "easeOut" }}
             style={{ transformOrigin: "left" }}
           />
         </span>
