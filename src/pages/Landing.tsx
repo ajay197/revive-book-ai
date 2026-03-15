@@ -36,9 +36,9 @@ const Landing = () => {
             <Link to="/login">
               <Button variant="ghost" size="sm">Log in</Button>
             </Link>
-            <Link to="/signup">
-              <Button size="sm">Start Free Trial</Button>
-            </Link>
+            <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer">
+              <Button size="sm">Start 500 Calls Trial</Button>
+            </a>
           </div>
         </div>
       </nav>
@@ -70,14 +70,16 @@ const Landing = () => {
             className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
             initial="hidden" animate="visible" variants={fadeUp} custom={3}
           >
-            <Link to="/signup">
+            <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="bg-gradient-primary px-8 text-base font-semibold shadow-elevated transition-shadow hover:shadow-glow">
-                Start Free Trial <ArrowRight className="ml-2 h-4 w-4" />
+                Start 500 Calls Trial <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </Link>
-            <Button variant="outline" size="lg" className="px-8 text-base font-semibold">
-              Book a Demo
-            </Button>
+            </a>
+            <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="lg" className="px-8 text-base font-semibold">
+                Book a Demo
+              </Button>
+            </a>
           </motion.div>
           <motion.div
             className="mx-auto mt-6 flex items-center justify-center gap-6 text-sm text-muted-foreground"
@@ -104,7 +106,7 @@ const Landing = () => {
                 { label: "Total Calls", value: "2,847", change: "+12.3%" },
                 { label: "Answer Rate", value: "68.4%", change: "+3.2%" },
                 { label: "Booked", value: "312", change: "+18.7%" },
-                { label: "Total Cost", value: "$247.83", change: "-4.1%" },
+                { label: "Total Cost", value: "$2,247.83", change: "-4.1%" },
               ].map((stat, i) => (
                 <div key={i} className="rounded-lg border bg-card p-4 text-left">
                   <p className="text-xs text-muted-foreground">{stat.label}</p>
@@ -253,9 +255,9 @@ const Landing = () => {
           </div>
           <div className="mx-auto mt-16 grid max-w-4xl gap-6 md:grid-cols-3">
             {[
-              { name: "Starter", price: "$49", period: "/mo", features: ["500 calls/month", "1 workspace", "2 agents", "CSV upload", "Basic analytics"], cta: "Start Free Trial", highlight: false },
-              { name: "Growth", price: "$149", period: "/mo", features: ["5,000 calls/month", "3 workspaces", "Unlimited agents", "Priority support", "Advanced analytics", "Facebook integration"], cta: "Start Free Trial", highlight: true },
-              { name: "Agency", price: "$399", period: "/mo", features: ["25,000 calls/month", "Unlimited workspaces", "Unlimited agents", "White label", "API access", "Dedicated support"], cta: "Contact Sales", highlight: false },
+              { name: "Starter", price: "$49", period: "/mo", features: ["500 credits/month", "1 workspace", "2 agents", "CSV upload", "Basic analytics"], cta: "Start 500 Calls Trial", highlight: false },
+              { name: "Growth", price: "$149", period: "/mo", features: ["2,000 credits/month (+5% bonus)", "3 workspaces", "Unlimited agents", "Priority support", "Advanced analytics", "Facebook integration"], cta: "Start 500 Calls Trial", highlight: true },
+              { name: "Agency", price: "$399", period: "/mo", features: ["5,000 credits/month (+10% bonus)", "Unlimited workspaces", "Unlimited agents", "White label", "API access", "Dedicated support"], cta: "Start 500 Calls Trial", highlight: false },
             ].map(({ name, price, period, features, cta, highlight }, i) => (
               <div key={i} className={`relative rounded-xl border p-6 ${highlight ? "border-primary shadow-glow" : "bg-background shadow-card"}`}>
                 {highlight && <div className="absolute -top-3 left-1/2 -translate-x-1/2"><Badge className="bg-gradient-primary font-display text-xs">Most Popular</Badge></div>}
@@ -272,9 +274,11 @@ const Landing = () => {
                     </li>
                   ))}
                 </ul>
-                <Button className={`mt-8 w-full ${highlight ? "bg-gradient-primary" : ""}`} variant={highlight ? "default" : "outline"}>
-                  {cta}
-                </Button>
+                <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer" className="block">
+                  <Button className={`mt-8 w-full ${highlight ? "bg-gradient-primary" : ""}`} variant={highlight ? "default" : "outline"}>
+                    {cta}
+                  </Button>
+                </a>
               </div>
             ))}
           </div>
@@ -290,11 +294,12 @@ const Landing = () => {
           </div>
           <div className="mt-12 space-y-4">
             {[
-              { q: "How does AI calling work?", a: "Lead Revival AI uses Retell AI to make natural-sounding phone calls. You upload your leads, choose an AI agent and script, and launch a campaign. The AI handles the conversation and books appointments." },
+              { q: "How does AI calling work?", a: "Lead Revival AI uses advanced AI to make natural-sounding phone calls. You upload your leads, choose a calling AI agent and script, and launch a campaign. The AI handles the conversation and books appointments automatically via Cal.com." },
               { q: "What lead formats do you support?", a: "We accept CSV files with phone numbers. During upload, you can map columns to our fields. We validate phone numbers and emails automatically." },
               { q: "Can I use this for my agency clients?", a: "Yes. Our multi-tenant workspace system lets you manage multiple clients from one account. Each workspace has isolated data, campaigns, and analytics." },
+              { q: "How do credits work?", a: "1 credit equals 2.5 minutes of AI calling. Credits are deducted after each completed call based on actual duration. Failed or unanswered calls are not charged. Choose from packs of 500, 2,000 (+5% bonus), or 5,000 (+10% bonus) credits." },
               { q: "How quickly can I launch my first campaign?", a: "Most users launch their first campaign within 5 minutes of signing up. Upload leads, pick an agent and script, set your calling window, and click launch." },
-              { q: "What integrations are available?", a: "We integrate with Retell AI for calling, Supabase for data, and Facebook Leads (coming soon). Zapier and Make integrations are on our roadmap." },
+              { q: "What integrations are available?", a: "We integrate with Cal.com for appointment booking and scheduling, and support CSV lead imports. Facebook Leads, Zapier, and Make integrations are on our roadmap." },
             ].map(({ q, a }, i) => (
               <details key={i} className="group rounded-xl border bg-card p-5 shadow-card">
                 <summary className="flex cursor-pointer items-center justify-between font-display text-sm font-semibold text-foreground">
@@ -314,14 +319,16 @@ const Landing = () => {
           <h2 className="font-display text-3xl font-bold text-primary-foreground md:text-4xl">Ready to revive your leads?</h2>
           <p className="mx-auto mt-4 max-w-xl text-primary-foreground/80">Start converting old leads into booked appointments today. No credit card required.</p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link to="/signup">
+            <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer">
               <Button size="lg" variant="secondary" className="px-8 text-base font-semibold">
-                Start Free Trial <ArrowRight className="ml-2 h-4 w-4" />
+                Start 500 Calls Trial <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </Link>
-            <Button size="lg" variant="ghost" className="px-8 text-base font-semibold text-primary-foreground hover:bg-primary-foreground/10">
-              Book a Demo
-            </Button>
+            </a>
+            <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" variant="ghost" className="px-8 text-base font-semibold text-primary-foreground hover:bg-primary-foreground/10">
+                Book a Demo
+              </Button>
+            </a>
           </div>
         </div>
       </section>
