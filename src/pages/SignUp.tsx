@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Phone, ArrowRight, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -55,6 +55,13 @@ const SignUp = () => {
       </div>
       <div className="flex flex-1 items-center justify-center px-6">
         <div className="w-full max-w-sm">
+          <button
+            onClick={() => navigate("/")}
+            className="mb-4 flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
           <div className="mb-8 flex items-center gap-2 lg:hidden">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
               <Phone className="h-4 w-4 text-primary-foreground" />
