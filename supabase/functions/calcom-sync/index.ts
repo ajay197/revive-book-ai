@@ -16,7 +16,88 @@ serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
-    // Get user from auth header
+    const body = await req.json();
+    const { action, apiKey: providedApiKey, eventTypeId } = body;
+
+    // Cron-triggered sync: no user auth needed, syncs ALL connected users
+    if (action === "cron_sync") {
+      const { data: integrations } = await supabase
+        .from("user_integrations")
+        .select("user_id, api_key")
+        .eq("provider", "calcom");
+
+      if (!integrations || integrations.length === 0) {
+        return new Response(JSON.stringify({ message: "No Cal.com integrations found" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const calcomBase = "https://api.cal.com/v1";
+      let totalSynced = 0;
+
+      for (const integration of integrations) {
+        const calcomApiKey = integration.api_key;
+        const userId = integration.user_id;
+        const statuses = ["upcoming", "past", "cancelled"];
+        let allBookings: any[] = [];
+
+        for (const status of statuses) {
+          try {
+            const res = await fetch(`${calcomBase}/bookings?apiKey=${calcomApiKey}&status=${status}`);
+            if (!res.ok) continue;
+            const data = await res.json();
+            allBookings = allBookings.concat(data.bookings || []);
+          } catch {
+            continue;
+          }
+        }
+
+        for (const booking of allBookings) {
+          const attendee = booking.attendees?.[0];
+          const attendeeEmail = attendee?.email || null;
+          const attendeePhone = attendee?.phone || booking.metadata?.phone || null;
+
+          let leadId: string | null = null;
+          if (attendeeEmail) {
+            const { data: leadByEmail } = await supabase.from("leads").select("id").eq("user_id", userId).eq("email", attendeeEmail).limit(1).maybeSingle();
+            if (leadByEmail) leadId = leadByEmail.id;
+          }
+          if (!leadId && attendeePhone) {
+            const { data: leadByPhone } = await supabase.from("leads").select("id").eq("user_id", userId).eq("phone", attendeePhone).limit(1).maybeSingle();
+            if (leadByPhone) leadId = leadByPhone.id;
+          }
+
+          const bookingData = {
+            user_id: userId,
+            calcom_booking_id: booking.id,
+            title: booking.title || "Booking",
+            description: booking.description || null,
+            start_time: booking.startTime,
+            end_time: booking.endTime,
+            status: (booking.status || "accepted").toLowerCase(),
+            attendee_name: attendee?.name || null,
+            attendee_email: attendeeEmail,
+            attendee_phone: attendeePhone,
+            event_type_name: booking.eventType?.title || null,
+            event_type_id: booking.eventType?.id || null,
+            meeting_url: booking.metadata?.videoCallUrl || booking.location || null,
+            location: booking.location || null,
+            lead_id: leadId,
+            metadata: { responses: booking.responses || {}, source: booking.source || null, uid: booking.uid },
+            updated_at: new Date().toISOString(),
+          };
+
+          const { error } = await supabase.from("bookings").upsert(bookingData, { onConflict: "calcom_booking_id,user_id" });
+          if (!error) totalSynced++;
+        }
+      }
+
+      return new Response(JSON.stringify({ synced: totalSynced, users: integrations.length }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // All other actions require user auth
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -34,9 +115,6 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const body = await req.json();
-    const { action, apiKey: providedApiKey, eventTypeId } = body;
 
     // Get or use provided API key
     let calcomApiKey = providedApiKey;
