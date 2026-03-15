@@ -9,8 +9,8 @@ const steps = [
 ];
 
 const HowItWorksSection = () => (
-  <section id="how-it-works" className="relative overflow-hidden border-y bg-card/50 py-24">
-    <div className="mx-auto max-w-6xl px-6">
+  <section id="how-it-works" className="relative overflow-hidden border-y bg-card/50 py-16 sm:py-24">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6">
       <div className="text-center">
         <motion.span
           className="inline-block rounded-full border border-primary/20 bg-primary/5 px-4 py-1 font-display text-xs font-semibold text-primary"
@@ -21,7 +21,7 @@ const HowItWorksSection = () => (
           How It Works
         </motion.span>
         <motion.h2
-          className="mt-4 font-display text-3xl font-bold text-foreground md:text-4xl"
+          className="mt-4 font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -29,7 +29,7 @@ const HowItWorksSection = () => (
           From lead list to booked appointments
         </motion.h2>
         <motion.p
-          className="mx-auto mt-4 max-w-2xl text-muted-foreground"
+          className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground sm:text-base"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -38,24 +38,28 @@ const HowItWorksSection = () => (
           Five simple steps to turn your dormant leads into revenue.
         </motion.p>
       </div>
-      <div className="relative mt-16">
-        {/* Connecting line */}
+      <div className="relative mt-12 sm:mt-16">
+        {/* Connecting line - desktop only */}
         <div className="absolute left-0 right-0 top-6 hidden h-px bg-border md:block" />
-        <div className="grid gap-8 md:grid-cols-5">
+        {/* Vertical line - mobile only */}
+        <div className="absolute bottom-0 left-6 top-0 w-px bg-border md:hidden" />
+        <div className="grid gap-6 sm:gap-8 md:grid-cols-5">
           {steps.map(({ step, title, desc }, i) => (
             <motion.div
               key={i}
-              className="relative text-center"
+              className="relative flex items-start gap-4 md:flex-col md:items-center md:text-center"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.5, ease: "easeOut" }}
             >
-              <div className="relative mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary font-display text-sm font-bold text-primary-foreground shadow-glow">
+              <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-primary font-display text-sm font-bold text-primary-foreground shadow-glow">
                 {step}
               </div>
-              <h3 className="font-display text-sm font-semibold text-foreground">{title}</h3>
-              <p className="mt-1 text-xs text-muted-foreground">{desc}</p>
+              <div className="md:mt-5">
+                <h3 className="font-display text-sm font-semibold text-foreground">{title}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">{desc}</p>
+              </div>
             </motion.div>
           ))}
         </div>

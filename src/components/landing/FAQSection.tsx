@@ -11,8 +11,8 @@ const faqs = [
 ];
 
 const FAQSection = () => (
-  <section id="faq" className="py-24">
-    <div className="mx-auto max-w-3xl px-6">
+  <section id="faq" className="py-16 sm:py-24">
+    <div className="mx-auto max-w-3xl px-4 sm:px-6">
       <div className="text-center">
         <motion.span
           className="inline-block rounded-full border border-primary/20 bg-primary/5 px-4 py-1 font-display text-xs font-semibold text-primary"
@@ -23,7 +23,7 @@ const FAQSection = () => (
           FAQ
         </motion.span>
         <motion.h2
-          className="mt-4 font-display text-3xl font-bold text-foreground md:text-4xl"
+          className="mt-4 font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -31,18 +31,18 @@ const FAQSection = () => (
           Frequently asked questions
         </motion.h2>
       </div>
-      <div className="mt-12 space-y-3">
+      <div className="mt-10 space-y-3 sm:mt-12">
         {faqs.map(({ q, a }, i) => (
           <motion.details
             key={i}
-            className="group rounded-xl border bg-card p-5 shadow-card transition-shadow hover:shadow-elevated"
+            className="group rounded-xl border bg-card p-4 shadow-card transition-shadow hover:shadow-elevated sm:p-5"
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.05 }}
           >
-            <summary className="flex cursor-pointer items-center justify-between font-display text-sm font-semibold text-foreground">
-              {q}
+            <summary className="flex cursor-pointer items-center justify-between gap-3 font-display text-sm font-semibold text-foreground">
+              <span>{q}</span>
               <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
             </summary>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{a}</p>
