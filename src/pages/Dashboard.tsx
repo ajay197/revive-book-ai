@@ -330,15 +330,15 @@ const Dashboard = () => {
       </div>
 
       {/* Charts */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card p-5 shadow-card">
-          <h3 className="font-display text-sm font-semibold text-foreground">Call Volume ({TIME_RANGE_LABELS[timeRange]})</h3>
-          <div className="mt-4 h-56">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+        <div className="rounded-xl border bg-card p-4 sm:p-5 shadow-card">
+          <h3 className="font-display text-xs sm:text-sm font-semibold text-foreground">Call Volume ({TIME_RANGE_LABELS[timeRange]})</h3>
+          <div className="mt-3 sm:mt-4 h-44 sm:h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={callsOverTime}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 13% 91%)" />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(218 11% 45%)" }} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(218 11% 45%)" }} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(218 11% 45%)" }} interval="preserveStartEnd" />
+                <YAxis tick={{ fontSize: 10, fill: "hsl(218 11% 45%)" }} width={30} />
                 <Tooltip contentStyle={{ borderRadius: "8px", border: "1px solid hsl(220 13% 91%)", fontSize: "12px" }} />
                 <Area type="monotone" dataKey="calls" stroke="hsl(218 11% 65%)" fill="hsl(218 11% 65% / 0.1)" strokeWidth={2} name="Total" />
                 <Area type="monotone" dataKey="answered" stroke="hsl(245 58% 51%)" fill="hsl(245 58% 51% / 0.1)" strokeWidth={2} name="Answered" />
@@ -347,14 +347,14 @@ const Dashboard = () => {
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-5 shadow-card">
-          <h3 className="font-display text-sm font-semibold text-foreground">Credits Used by Day</h3>
-          <div className="mt-4 h-56">
+        <div className="rounded-xl border bg-card p-4 sm:p-5 shadow-card">
+          <h3 className="font-display text-xs sm:text-sm font-semibold text-foreground">Credits Used by Day</h3>
+          <div className="mt-3 sm:mt-4 h-44 sm:h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={creditsOverTime}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 13% 91%)" />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(218 11% 45%)" }} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(218 11% 45%)" }} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(218 11% 45%)" }} interval="preserveStartEnd" />
+                <YAxis tick={{ fontSize: 10, fill: "hsl(218 11% 45%)" }} width={30} />
                 <Tooltip contentStyle={{ borderRadius: "8px", border: "1px solid hsl(220 13% 91%)", fontSize: "12px" }} formatter={(value: number) => [`${value} credits`, "Credits"]} />
                 <Bar dataKey="credits" fill="hsl(245 58% 51%)" radius={[4, 4, 0, 0]} />
               </BarChart>
