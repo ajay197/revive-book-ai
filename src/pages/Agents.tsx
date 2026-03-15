@@ -126,7 +126,7 @@ const Agents = () => {
           <Bot className="mx-auto h-10 w-10 text-muted-foreground" />
           <h3 className="mt-4 font-display text-lg font-semibold text-foreground">No agents in use</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Create a campaign and assign a Retell AI agent to see it here.
+            Create a campaign and assign a calling AI agent to see it here.
           </p>
         </div>
       ) : (
