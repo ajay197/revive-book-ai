@@ -255,9 +255,9 @@ const Landing = () => {
           </div>
           <div className="mx-auto mt-16 grid max-w-4xl gap-6 md:grid-cols-3">
             {[
-              { name: "Starter", price: "$49", period: "/mo", features: ["500 calls/month", "1 workspace", "2 agents", "CSV upload", "Basic analytics"], cta: "Start Free Trial", highlight: false },
-              { name: "Growth", price: "$149", period: "/mo", features: ["5,000 calls/month", "3 workspaces", "Unlimited agents", "Priority support", "Advanced analytics", "Facebook integration"], cta: "Start Free Trial", highlight: true },
-              { name: "Agency", price: "$399", period: "/mo", features: ["25,000 calls/month", "Unlimited workspaces", "Unlimited agents", "White label", "API access", "Dedicated support"], cta: "Contact Sales", highlight: false },
+              { name: "Starter", price: "$49", period: "/mo", features: ["500 credits/month", "1 workspace", "2 agents", "CSV upload", "Basic analytics"], cta: "Start 500 Calls Trial", highlight: false },
+              { name: "Growth", price: "$149", period: "/mo", features: ["2,000 credits/month (+5% bonus)", "3 workspaces", "Unlimited agents", "Priority support", "Advanced analytics", "Facebook integration"], cta: "Start 500 Calls Trial", highlight: true },
+              { name: "Agency", price: "$399", period: "/mo", features: ["5,000 credits/month (+10% bonus)", "Unlimited workspaces", "Unlimited agents", "White label", "API access", "Dedicated support"], cta: "Start 500 Calls Trial", highlight: false },
             ].map(({ name, price, period, features, cta, highlight }, i) => (
               <div key={i} className={`relative rounded-xl border p-6 ${highlight ? "border-primary shadow-glow" : "bg-background shadow-card"}`}>
                 {highlight && <div className="absolute -top-3 left-1/2 -translate-x-1/2"><Badge className="bg-gradient-primary font-display text-xs">Most Popular</Badge></div>}
