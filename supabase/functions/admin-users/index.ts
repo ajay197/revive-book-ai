@@ -236,6 +236,37 @@ serve(async (req) => {
       });
     }
 
+    // Reset user password
+    if (action === "reset_password") {
+      const { userId, newPassword } = body;
+      if (!userId || !newPassword) {
+        return new Response(JSON.stringify({ error: "userId and newPassword required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (newPassword.length < 6) {
+        return new Response(JSON.stringify({ error: "Password must be at least 6 characters" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { error: updateError } = await supabase.auth.admin.updateUserById(userId, { password: newPassword });
+      if (updateError) {
+        return new Response(JSON.stringify({ error: updateError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({ status: "password_reset" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Delete user
     if (action === "delete") {
       const { userId } = body;

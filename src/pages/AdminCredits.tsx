@@ -7,6 +7,7 @@ import { useCredits } from "@/contexts/CreditsContext";
 import {
   Loader2, Plus, Search, History, Trash2, Users, CreditCard, Phone,
   Shield, Mail, Calendar, Clock, ChevronDown, ChevronUp, UserCog, Save, X,
+  KeyRound, Eye, EyeOff,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -95,7 +96,9 @@ const AdminCredits = () => {
   const [editIsAdmin, setEditIsAdmin] = useState(false);
   const [editIsModerator, setEditIsModerator] = useState(false);
   const [saving, setSaving] = useState(false);
-
+  const [resetPassword, setResetPassword] = useState("");
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resettingPassword, setResettingPassword] = useState(false);
   const detailUser = users.find((u) => u.id === detailUserId) || null;
 
   // Sync form fields when detailUser changes
@@ -518,9 +521,65 @@ const AdminCredits = () => {
                         <Label htmlFor="role-moderator" className="text-sm">Moderator</Label>
                       </div>
                     </div>
-                  </div>
+                   </div>
 
-                  <Separator />
+                   <Separator />
+
+                   {/* Password Reset */}
+                   <div className="space-y-3">
+                     <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                       <KeyRound className="h-4 w-4" /> Reset Password
+                     </h4>
+                     <p className="text-xs text-muted-foreground">
+                       Set a new password for this user. Only works for email/password accounts (not Google sign-in).
+                     </p>
+                     <div className="flex gap-3 items-end">
+                       <div className="flex-1 space-y-1.5">
+                         <Label htmlFor="reset-pw" className="text-xs">New Password</Label>
+                         <div className="relative">
+                           <Input
+                             id="reset-pw"
+                             type={showResetPassword ? "text" : "password"}
+                             value={resetPassword}
+                             onChange={(e) => setResetPassword(e.target.value)}
+                             placeholder="Min 6 characters"
+                             className="pr-10"
+                           />
+                           <button
+                             type="button"
+                             onClick={() => setShowResetPassword(!showResetPassword)}
+                             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                           >
+                             {showResetPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                           </button>
+                         </div>
+                       </div>
+                       <Button
+                         size="sm"
+                         variant="outline"
+                         disabled={resettingPassword || resetPassword.length < 6}
+                         onClick={async () => {
+                           if (!detailUser) return;
+                           setResettingPassword(true);
+                           const { data, error } = await supabase.functions.invoke("admin-users", {
+                             body: { action: "reset_password", userId: detailUser.id, newPassword: resetPassword },
+                           });
+                           if (error || data?.error) {
+                             toast.error("Failed: " + (data?.error || error?.message));
+                           } else {
+                             toast.success("Password has been reset successfully");
+                             setResetPassword("");
+                           }
+                           setResettingPassword(false);
+                         }}
+                       >
+                         {resettingPassword ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <KeyRound className="mr-1 h-3 w-3" />}
+                         Reset Password
+                       </Button>
+                     </div>
+                   </div>
+
+                   <Separator />
 
                   {/* Phone Numbers */}
                   <div className="space-y-3">
