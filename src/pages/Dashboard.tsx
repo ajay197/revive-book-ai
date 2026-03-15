@@ -176,8 +176,7 @@ const CallLogsTable = ({ calls, campaignMap }: { calls: CallLog[]; campaignMap: 
     </div>
   );
 };
-
-
+const Dashboard = () => {
   const { user } = useAuth();
   const { balance } = useCredits();
   const navigate = useNavigate();
