@@ -18,7 +18,7 @@ const mainItems = [
   { title: "Agents", url: "/app/agents", icon: Bot },
   { title: "Phone Numbers", url: "/app/phone-numbers", icon: Phone },
   { title: "Scripts", url: "/app/scripts", icon: FileText },
-  { title: "Analytics", url: "/app/analytics", icon: BarChart3 },
+  
 ];
 
 const secondaryItems = [
