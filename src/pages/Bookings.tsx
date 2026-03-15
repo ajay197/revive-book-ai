@@ -532,17 +532,39 @@ const Bookings = () => {
                         const newStart = nextStart.toISOString();
                         const newEnd = new Date(nextStart.getTime() + (selectedEvent?.length || 30) * 60000).toISOString();
 
+                        // Reschedule on Cal.com first if it has a calcom_booking_id
+                        if (selectedBooking.calcom_booking_id) {
+                          try {
+                            const { data: rescheduleData, error: rescheduleError } = await supabase.functions.invoke("calcom-sync", {
+                              body: {
+                                action: "reschedule_booking",
+                                calcomBookingId: selectedBooking.calcom_booking_id,
+                                newStart,
+                                newEnd,
+                              },
+                            });
+                            if (rescheduleError || rescheduleData?.error) {
+                              toast.error(rescheduleData?.error || "Failed to reschedule on Cal.com");
+                              return;
+                            }
+                          } catch (err: any) {
+                            toast.error(err.message || "Failed to reschedule on Cal.com");
+                            return;
+                          }
+                        }
+
+                        // Update local DB
                         const { error } = await supabase
                           .from("bookings")
                           .update({ start_time: newStart, end_time: newEnd, updated_at: new Date().toISOString() })
                           .eq("id", selectedBooking.id);
 
                         if (error) {
-                          toast.error("Failed to reschedule");
+                          toast.error("Failed to update booking locally");
                           return;
                         }
 
-                        toast.success("Booking rescheduled!");
+                        toast.success("Booking rescheduled on Cal.com!");
                         setRescheduling(false);
                         setRescheduleDate(undefined);
                         setRescheduleTime("");
