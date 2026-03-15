@@ -82,8 +82,102 @@ const formatDuration = (sec: number) => {
   const s = sec % 60;
   return `${min}:${s.toString().padStart(2, "0")}`;
 };
+const ROWS_PER_PAGE = 20;
 
-const Dashboard = () => {
+const CallLogsTable = ({ calls, campaignMap }: { calls: CallLog[]; campaignMap: Record<string, string> }) => {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(calls.length / ROWS_PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedCalls = calls.slice((currentPage - 1) * ROWS_PER_PAGE, currentPage * ROWS_PER_PAGE);
+
+  // Reset page when calls change (e.g. time range switch)
+  useEffect(() => { setPage(1); }, [calls]);
+
+  return (
+    <div className="rounded-xl border bg-card shadow-card">
+      <div className="border-b px-5 py-4">
+        <h3 className="font-display text-sm font-semibold text-foreground">Call Logs</h3>
+        <p className="mt-0.5 text-xs text-muted-foreground">Detailed call records from your campaigns</p>
+      </div>
+      {calls.length > 0 ? (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/30">
+                  <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground">Time</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground">Lead</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground">Campaign</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground">Duration</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground">Credits</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground">Outcome</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground">Sentiment</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground">End Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedCalls.map((row) => {
+                  const dur = row.duration_seconds || 0;
+                  const credits = secondsToCredits(dur);
+                  return (
+                    <tr key={row.id} className="border-b last:border-0 hover:bg-muted/20">
+                      <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">
+                        {new Date(row.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3">
+                        <p className="font-medium text-foreground">{row.lead_name || "Unknown"}</p>
+                        <p className="text-xs text-muted-foreground">{row.lead_phone || ""}</p>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
+                        {row.campaign_id ? campaignMap[row.campaign_id] || "—" : "—"}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">{formatDuration(dur)}</td>
+                      <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">{credits.toFixed(2)}</td>
+                      <td className="whitespace-nowrap px-4 py-3"><StatusBadge status={row.status} /></td>
+                      <td className="whitespace-nowrap px-4 py-3"><StatusBadge status={row.sentiment || "Unknown"} /></td>
+                      <td className="whitespace-nowrap px-4 py-3 text-xs text-muted-foreground">{row.disconnection_reason || "—"}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {/* Pagination */}
+          <div className="flex items-center justify-between border-t px-5 py-3">
+            <p className="text-xs text-muted-foreground">
+              Showing {(currentPage - 1) * ROWS_PER_PAGE + 1}–{Math.min(currentPage * ROWS_PER_PAGE, calls.length)} of {calls.length} calls
+            </p>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1}
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted disabled:opacity-40"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="px-2 text-xs font-medium text-foreground">{currentPage} / {totalPages}</span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted disabled:opacity-40"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="p-12 text-center">
+          <Phone className="mx-auto h-10 w-10 text-muted-foreground" />
+          <h3 className="mt-4 font-display text-lg font-semibold text-foreground">No call data yet</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Start campaigns to see call logs here.</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
   const { user } = useAuth();
   const { balance } = useCredits();
   const navigate = useNavigate();
