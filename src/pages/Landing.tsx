@@ -249,38 +249,47 @@ const Landing = () => {
       <section id="pricing" className="border-y bg-card py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
-            <Badge variant="secondary" className="mb-4 font-display text-xs font-semibold">Pricing</Badge>
-            <h2 className="font-display text-3xl font-bold text-foreground md:text-4xl">Simple, transparent pricing</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">Start free. Scale as you grow.</p>
+            <Badge variant="secondary" className="mb-4 font-display text-xs font-semibold">Full Transparency</Badge>
+            <h2 className="font-display text-3xl font-bold text-foreground md:text-5xl">
+              No Platform Fees.{" "}
+              <span className="text-gradient">Pay Only For What You Use</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">Treat Lead Revival AI like your outsourced call center.</p>
           </div>
-          <div className="mx-auto mt-16 grid max-w-4xl gap-6 md:grid-cols-3">
-            {[
-              { name: "Starter", price: "$49", period: "/mo", features: ["500 credits/month", "1 workspace", "2 agents", "CSV upload", "Basic analytics"], cta: "Start 500 Calls Trial", highlight: false },
-              { name: "Growth", price: "$149", period: "/mo", features: ["2,000 credits/month (+5% bonus)", "3 workspaces", "Unlimited agents", "Priority support", "Advanced analytics", "Facebook integration"], cta: "Start 500 Calls Trial", highlight: true },
-              { name: "Agency", price: "$399", period: "/mo", features: ["5,000 credits/month (+10% bonus)", "Unlimited workspaces", "Unlimited agents", "White label", "API access", "Dedicated support"], cta: "Start 500 Calls Trial", highlight: false },
-            ].map(({ name, price, period, features, cta, highlight }, i) => (
-              <div key={i} className={`relative rounded-xl border p-6 ${highlight ? "border-primary shadow-glow" : "bg-background shadow-card"}`}>
-                {highlight && <div className="absolute -top-3 left-1/2 -translate-x-1/2"><Badge className="bg-gradient-primary font-display text-xs">Most Popular</Badge></div>}
-                <h3 className="font-display text-lg font-semibold text-foreground">{name}</h3>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="font-display text-4xl font-bold text-foreground">{price}</span>
-                  <span className="text-sm text-muted-foreground">{period}</span>
-                </div>
-                <ul className="mt-6 space-y-3">
-                  {features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                      {f}
+
+          <div className="mx-auto mt-16 max-w-md">
+            <div className="rounded-2xl border bg-background p-8 shadow-card">
+              <h3 className="font-display text-2xl font-bold text-foreground">Pay as you go</h3>
+              <div className="mt-3 space-y-1">
+                <p className="text-sm text-muted-foreground">$0 to start.</p>
+                <p className="text-sm font-medium text-foreground">Self-Serve</p>
+                <p className="text-sm text-muted-foreground">Start instantly.</p>
+              </div>
+
+              <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer" className="mt-6 block">
+                <Button variant="outline" size="lg" className="w-full rounded-full text-base font-semibold">
+                  Start 500 Calls Trial
+                </Button>
+              </a>
+
+              <div className="mt-8 border-t pt-6">
+                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Details</p>
+                <ul className="space-y-4">
+                  {[
+                    { icon: Phone, text: "$0.07+/minute for AI Voice Agents" },
+                    { icon: Zap, text: "1 credit = 2.5 minutes of calling" },
+                    { icon: Upload, text: "Unlimited CSV Lead Uploads" },
+                    { icon: BarChart3, text: "Real-Time Analytics" },
+                    { icon: Calendar, text: "Cal.com Appointment Booking" },
+                  ].map(({ icon: Icon, text }, i) => (
+                    <li key={i} className="flex items-center gap-3 text-sm text-foreground">
+                      <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      {text}
                     </li>
                   ))}
                 </ul>
-                <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer" className="block">
-                  <Button className={`mt-8 w-full ${highlight ? "bg-gradient-primary" : ""}`} variant={highlight ? "default" : "outline"}>
-                    {cta}
-                  </Button>
-                </a>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
