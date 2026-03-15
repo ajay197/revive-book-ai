@@ -24,6 +24,8 @@ import CreditHistory from "./pages/CreditHistory";
 import AdminCredits from "./pages/AdminCredits";
 import PhoneNumbers from "./pages/PhoneNumbers";
 import Bookings from "./pages/Bookings";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import AppLayout from "./components/layout/AppLayout";
 import NotFound from "./pages/NotFound";
 
