@@ -96,7 +96,7 @@ const Leads = () => {
   }, [leads]);
 
   const activeFilterCount =
-    filters.statuses.length + filters.sources.length + filters.companies.length + filters.campaigns.length;
+    filters.statuses.length + filters.sources.length + filters.companies.length + filters.campaigns.length + filters.sentiments.length;
 
   const filtered = useMemo(() => {
     return leads.filter((l) => {
