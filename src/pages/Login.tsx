@@ -42,6 +42,13 @@ const Login = () => {
       </div>
       <div className="flex flex-1 items-center justify-center px-6">
         <div className="w-full max-w-sm">
+          <button
+            onClick={() => navigate("/")}
+            className="mb-4 flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
           <div className="mb-8 flex items-center gap-2 lg:hidden">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
               <Phone className="h-4 w-4 text-primary-foreground" />
