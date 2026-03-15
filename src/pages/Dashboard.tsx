@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Phone, Calendar, TrendingUp, DollarSign, Megaphone, Clock, SmilePlus, Loader2, Coins, CreditCard, Timer } from "lucide-react";
+import { Phone, Calendar, TrendingUp, Megaphone, Clock, SmilePlus, Loader2, Coins, CreditCard } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { StatusBadge } from "@/components/StatusBadge";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,7 +18,7 @@ interface DashboardData {
     avgDuration: string;
     totalDuration: string;
     appointmentsBooked: number;
-    totalCost: number;
+    creditsUsed: number;
     positiveSentiment: number;
   };
   outcomeDistribution: { name: string; value: number; fill: string }[];
@@ -32,7 +32,7 @@ interface DashboardData {
     duration: string;
     outcome: string;
     sentiment: string;
-    cost: number;
+    credits: number;
   }[];
 }
 
@@ -133,7 +133,7 @@ const Dashboard = () => {
         <StatCard label="Avg Duration" value={stats?.avgDuration ?? "0:00"} icon={Clock} />
         <StatCard label="Total Duration" value={stats?.totalDuration ?? "0:00"} icon={Clock} />
         <StatCard label="Appointments Booked" value={stats?.appointmentsBooked ?? 0} icon={Calendar} />
-        <StatCard label="Total Cost" value={(stats?.totalCost ?? 0).toFixed(2)} prefix="$" icon={DollarSign} />
+        <StatCard label="Credits Used" value={stats?.creditsUsed?.toFixed(2) ?? "0.00"} icon={Coins} />
         <StatCard label="Active Campaigns" value={activeCampaigns} icon={Megaphone} />
         <StatCard label="Positive Sentiment" value={stats ? `${stats.positiveSentiment}%` : "0%"} icon={SmilePlus} />
       </div>
@@ -203,7 +203,7 @@ const Dashboard = () => {
                   <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Duration</th>
                   <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Outcome</th>
                   <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Sentiment</th>
-                  <th className="px-5 py-3 text-right text-xs font-medium text-muted-foreground">Cost</th>
+                  <th className="px-5 py-3 text-right text-xs font-medium text-muted-foreground">Credits</th>
                 </tr>
               </thead>
               <tbody>
@@ -218,7 +218,7 @@ const Dashboard = () => {
                     <td className="px-5 py-3 text-muted-foreground">{call.duration}</td>
                     <td className="px-5 py-3"><StatusBadge status={call.outcome} /></td>
                     <td className="px-5 py-3"><StatusBadge status={call.sentiment} /></td>
-                    <td className="px-5 py-3 text-right text-muted-foreground">${call.cost.toFixed(3)}</td>
+                    <td className="px-5 py-3 text-right text-muted-foreground">{call.credits.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>

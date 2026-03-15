@@ -100,10 +100,11 @@ serve(async (req) => {
       const voicemail = allCalls.filter((c) => c.disconnection_reason === "voicemail_reached" || c.call_analysis?.in_voicemail === true).length;
       const unsuccessful = totalCalls - booked - noAnswer - voicemail;
 
-      // Duration & cost
+      // Duration & credits (1 credit = 150 seconds = 2.5 minutes)
       const durations = allCalls.map((c) => (c.end_timestamp && c.start_timestamp) ? (c.end_timestamp - c.start_timestamp) : 0).filter((d) => d > 0);
       const avgDurationMs = durations.length > 0 ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
-      const totalCost = allCalls.reduce((sum, c) => sum + (c.cost || 0), 0);
+      const totalDurationSeconds = durations.reduce((a, b) => a + b, 0) / 1000;
+      const totalCreditsUsed = Math.round((totalDurationSeconds / 150) * 100) / 100;
 
       // Sentiment
       const sentiments = allCalls.map((c) => c.call_analysis?.user_sentiment).filter(Boolean);
@@ -150,16 +151,20 @@ serve(async (req) => {
         else if (isNoAnswer) outcome = "No Answer";
         else if (isVoicemail) outcome = "Voicemail";
 
+        const durationMs = (c.end_timestamp && c.start_timestamp) ? (c.end_timestamp - c.start_timestamp) : 0;
+        const durationSeconds = Math.round(durationMs / 1000);
+        const credits = Math.round((durationSeconds / 150) * 100) / 100;
+
         return {
           id: c.call_id,
           time: c.start_timestamp ? new Date(c.start_timestamp).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "",
           lead: c.retell_llm_dynamic_variables?.customer_name || c.metadata?.customer_name || "Unknown",
           phone: c.to_phone_number || c.from_phone_number || "",
           campaign: c.metadata?.campaign_name || c.retell_llm_dynamic_variables?.campaign_name || "—",
-          duration,
+          duration: formatDuration(durationMs),
           outcome,
           sentiment: c.call_analysis?.user_sentiment || "Neutral",
-          cost: c.cost || 0,
+          credits,
           agent_id: c.agent_id,
         };
       });
@@ -173,7 +178,7 @@ serve(async (req) => {
             avgDuration: formatDuration(avgDurationMs),
             totalDuration: formatDuration(durations.reduce((a, b) => a + b, 0)),
             appointmentsBooked: booked,
-            totalCost,
+            creditsUsed: totalCreditsUsed,
             positiveSentiment: positivePct,
           },
           outcomeDistribution: [
