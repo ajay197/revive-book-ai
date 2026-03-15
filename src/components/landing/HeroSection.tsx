@@ -173,6 +173,7 @@ const HeroSection = () => {
         <motion.div
           ref={dashRef}
           className="mx-auto mt-12 max-w-5xl sm:mt-20"
+          style={{ y: dashboardY }}
           initial={{ opacity: 0, y: 60, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ delay: 0.7, duration: 0.8, ease: "easeOut" }}
