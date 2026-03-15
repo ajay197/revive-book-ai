@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const navLinks = ["Features", "How It Works", "Pricing", "FAQ"];
+const navLinks = ["Features", "How It Works", "Revenue Calculator", "Pricing", "FAQ"];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);

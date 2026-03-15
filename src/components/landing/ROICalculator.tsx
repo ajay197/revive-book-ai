@@ -30,7 +30,7 @@ const ROICalculator = () => {
   ];
 
   return (
-    <section ref={ref} className="relative overflow-hidden py-12 sm:py-20 md:py-24">
+    <section id="revenue-calculator" ref={ref} className="relative overflow-hidden py-12 sm:py-20 md:py-24">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/3 top-0 h-40 w-40 rounded-full bg-primary/5 blur-[80px] sm:h-64 sm:w-64 sm:blur-[120px]" />
         <div className="absolute bottom-0 right-1/4 h-32 w-32 rounded-full bg-success/5 blur-[60px] sm:h-48 sm:w-48 sm:blur-[100px]" />
