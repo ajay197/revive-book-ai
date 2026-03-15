@@ -64,6 +64,10 @@ const Integrations = () => {
     }
   };
 
+  const singleActionButtonClass = "h-8 w-full px-2 text-xs sm:h-9 sm:px-3 sm:text-sm";
+  const splitActionGroupClass = "flex flex-col gap-2 lg:flex-row";
+  const splitActionButtonClass = "h-8 min-w-0 flex-1 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm";
+
   const integrations = [
     {
       name: "Retell AI",
