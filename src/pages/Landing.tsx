@@ -246,48 +246,82 @@ const Landing = () => {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="border-y bg-card py-24">
+      <section id="pricing" className="relative overflow-hidden py-24" style={{ background: 'linear-gradient(135deg, hsl(220 20% 8%), hsl(260 30% 12%), hsl(220 20% 8%))' }}>
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
-            <Badge variant="secondary" className="mb-4 font-display text-xs font-semibold">Full Transparency</Badge>
-            <h2 className="font-display text-3xl font-bold text-foreground md:text-5xl">
-              No Platform Fees.{" "}
-              <span className="text-gradient">Pay Only For What You Use</span>
+            <h2 className="font-display text-3xl font-extrabold text-white md:text-5xl">
+              Pay Once, Use Forever
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">Treat Lead Revival AI like your outsourced call center.</p>
+            <p className="mx-auto mt-4 max-w-2xl text-white/60">
+              Lead Revival AI's credit-based pricing means no monthly subscriptions. Pay as you go — credits never expire. You will have access to the full range of features with every plan.
+            </p>
+            <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer" className="mt-8 inline-block">
+              <Button size="lg" className="rounded-full border border-white/20 bg-white/5 px-10 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:shadow-[0_0_30px_rgba(139,92,246,0.3)]">
+                Start 500 Calls Trial <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </a>
           </div>
 
-          <div className="mx-auto mt-16 max-w-md">
-            <div className="rounded-2xl border bg-background p-8 shadow-card">
-              <h3 className="font-display text-2xl font-bold text-foreground">Pay as you go</h3>
-              <div className="mt-3 space-y-1">
-                <p className="text-sm text-muted-foreground">$0 to start.</p>
-                <p className="text-sm font-medium text-foreground">Self-Serve</p>
-                <p className="text-sm text-muted-foreground">Start instantly.</p>
-              </div>
+          <div className="mx-auto mt-16 grid max-w-5xl gap-8 lg:grid-cols-2">
+            {/* Credit Packs — Left */}
+            <div className="space-y-3">
+              {[
+                { credits: "500 Credits", perCredit: null, price: "Free", note: "No credit card required", promo: null },
+                { credits: "2,000 Credits", perCredit: "+5% bonus", price: "$149", note: null, promo: null },
+                { credits: "5,000 Credits", perCredit: "+10% bonus", price: "$349", note: null, promo: { label: "Most Popular", tag: "Best Value" } },
+              ].map((pack, i) => (
+                <div key={i} className={`relative rounded-xl border p-5 transition-all ${pack.promo ? 'border-purple-500/60 bg-gradient-to-r from-purple-500/10 to-blue-500/10' : 'border-white/10 bg-white/5'}`}>
+                  {pack.promo && (
+                    <div className="absolute -top-px left-0 right-0 flex items-center justify-between rounded-t-xl bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-1">
+                      <span className="text-xs font-bold text-white">{pack.promo.label}</span>
+                      <span className="text-xs font-semibold text-white/90">{pack.promo.tag}</span>
+                    </div>
+                  )}
+                  <div className={`flex items-center justify-between ${pack.promo ? 'mt-4' : ''}`}>
+                    <div>
+                      <p className="font-display text-lg font-bold text-white">{pack.credits}</p>
+                      {pack.perCredit && <p className="text-sm text-white/50">{pack.perCredit}</p>}
+                      {pack.note && <p className="text-sm text-white/40 italic">{pack.note}</p>}
+                    </div>
+                    <p className="font-display text-2xl font-extrabold text-white">{pack.price}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-              <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer" className="mt-6 block">
-                <Button variant="outline" size="lg" className="w-full rounded-full text-base font-semibold">
-                  Start 500 Calls Trial
-                </Button>
-              </a>
+            {/* Included Features — Right */}
+            <div className="rounded-xl border border-white/10 bg-white/5 p-8">
+              <h3 className="mb-6 font-display text-lg font-bold text-white">Included with all plans</h3>
+              <ul className="space-y-4">
+                {[
+                  "Unlimited CSV Lead Uploads",
+                  "AI Voice Calling Agents",
+                  "Cal.com Appointment Booking",
+                  "Real-Time Campaign Analytics",
+                  "Multi-Tenant Workspaces",
+                  "Webhooks & API Access",
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm text-white/80">
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-blue-500">
+                      <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
 
-              <div className="mt-8 border-t pt-6">
-                <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Details</p>
-                <ul className="space-y-4">
-                  {[
-                    { icon: Phone, text: "$0.07+/minute for AI Voice Agents" },
-                    { icon: Zap, text: "1 credit = 2.5 minutes of calling" },
-                    { icon: Upload, text: "Unlimited CSV Lead Uploads" },
-                    { icon: BarChart3, text: "Real-Time Analytics" },
-                    { icon: Calendar, text: "Cal.com Appointment Booking" },
-                  ].map(({ icon: Icon, text }, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm text-foreground">
-                      <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                      {text}
-                    </li>
-                  ))}
-                </ul>
+              <div className="mt-8 grid grid-cols-2 gap-3">
+                {[
+                  { icon: Shield, text: "No Monthly Cost" },
+                  { icon: Zap, text: "Usage Based Cost" },
+                  { icon: Clock, text: "Credit Card Free" },
+                  { icon: Phone, text: "1 Credit = 2.5 Min" },
+                ].map(({ icon: Icon, text }, i) => (
+                  <div key={i} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5">
+                    <Icon className="h-4 w-4 shrink-0 text-white/50" />
+                    <span className="text-xs font-medium text-white/70">{text}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
