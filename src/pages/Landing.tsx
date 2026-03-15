@@ -70,14 +70,16 @@ const Landing = () => {
             className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
             initial="hidden" animate="visible" variants={fadeUp} custom={3}
           >
-            <Link to="/signup">
+            <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer">
               <Button size="lg" className="bg-gradient-primary px-8 text-base font-semibold shadow-elevated transition-shadow hover:shadow-glow">
-                Start Free Trial <ArrowRight className="ml-2 h-4 w-4" />
+                Start 500 Calls Trial <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </Link>
-            <Button variant="outline" size="lg" className="px-8 text-base font-semibold">
-              Book a Demo
-            </Button>
+            </a>
+            <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="lg" className="px-8 text-base font-semibold">
+                Book a Demo
+              </Button>
+            </a>
           </motion.div>
           <motion.div
             className="mx-auto mt-6 flex items-center justify-center gap-6 text-sm text-muted-foreground"
