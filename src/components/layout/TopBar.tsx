@@ -14,7 +14,7 @@ export function TopBar() {
     .slice(0, 2);
 
   return (
-    <header className="sticky top-0 z-40 flex h-12 sm:h-14 items-center justify-between border-b bg-card px-3 sm:px-4">
+    <header className="sticky top-0 z-40 flex h-12 sm:h-14 items-center justify-between border-b bg-card px-3 sm:px-4" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       <div className="flex items-center gap-3">
         <SidebarTrigger />
         <div className="hidden items-center gap-2 rounded-lg border bg-background px-3 py-1.5 text-sm text-muted-foreground md:flex">
