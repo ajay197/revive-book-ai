@@ -351,6 +351,7 @@ const Leads = () => {
                     <td className="px-5 py-3 text-muted-foreground">{lead.source || "—"}</td>
                     <td className="px-5 py-3 text-muted-foreground">{lead.campaign || "—"}</td>
                     <td className="px-5 py-3"><StatusBadge status={lead.status as any} /></td>
+                    <td className="px-5 py-3"><StatusBadge status={sentimentMap[lead.id] || "Unknown"} /></td>
                     <td className="px-5 py-3 text-xs text-muted-foreground">{new Date(lead.created_at).toLocaleDateString()}</td>
                     <td className="px-5 py-3 text-right">
                       <DropdownMenu>
