@@ -329,7 +329,7 @@ const Leads = () => {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-muted-foreground">Loading leads...</td>
+                  <td colSpan={9} className="px-5 py-12 text-center text-muted-foreground">Loading leads...</td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
