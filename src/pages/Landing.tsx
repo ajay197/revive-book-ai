@@ -24,6 +24,7 @@ const Landing = () => {
       <TrustedBySection />
       <FeaturesSection />
       <HowItWorksSection />
+      <ROICalculator />
       <TestimonialsSection />
       <PricingSection />
       <FAQSection />
