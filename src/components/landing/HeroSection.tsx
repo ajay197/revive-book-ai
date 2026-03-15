@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Shield, Clock, Sparkles } from "lucide-react";
 
 const fadeUp = {
@@ -48,33 +48,52 @@ const barHeights = [35, 55, 40, 70, 48, 82, 62, 75, 55, 88, 68, 78, 60, 85];
 const HeroSection = () => {
   const dashRef = useRef<HTMLDivElement>(null);
   const dashInView = useInView(dashRef, { once: false, margin: "-80px" });
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
+
+  const orbOneY = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const orbOneX = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const orbTwoY = useTransform(scrollYProgress, [0, 1], [0, -180]);
+  const orbTwoX = useTransform(scrollYProgress, [0, 1], [0, -80]);
+  const gridY = useTransform(scrollYProgress, [0, 1], [0, -60]);
+  const dashboardY = useTransform(scrollYProgress, [0, 1], [0, 80]);
+  const textY = useTransform(scrollYProgress, [0, 1], [0, -40]);
 
   return (
-    <section className="relative overflow-hidden pb-16 pt-20 sm:pb-20 sm:pt-28 md:pb-32 md:pt-40">
-      {/* Animated gradient orbs */}
+    <section ref={sectionRef} className="relative overflow-hidden pb-16 pt-20 sm:pb-20 sm:pt-28 md:pb-32 md:pt-40">
+      {/* Parallax gradient orbs */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <motion.div
           className="absolute -left-32 -top-32 h-[300px] w-[300px] rounded-full opacity-[0.07] sm:h-[500px] sm:w-[500px]"
-          style={{ background: "radial-gradient(circle, hsl(245 58% 51%), transparent 70%)" }}
-          animate={{ x: [0, 40, 0], y: [0, 30, 0] }}
+          style={{
+            background: "radial-gradient(circle, hsl(245 58% 51%), transparent 70%)",
+            y: orbOneY,
+            x: orbOneX,
+          }}
+          animate={{ scale: [1, 1.08, 1] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
           className="absolute -bottom-40 -right-32 h-[400px] w-[400px] rounded-full opacity-[0.05] sm:h-[600px] sm:w-[600px]"
-          style={{ background: "radial-gradient(circle, hsl(270 67% 55%), transparent 70%)" }}
-          animate={{ x: [0, -30, 0], y: [0, -40, 0] }}
+          style={{
+            background: "radial-gradient(circle, hsl(270 67% 55%), transparent 70%)",
+            y: orbTwoY,
+            x: orbTwoX,
+          }}
+          animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
         />
-        <div
+        <motion.div
           className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: `linear-gradient(hsl(245 58% 51%) 1px, transparent 1px), linear-gradient(90deg, hsl(245 58% 51%) 1px, transparent 1px)`,
             backgroundSize: "60px 60px",
+            y: gridY,
           }}
         />
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-4 text-center sm:px-6">
+      <motion.div className="relative mx-auto max-w-6xl px-4 text-center sm:px-6" style={{ y: textY }}>
         <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}>
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 font-display text-[11px] font-semibold text-primary sm:px-4 sm:text-xs">
             <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -154,6 +173,7 @@ const HeroSection = () => {
         <motion.div
           ref={dashRef}
           className="mx-auto mt-12 max-w-5xl sm:mt-20"
+          style={{ y: dashboardY }}
           initial={{ opacity: 0, y: 60, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ delay: 0.7, duration: 0.8, ease: "easeOut" }}
@@ -220,7 +240,7 @@ const HeroSection = () => {
             </div>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 };
