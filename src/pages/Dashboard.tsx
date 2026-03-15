@@ -218,7 +218,7 @@ const Dashboard = () => {
                     <td className="px-5 py-3 text-muted-foreground">{call.duration}</td>
                     <td className="px-5 py-3"><StatusBadge status={call.outcome} /></td>
                     <td className="px-5 py-3"><StatusBadge status={call.sentiment} /></td>
-                    <td className="px-5 py-3 text-right text-muted-foreground">${call.cost.toFixed(3)}</td>
+                    <td className="px-5 py-3 text-right text-muted-foreground">{call.credits.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
