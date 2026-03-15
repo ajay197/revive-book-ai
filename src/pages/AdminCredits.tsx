@@ -96,7 +96,9 @@ const AdminCredits = () => {
   const [editIsAdmin, setEditIsAdmin] = useState(false);
   const [editIsModerator, setEditIsModerator] = useState(false);
   const [saving, setSaving] = useState(false);
-
+  const [resetPassword, setResetPassword] = useState("");
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resettingPassword, setResettingPassword] = useState(false);
   const detailUser = users.find((u) => u.id === detailUserId) || null;
 
   // Sync form fields when detailUser changes
