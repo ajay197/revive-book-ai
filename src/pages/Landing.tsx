@@ -319,14 +319,16 @@ const Landing = () => {
           <h2 className="font-display text-3xl font-bold text-primary-foreground md:text-4xl">Ready to revive your leads?</h2>
           <p className="mx-auto mt-4 max-w-xl text-primary-foreground/80">Start converting old leads into booked appointments today. No credit card required.</p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link to="/signup">
+            <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer">
               <Button size="lg" variant="secondary" className="px-8 text-base font-semibold">
-                Start Free Trial <ArrowRight className="ml-2 h-4 w-4" />
+                Start 500 Calls Trial <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </Link>
-            <Button size="lg" variant="ghost" className="px-8 text-base font-semibold text-primary-foreground hover:bg-primary-foreground/10">
-              Book a Demo
-            </Button>
+            </a>
+            <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" variant="ghost" className="px-8 text-base font-semibold text-primary-foreground hover:bg-primary-foreground/10">
+                Book a Demo
+              </Button>
+            </a>
           </div>
         </div>
       </section>
