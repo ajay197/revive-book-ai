@@ -25,6 +25,7 @@ const Landing = () => {
       <HeroSection />
       <TrustedBySection />
       <FeaturesSection />
+      <IndustriesSection />
       <HowItWorksSection />
       <ROICalculator />
       <TestimonialsSection />
