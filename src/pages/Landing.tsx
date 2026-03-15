@@ -4,6 +4,7 @@ import Navbar from "@/components/landing/Navbar";
 import HeroSection from "@/components/landing/HeroSection";
 import TrustedBySection from "@/components/landing/TrustedBySection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
+import IndustriesSection from "@/components/landing/IndustriesSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import ROICalculator from "@/components/landing/ROICalculator";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
@@ -24,6 +25,7 @@ const Landing = () => {
       <HeroSection />
       <TrustedBySection />
       <FeaturesSection />
+      <IndustriesSection />
       <HowItWorksSection />
       <ROICalculator />
       <TestimonialsSection />
