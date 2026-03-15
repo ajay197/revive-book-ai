@@ -4,19 +4,36 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const navLinks = ["Features", "How It Works", "Revenue Calculator", "Pricing", "FAQ"];
+const navLinks = [
+  { label: "Features", id: "features" },
+  { label: "How It Works", id: "how-it-works" },
+  { label: "Revenue Calculator", id: "revenue-calculator" },
+  { label: "Pricing", id: "pricing" },
+  { label: "FAQ", id: "faq" },
+];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
 
-  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    const id = href.replace("#", "");
+  const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
+    if (!el) return;
+
+    const top = el.getBoundingClientRect().top + window.scrollY - 72;
+    window.scrollTo({ top, behavior: "smooth" });
+    window.history.replaceState(null, "", `/#${id}`);
+  };
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+
+    if (open) {
+      setOpen(false);
+      window.setTimeout(() => scrollToSection(id), 220);
+      return;
     }
-    setOpen(false);
+
+    scrollToSection(id);
   };
 
   return (
@@ -31,14 +48,14 @@ const Navbar = () => {
 
         {/* Desktop nav */}
         <div className="hidden items-center gap-8 md:flex">
-          {navLinks.map((item) => (
+          {navLinks.map((link) => (
             <a
-              key={item}
-              href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-              onClick={(e) => scrollToSection(e, `#${item.toLowerCase().replace(/\s+/g, "-")}`)}
+              key={link.id}
+              href={`/#${link.id}`}
+              onClick={(e) => handleNavClick(e, link.id)}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              {item}
+              {link.label}
             </a>
           ))}
         </div>
@@ -72,14 +89,14 @@ const Navbar = () => {
             className="overflow-hidden border-t bg-card md:hidden"
           >
             <div className="flex flex-col gap-1 px-4 py-4">
-              {navLinks.map((item) => (
+              {navLinks.map((link) => (
                 <a
-                  key={item}
-                  href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
+                  key={link.id}
+                  href={`/#${link.id}`}
                   className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  onClick={(e) => scrollToSection(e, `#${item.toLowerCase().replace(/\s+/g, "-")}`)}
+                  onClick={(e) => handleNavClick(e, link.id)}
                 >
-                  {item}
+                  {link.label}
                 </a>
               ))}
               <div className="mt-3 flex flex-col gap-2 border-t pt-3">
