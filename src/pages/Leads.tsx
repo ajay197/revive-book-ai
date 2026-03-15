@@ -333,7 +333,7 @@ const Leads = () => {
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-5 py-12 text-center text-muted-foreground">
                     {searchQuery || activeFilterCount > 0
                       ? "No leads match your search or filters"
                       : "No leads yet — upload a CSV to get started"}
