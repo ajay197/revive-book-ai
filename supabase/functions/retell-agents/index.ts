@@ -151,16 +151,20 @@ serve(async (req) => {
         else if (isNoAnswer) outcome = "No Answer";
         else if (isVoicemail) outcome = "Voicemail";
 
+        const durationMs = (c.end_timestamp && c.start_timestamp) ? (c.end_timestamp - c.start_timestamp) : 0;
+        const durationSeconds = Math.round(durationMs / 1000);
+        const credits = Math.round((durationSeconds / 150) * 100) / 100;
+
         return {
           id: c.call_id,
           time: c.start_timestamp ? new Date(c.start_timestamp).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "",
           lead: c.retell_llm_dynamic_variables?.customer_name || c.metadata?.customer_name || "Unknown",
           phone: c.to_phone_number || c.from_phone_number || "",
           campaign: c.metadata?.campaign_name || c.retell_llm_dynamic_variables?.campaign_name || "—",
-          duration,
+          duration: formatDuration(durationMs),
           outcome,
           sentiment: c.call_analysis?.user_sentiment || "Neutral",
-          cost: c.cost || 0,
+          credits,
           agent_id: c.agent_id,
         };
       });
