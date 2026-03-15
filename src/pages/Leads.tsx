@@ -18,14 +18,17 @@ import { toast } from "sonner";
 
 const STATUS_OPTIONS = ["New", "Queued", "Called", "Answered", "No Answer", "Voicemail", "Booked", "Unsuccessful", "Do Not Call"];
 
+const SENTIMENT_OPTIONS = ["Positive", "Negative", "Neutral", "Unknown"];
+
 interface Filters {
   statuses: string[];
   sources: string[];
   companies: string[];
   campaigns: string[];
+  sentiments: string[];
 }
 
-const emptyFilters: Filters = { statuses: [], sources: [], companies: [], campaigns: [] };
+const emptyFilters: Filters = { statuses: [], sources: [], companies: [], campaigns: [], sentiments: [] };
 
 const Leads = () => {
   const [searchQuery, setSearchQuery] = useState("");
