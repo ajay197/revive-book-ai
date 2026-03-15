@@ -46,7 +46,7 @@ const Login = () => {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
               <Phone className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-display text-lg font-bold text-foreground">Lead Revival AI</span>
+            <span className="font-display text-lg font-bold text-foreground">Ryngr AI</span>
           </div>
           <h1 className="font-display text-2xl font-bold text-foreground">Welcome back</h1>
           <p className="mt-2 text-sm text-muted-foreground">Sign in to your account</p>

@@ -41,7 +41,7 @@ const ForgotPassword = () => {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
               <Phone className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-display text-lg font-bold text-foreground">Lead Revival AI</span>
+            <span className="font-display text-lg font-bold text-foreground">Ryngr AI</span>
           </div>
 
           {sent ? (

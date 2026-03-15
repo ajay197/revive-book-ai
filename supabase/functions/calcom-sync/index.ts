@@ -392,7 +392,7 @@ serve(async (req) => {
         body: JSON.stringify({
           start: newStart,
           rescheduledBy,
-          reschedulingReason: rescheduleReason || "Rescheduled from Lead Revival AI",
+          reschedulingReason: rescheduleReason || "Rescheduled from Ryngr AI",
         }),
       });
 

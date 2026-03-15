@@ -7,9 +7,9 @@ const Footer = () => (
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-primary">
           <Phone className="h-3.5 w-3.5 text-primary-foreground" />
         </div>
-        <span className="font-display text-sm font-bold text-foreground">Lead Revival AI</span>
+        <span className="font-display text-sm font-bold text-foreground">Ryngr AI</span>
       </a>
-      <p className="text-xs text-muted-foreground">© 2026 Lead Revival AI. All rights reserved.</p>
+      <p className="text-xs text-muted-foreground">© 2026 Ryngr AI. All rights reserved.</p>
     </div>
   </footer>
 );
