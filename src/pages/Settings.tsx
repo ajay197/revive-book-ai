@@ -55,13 +55,13 @@ const settingsSections = [
 
 const Settings = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Settings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your workspace and account</p>
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Settings</h1>
+        <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground">Manage your workspace and account</p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Workspace */}
         <div className="rounded-xl border bg-card p-6 shadow-card">
           <div className="flex items-center gap-3">
