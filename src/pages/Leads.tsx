@@ -18,14 +18,17 @@ import { toast } from "sonner";
 
 const STATUS_OPTIONS = ["New", "Queued", "Called", "Answered", "No Answer", "Voicemail", "Booked", "Unsuccessful", "Do Not Call"];
 
+const SENTIMENT_OPTIONS = ["Positive", "Negative", "Neutral", "Unknown"];
+
 interface Filters {
   statuses: string[];
   sources: string[];
   companies: string[];
   campaigns: string[];
+  sentiments: string[];
 }
 
-const emptyFilters: Filters = { statuses: [], sources: [], companies: [], campaigns: [] };
+const emptyFilters: Filters = { statuses: [], sources: [], companies: [], campaigns: [], sentiments: [] };
 
 const Leads = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,6 +49,28 @@ const Leads = () => {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
+    },
+    enabled: !!user,
+  });
+
+  // Fetch latest sentiment per lead from call_logs
+  const { data: sentimentMap = {} } = useQuery({
+    queryKey: ["lead-sentiments", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("call_logs")
+        .select("lead_id, sentiment, created_at")
+        .eq("user_id", user!.id)
+        .not("lead_id", "is", null)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const map: Record<string, string> = {};
+      (data || []).forEach((c) => {
+        if (c.lead_id && !map[c.lead_id]) {
+          map[c.lead_id] = c.sentiment || "Unknown";
+        }
+      });
+      return map;
     },
     enabled: !!user,
   });
@@ -71,7 +96,7 @@ const Leads = () => {
   }, [leads]);
 
   const activeFilterCount =
-    filters.statuses.length + filters.sources.length + filters.companies.length + filters.campaigns.length;
+    filters.statuses.length + filters.sources.length + filters.companies.length + filters.campaigns.length + filters.sentiments.length;
 
   const filtered = useMemo(() => {
     return leads.filter((l) => {
@@ -89,10 +114,14 @@ const Leads = () => {
       if (filters.sources.length > 0 && !filters.sources.includes(l.source || "")) return false;
       if (filters.companies.length > 0 && !filters.companies.includes(l.company || "")) return false;
       if (filters.campaigns.length > 0 && !filters.campaigns.includes(l.campaign || "")) return false;
+      if (filters.sentiments.length > 0) {
+        const s = sentimentMap[l.id] || "Unknown";
+        if (!filters.sentiments.includes(s)) return false;
+      }
 
       return true;
     });
-  }, [leads, searchQuery, filters]);
+  }, [leads, searchQuery, filters, sentimentMap]);
 
   const toggleFilter = (key: keyof Filters, value: string) => {
     setFilters((prev) => ({
@@ -249,6 +278,13 @@ const Leads = () => {
                   onToggle={(v) => toggleFilter("campaigns", v)}
                 />
               )}
+              {/* Sentiment filter */}
+              <FilterSection
+                label="Sentiment"
+                options={SENTIMENT_OPTIONS}
+                selected={filters.sentiments}
+                onToggle={(v) => toggleFilter("sentiments", v)}
+              />
             </div>
           </PopoverContent>
         </Popover>
@@ -285,6 +321,7 @@ const Leads = () => {
                 <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Source</th>
                 <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Campaign</th>
                 <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Status</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Sentiment</th>
                 <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Created</th>
                 <th className="px-5 py-3 text-right text-xs font-medium text-muted-foreground"></th>
               </tr>
@@ -292,11 +329,11 @@ const Leads = () => {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-muted-foreground">Loading leads...</td>
+                  <td colSpan={9} className="px-5 py-12 text-center text-muted-foreground">Loading leads...</td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-5 py-12 text-center text-muted-foreground">
                     {searchQuery || activeFilterCount > 0
                       ? "No leads match your search or filters"
                       : "No leads yet — upload a CSV to get started"}
@@ -314,6 +351,7 @@ const Leads = () => {
                     <td className="px-5 py-3 text-muted-foreground">{lead.source || "—"}</td>
                     <td className="px-5 py-3 text-muted-foreground">{lead.campaign || "—"}</td>
                     <td className="px-5 py-3"><StatusBadge status={lead.status as any} /></td>
+                    <td className="px-5 py-3"><StatusBadge status={sentimentMap[lead.id] || "Unknown"} /></td>
                     <td className="px-5 py-3 text-xs text-muted-foreground">{new Date(lead.created_at).toLocaleDateString()}</td>
                     <td className="px-5 py-3 text-right">
                       <DropdownMenu>
