@@ -87,7 +87,7 @@ const Settings = () => {
         </div>
 
         {/* Team */}
-        <div className="rounded-xl border bg-card p-6 shadow-card">
+        <div className="rounded-xl border bg-card p-4 sm:p-6 shadow-card">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
