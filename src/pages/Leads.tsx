@@ -278,6 +278,13 @@ const Leads = () => {
                   onToggle={(v) => toggleFilter("campaigns", v)}
                 />
               )}
+              {/* Sentiment filter */}
+              <FilterSection
+                label="Sentiment"
+                options={SENTIMENT_OPTIONS}
+                selected={filters.sentiments}
+                onToggle={(v) => toggleFilter("sentiments", v)}
+              />
             </div>
           </PopoverContent>
         </Popover>
