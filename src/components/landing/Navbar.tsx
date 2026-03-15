@@ -9,6 +9,16 @@ const navLinks = ["Features", "How It Works", "Revenue Calculator", "Pricing", "
 const Navbar = () => {
   const [open, setOpen] = useState(false);
 
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    const id = href.replace("#", "");
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+    setOpen(false);
+  };
+
   return (
     <nav className="sticky top-0 z-50 border-b bg-card/60 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -25,6 +35,7 @@ const Navbar = () => {
             <a
               key={item}
               href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
+              onClick={(e) => scrollToSection(e, `#${item.toLowerCase().replace(/\s+/g, "-")}`)}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {item}
@@ -66,7 +77,7 @@ const Navbar = () => {
                   key={item}
                   href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
                   className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  onClick={() => setOpen(false)}
+                  onClick={(e) => scrollToSection(e, `#${item.toLowerCase().replace(/\s+/g, "-")}`)}
                 >
                   {item}
                 </a>
