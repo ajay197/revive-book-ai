@@ -317,15 +317,15 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
         <StatCard label="Total Calls" value={stats.totalCalls} icon={Phone} />
-        <StatCard label="Answer Rate" value={`${stats.answerRate}%`} icon={TrendingUp} />
+        <StatCard label="Answer Rate" value={stats.answerRate} icon={TrendingUp} suffix="%" />
         <StatCard label="Appointments Booked" value={stats.bookedCalls} icon={Calendar} />
-        <StatCard label="Credits Used" value={stats.creditsUsed.toFixed(2)} icon={Coins} />
-        <StatCard label="Positive Sentiment" value={`${stats.sentimentPct}%`} icon={SmilePlus} />
+        <StatCard label="Credits Used" value={parseFloat(stats.creditsUsed.toFixed(2))} icon={Coins} />
+        <StatCard label="Positive Sentiment" value={stats.sentimentPct} icon={SmilePlus} suffix="%" />
         <StatCard label="Avg Duration" value={formatDuration(stats.avgDurationSec)} icon={Clock} />
         <StatCard label="Total Duration" value={formatDuration(stats.totalDurationSec)} icon={Clock} />
-        <StatCard label="Balance Credits" value={balance.toFixed(2)} icon={Coins} />
+        <StatCard label="Balance Credits" value={parseFloat(balance.toFixed(2))} icon={Coins} />
         <StatCard label="Active Campaigns" value={activeCampaigns} icon={Megaphone} />
       </div>
 
