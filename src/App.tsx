@@ -24,6 +24,8 @@ import CreditHistory from "./pages/CreditHistory";
 import AdminCredits from "./pages/AdminCredits";
 import PhoneNumbers from "./pages/PhoneNumbers";
 import Bookings from "./pages/Bookings";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import AppLayout from "./components/layout/AppLayout";
 import NotFound from "./pages/NotFound";
 
@@ -50,6 +52,8 @@ const App = () => (
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/app" element={<AppRoute><Dashboard /></AppRoute>} />
               <Route path="/app/leads" element={<AppRoute><Leads /></AppRoute>} />
               <Route path="/app/campaigns" element={<AppRoute><Campaigns /></AppRoute>} />
