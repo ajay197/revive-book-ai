@@ -14,6 +14,8 @@ const includedFeatures = [
   "Cal.com Appointment Booking",
   "Real-Time Campaign Analytics",
   "Webhooks & API Access",
+  "Generate New Leads via Meta Ads",
+  "Call New Leads Within 60 Seconds",
 ];
 
 const badges = [
