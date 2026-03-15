@@ -267,8 +267,8 @@ const Landing = () => {
             <div className="space-y-3">
               {[
                 { credits: "500 Credits", perCredit: null, price: "Free", note: "No credit card required", promo: null },
-                { credits: "2,000 Credits", perCredit: "+5% bonus", price: "$149", note: null, promo: null },
-                { credits: "5,000 Credits", perCredit: "+10% bonus", price: "$349", note: null, promo: { label: "Most Popular", tag: "Best Value" } },
+                { credits: "2,100 Credits", perCredit: "+5% bonus", price: "$149", note: null, promo: null },
+                { credits: "6,000 Credits", perCredit: "+20% bonus", price: "$349", note: null, promo: { label: "Most Popular", tag: "Best Value" } },
               ].map((pack, i) => (
                 <div key={i} className={`relative rounded-xl border p-5 transition-all ${pack.promo ? 'border-purple-500/60 bg-gradient-to-r from-purple-500/10 to-blue-500/10' : 'border-white/10 bg-white/5'}`}>
                   {pack.promo && (
