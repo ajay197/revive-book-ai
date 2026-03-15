@@ -274,9 +274,11 @@ const Landing = () => {
                     </li>
                   ))}
                 </ul>
-                <Button className={`mt-8 w-full ${highlight ? "bg-gradient-primary" : ""}`} variant={highlight ? "default" : "outline"}>
-                  {cta}
-                </Button>
+                <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer" className="block">
+                  <Button className={`mt-8 w-full ${highlight ? "bg-gradient-primary" : ""}`} variant={highlight ? "default" : "outline"}>
+                    {cta}
+                  </Button>
+                </a>
               </div>
             ))}
           </div>
