@@ -154,6 +154,30 @@ const Bookings = () => {
     enabled: !!user,
   });
 
+  // Realtime subscription for instant updates
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel('bookings-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookings',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, refetch]);
+
   const handleSync = async () => {
     setSyncing(true);
     try {
