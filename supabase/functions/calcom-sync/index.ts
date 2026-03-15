@@ -372,7 +372,7 @@ serve(async (req) => {
     }
 
     if (action === "reschedule_booking") {
-      const { calcomBookingId, bookingUid, newStart, newEnd, rescheduleReason } = body;
+      const { calcomBookingId, bookingUid, newStart, newEnd, rescheduleReason, rescheduledBy } = body;
       if (!calcomBookingId || !bookingUid) {
         return new Response(JSON.stringify({ error: "Missing calcomBookingId or bookingUid" }), {
           status: 400,
@@ -380,7 +380,6 @@ serve(async (req) => {
         });
       }
 
-      // Prefer Cal.com API v2 reschedule endpoint using the booking UID
       const calcomV2Base = "https://api.cal.com/v2";
       const rescheduleUrl = `${calcomV2Base}/bookings/${bookingUid}/reschedule`;
       const res = await fetch(rescheduleUrl, {
@@ -392,7 +391,7 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           start: newStart,
-          rescheduledBy: "Lead Revival AI",
+          rescheduledBy,
           reschedulingReason: rescheduleReason || "Rescheduled from Lead Revival AI",
         }),
       });
