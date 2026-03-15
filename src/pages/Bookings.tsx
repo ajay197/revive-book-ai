@@ -548,6 +548,7 @@ const Bookings = () => {
                                 bookingUid,
                                 newStart,
                                 newEnd,
+                                rescheduledBy: user?.email || selectedBooking.attendee_email || undefined,
                               },
                             });
                             if (rescheduleError || rescheduleData?.error) {
