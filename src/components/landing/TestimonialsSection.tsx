@@ -13,17 +13,19 @@ const TestimonialsSection = () => (
       <div className="text-center">
         <motion.span
           className="inline-block rounded-full border border-primary/20 bg-primary/5 px-4 py-1 font-display text-xs font-semibold text-primary"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: false, margin: "-50px" }}
+          transition={{ duration: 0.4 }}
         >
           Testimonials
         </motion.span>
         <motion.h2
           className="mt-4 font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl"
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: false, margin: "-50px" }}
+          transition={{ delay: 0.1, duration: 0.5 }}
         >
           Loved by businesses
         </motion.h2>
@@ -33,15 +35,23 @@ const TestimonialsSection = () => (
           <motion.div
             key={i}
             className="group relative overflow-hidden rounded-2xl border bg-card p-5 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated sm:p-6"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1, duration: 0.5 }}
+            initial={{ opacity: 0, y: 40, scale: 0.95 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: false, margin: "-60px" }}
+            transition={{ delay: i * 0.12, duration: 0.5, ease: "easeOut" }}
           >
             <Quote className="absolute -right-2 -top-2 h-16 w-16 text-primary/[0.04]" />
             <div className="mb-4 flex gap-0.5">
               {Array.from({ length: stars }).map((_, j) => (
-                <Star key={j} className="h-4 w-4 fill-warning text-warning" />
+                <motion.div
+                  key={j}
+                  initial={{ opacity: 0, scale: 0 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: false, margin: "-40px" }}
+                  transition={{ delay: i * 0.12 + j * 0.06 + 0.2, duration: 0.3 }}
+                >
+                  <Star className="h-4 w-4 fill-warning text-warning" />
+                </motion.div>
               ))}
             </div>
             <p className="text-sm leading-relaxed text-foreground">"{quote}"</p>

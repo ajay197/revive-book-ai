@@ -16,17 +16,19 @@ const FAQSection = () => (
       <div className="text-center">
         <motion.span
           className="inline-block rounded-full border border-primary/20 bg-primary/5 px-4 py-1 font-display text-xs font-semibold text-primary"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: false, margin: "-50px" }}
+          transition={{ duration: 0.4 }}
         >
           FAQ
         </motion.span>
         <motion.h2
           className="mt-4 font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl"
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: false, margin: "-50px" }}
+          transition={{ delay: 0.1, duration: 0.5 }}
         >
           Frequently asked questions
         </motion.h2>
@@ -36,10 +38,10 @@ const FAQSection = () => (
           <motion.details
             key={i}
             className="group rounded-xl border bg-card p-4 shadow-card transition-shadow hover:shadow-elevated sm:p-5"
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.05 }}
+            initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, margin: "-40px" }}
+            transition={{ delay: i * 0.07, duration: 0.45, ease: "easeOut" }}
           >
             <summary className="flex cursor-pointer items-center justify-between gap-3 font-display text-sm font-semibold text-foreground">
               <span>{q}</span>
