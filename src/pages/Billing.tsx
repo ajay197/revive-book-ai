@@ -61,7 +61,7 @@ const Billing = () => {
         <p className="mt-1 text-sm text-muted-foreground">Select a pack to request credits. Admin will process your payment and add credits to your account.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
         {CREDIT_PACKS.map((pack) => (
           <div
             key={pack.name}
