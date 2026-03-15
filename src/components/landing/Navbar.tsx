@@ -77,7 +77,7 @@ const Navbar = () => {
                   key={item}
                   href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
                   className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  onClick={() => setOpen(false)}
+                  onClick={(e) => scrollToSection(e, `#${item.toLowerCase().replace(/\s+/g, "-")}`)}
                 >
                   {item}
                 </a>
