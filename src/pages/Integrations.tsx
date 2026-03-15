@@ -136,7 +136,7 @@ const Integrations = () => {
 
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {integrations.map((integration) => (
-          <div key={integration.name} className="rounded-xl border bg-card p-5 shadow-card">
+          <div key={integration.name} className="flex flex-col rounded-xl border bg-card p-4 sm:p-5 shadow-card">
             <div className="flex items-start justify-between">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                 <integration.icon className="h-5 w-5 text-primary" />
@@ -158,46 +158,48 @@ const Integrations = () => {
             </div>
             <h3 className="mt-3 font-display text-sm font-semibold text-foreground">{integration.name}</h3>
             <p className="mt-1 text-xs text-muted-foreground">{integration.description}</p>
-            <ul className="mt-3 space-y-1">
+            <ul className="mt-3 space-y-1 flex-1">
               {integration.details.map((detail) => (
                 <li key={detail} className="text-xs text-muted-foreground">• {detail}</li>
               ))}
             </ul>
-            {integration.name === "Retell AI" && !retellConnected && (
-              <Button size="sm" className="mt-4 w-full" onClick={() => setRetellDialogOpen(true)}>
-                Connect
-              </Button>
-            )}
-            {integration.name === "Retell AI" && retellConnected && (
-              <div className="mt-4 flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1" onClick={() => setRetellDialogOpen(true)}>
+            <div className="mt-4">
+              {integration.name === "Retell AI" && !retellConnected && (
+                <Button size="sm" className="w-full" onClick={() => setRetellDialogOpen(true)}>
+                  Connect
+                </Button>
+              )}
+              {integration.name === "Retell AI" && retellConnected && (
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => setRetellDialogOpen(true)}>
+                    Configure
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={handleDisconnectRetell}>
+                    Disconnect
+                  </Button>
+                </div>
+              )}
+              {integration.name === "Cal.com" && !calcomConnected && (
+                <Button size="sm" className="w-full" onClick={() => setCalcomDialogOpen(true)}>
+                  Connect
+                </Button>
+              )}
+              {integration.name === "Cal.com" && calcomConnected && (
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => window.location.href = "/app/bookings"}>
+                    View Bookings
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={handleDisconnectCalcom}>
+                    Disconnect
+                  </Button>
+                </div>
+              )}
+              {integration.action === "configure" && integration.name !== "Retell AI" && integration.name !== "Cal.com" && (
+                <Button variant="outline" size="sm" className="w-full">
                   Configure
                 </Button>
-                <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={handleDisconnectRetell}>
-                  Disconnect
-                </Button>
-              </div>
-            )}
-            {integration.name === "Cal.com" && !calcomConnected && (
-              <Button size="sm" className="mt-4 w-full" onClick={() => setCalcomDialogOpen(true)}>
-                Connect
-              </Button>
-            )}
-            {integration.name === "Cal.com" && calcomConnected && (
-              <div className="mt-4 flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1" onClick={() => window.location.href = "/app/bookings"}>
-                  View Bookings
-                </Button>
-                <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={handleDisconnectCalcom}>
-                  Disconnect
-                </Button>
-              </div>
-            )}
-            {integration.action === "configure" && integration.name !== "Retell AI" && integration.name !== "Cal.com" && (
-              <Button variant="outline" size="sm" className="mt-4 w-full">
-                Configure
-              </Button>
-            )}
+              )}
+            </div>
           </div>
         ))}
       </div>
