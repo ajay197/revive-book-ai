@@ -32,10 +32,10 @@ const Billing = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Billing</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your calling credits</p>
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Billing</h1>
+        <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground">Manage your calling credits</p>
       </div>
 
       {/* Current Balance */}
