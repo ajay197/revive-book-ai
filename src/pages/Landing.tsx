@@ -253,7 +253,7 @@ const Landing = () => {
               Pay Once, Use Forever
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-white/60">
-              Lead Revival AI's credit-based pricing means no monthly subscriptions. Pay as you go — credits never expire. You will have access to the full range of features with every plan.
+             Lead Revival AI's credit-based pricing means no monthly subscriptions. Pay as you go — credits never expire. You will have access to the full range of features with every plan.
             </p>
             <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer" className="mt-8 inline-block">
               <Button size="lg" className="rounded-full border border-white/20 bg-white/5 px-10 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:shadow-[0_0_30px_rgba(139,92,246,0.3)]">
