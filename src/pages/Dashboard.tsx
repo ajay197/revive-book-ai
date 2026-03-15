@@ -32,7 +32,7 @@ interface DashboardData {
     duration: string;
     outcome: string;
     sentiment: string;
-    cost: number;
+    credits: number;
   }[];
 }
 
