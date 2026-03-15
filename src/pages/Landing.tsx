@@ -36,9 +36,9 @@ const Landing = () => {
             <Link to="/login">
               <Button variant="ghost" size="sm">Log in</Button>
             </Link>
-            <Link to="/signup">
-              <Button size="sm">Start Free Trial</Button>
-            </Link>
+            <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer">
+              <Button size="sm">Start 500 Calls Trial</Button>
+            </a>
           </div>
         </div>
       </nav>
