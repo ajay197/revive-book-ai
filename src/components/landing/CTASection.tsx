@@ -24,7 +24,7 @@ const CTASection = () => (
         viewport={{ once: false, margin: "-50px" }}
         transition={{ duration: 0.6 }}
       >
-        Ready to revive your leads?
+        Ready to ryngr in more revenue?
       </motion.h2>
       <motion.p
         className="mx-auto mt-4 max-w-xl text-sm text-primary-foreground/70 sm:text-base"
