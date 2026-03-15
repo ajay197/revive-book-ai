@@ -372,24 +372,28 @@ serve(async (req) => {
     }
 
     if (action === "reschedule_booking") {
-      const { calcomBookingId, newStart, newEnd, rescheduleReason } = body;
-      if (!calcomBookingId) {
-        return new Response(JSON.stringify({ error: "Missing calcomBookingId" }), {
+      const { calcomBookingId, bookingUid, newStart, newEnd, rescheduleReason } = body;
+      if (!calcomBookingId || !bookingUid) {
+        return new Response(JSON.stringify({ error: "Missing calcomBookingId or bookingUid" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      // First get the booking uid from Cal.com
-      // Cal.com v1 reschedule: PATCH /v1/bookings/:id
-      const rescheduleUrl = `${calcomBase}/bookings/${calcomBookingId}?apiKey=${calcomApiKey}`;
+      // Prefer Cal.com API v2 reschedule endpoint using the booking UID
+      const calcomV2Base = "https://api.cal.com/v2";
+      const rescheduleUrl = `${calcomV2Base}/bookings/${bookingUid}/reschedule`;
       const res = await fetch(rescheduleUrl, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${calcomApiKey}`,
+          "cal-api-version": "2024-08-13",
+        },
         body: JSON.stringify({
           start: newStart,
-          end: newEnd,
-          reason: rescheduleReason || "Rescheduled",
+          rescheduledBy: "Lead Revival AI",
+          reschedulingReason: rescheduleReason || "Rescheduled from Lead Revival AI",
         }),
       });
 
