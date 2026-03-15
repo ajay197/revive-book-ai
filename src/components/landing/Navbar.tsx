@@ -89,14 +89,14 @@ const Navbar = () => {
             className="overflow-hidden border-t bg-card md:hidden"
           >
             <div className="flex flex-col gap-1 px-4 py-4">
-              {navLinks.map((item) => (
+              {navLinks.map((link) => (
                 <a
-                  key={item}
-                  href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
+                  key={link.id}
+                  href={`/#${link.id}`}
                   className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  onClick={(e) => scrollToSection(e, `#${item.toLowerCase().replace(/\s+/g, "-")}`)}
+                  onClick={(e) => handleNavClick(e, link.id)}
                 >
-                  {item}
+                  {link.label}
                 </a>
               ))}
               <div className="mt-3 flex flex-col gap-2 border-t pt-3">
