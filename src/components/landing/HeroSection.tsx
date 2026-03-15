@@ -119,7 +119,7 @@ const HeroSection = () => (
         className="mx-auto mt-20 max-w-5xl"
         initial={{ opacity: 0, y: 60, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ delay: 0.7, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ delay: 0.7, duration: 0.8, ease: "easeOut" }}
       >
         <div className="relative">
           {/* Glow behind card */}
