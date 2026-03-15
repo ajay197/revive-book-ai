@@ -186,7 +186,7 @@ const HeroSection = () => {
                 <div className="h-2.5 w-2.5 rounded-full bg-destructive/50" />
                 <div className="h-2.5 w-2.5 rounded-full bg-warning/50" />
                 <div className="h-2.5 w-2.5 rounded-full bg-success/50" />
-                <span className="ml-2 hidden text-[10px] font-medium text-muted-foreground sm:inline">Lead Revival AI — Dashboard</span>
+                <span className="ml-2 hidden text-[10px] font-medium text-muted-foreground sm:inline"><span className="ml-2 hidden text-[10px] font-medium text-muted-foreground sm:inline">Ryngr AI — Dashboard</span></span>
               </div>
 
               {/* Stat cards with animated numbers */}

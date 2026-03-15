@@ -50,7 +50,7 @@ export function AppSidebar() {
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-primary">
             <Phone className="h-4 w-4 text-primary-foreground" />
           </div>
-          {!collapsed && <span className="font-display text-sm font-bold text-foreground">Lead Revival AI</span>}
+          {!collapsed && <span className="font-display text-sm font-bold text-foreground">Ryngr AI</span>}
         </div>
       </SidebarHeader>
 

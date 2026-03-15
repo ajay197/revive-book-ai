@@ -49,7 +49,7 @@ const SignUp = () => {
           <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-foreground/10">
             <Phone className="h-7 w-7 text-primary-foreground" />
           </div>
-          <h2 className="font-display text-3xl font-bold text-primary-foreground">Lead Revival AI</h2>
+          <h2 className="font-display text-3xl font-bold text-primary-foreground">Ryngr AI</h2>
           <p className="mt-3 text-primary-foreground/70">Launch your first AI calling campaign in under 5 minutes</p>
         </div>
       </div>
@@ -59,7 +59,7 @@ const SignUp = () => {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
               <Phone className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-display text-lg font-bold text-foreground">Lead Revival AI</span>
+            <span className="font-display text-lg font-bold text-foreground">Ryngr AI</span>
           </div>
           <h1 className="font-display text-2xl font-bold text-foreground">Create your account</h1>
           <p className="mt-2 text-sm text-muted-foreground">Start your free trial — no credit card required</p>

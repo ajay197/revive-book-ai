@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 const faqs = [
-  { q: "How does AI calling work?", a: "Lead Revival AI uses advanced AI to make natural-sounding phone calls. You upload your leads, choose a calling AI agent and script, and launch a campaign. The AI handles the conversation and books appointments automatically via Cal.com." },
+  { q: "How does AI calling work?", a: "Ryngr AI uses advanced AI to make natural-sounding phone calls. You upload your leads, choose a calling AI agent and script, and launch a campaign. The AI handles the conversation and books appointments automatically via Cal.com." },
   { q: "What lead formats do you support?", a: "We accept CSV files with phone numbers. During upload, you can map columns to our fields. We validate phone numbers and emails automatically." },
   { q: "Can I use this for my agency clients?", a: "Yes. Our multi-tenant workspace system lets you manage multiple clients from one account. Each workspace has isolated data, campaigns, and analytics." },
   { q: "How do credits work?", a: "1 credit equals 2.5 minutes of AI calling. Credits are deducted after each completed call based on actual duration. Failed or unanswered calls are not charged. Choose from packs of 500, 2,100 (+5% bonus), or 6,000 (+20% bonus) credits." },

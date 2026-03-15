@@ -1,4 +1,4 @@
-// Mock data for Lead Revival AI
+// Mock data for Ryngr AI
 
 export const dashboardStats = {
   totalCalls: 2847,

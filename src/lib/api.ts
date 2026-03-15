@@ -1,4 +1,4 @@
-// Placeholder API service layer for Lead Revival AI
+// Placeholder API service layer for Ryngr AI
 // These functions will connect to Supabase Edge Functions when backend is ready
 
 export async function uploadLeads(file: File, workspaceId: string) {
