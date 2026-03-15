@@ -282,13 +282,13 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Campaign performance overview</p>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground">Campaign performance overview</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Button variant="outline" size="sm" className="text-xs" onClick={() => navigate("/app/billing")}>
             <CreditCard className="mr-1.5 h-3 w-3" /> Add Credits
           </Button>
