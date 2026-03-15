@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Phone, Calendar, TrendingUp, DollarSign, Megaphone, Clock, SmilePlus, Loader2, Coins, CreditCard, Timer } from "lucide-react";
+import { Phone, Calendar, TrendingUp, Megaphone, Clock, SmilePlus, Loader2, Coins, CreditCard } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { StatusBadge } from "@/components/StatusBadge";
 import { supabase } from "@/integrations/supabase/client";
