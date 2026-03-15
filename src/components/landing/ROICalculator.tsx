@@ -30,10 +30,10 @@ const ROICalculator = () => {
   ];
 
   return (
-    <section ref={ref} className="relative overflow-hidden py-16 sm:py-24">
+    <section ref={ref} className="relative overflow-hidden py-12 sm:py-20 md:py-24">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/3 top-0 h-64 w-64 rounded-full bg-primary/5 blur-[120px]" />
-        <div className="absolute bottom-0 right-1/4 h-48 w-48 rounded-full bg-success/5 blur-[100px]" />
+        <div className="absolute left-1/3 top-0 h-40 w-40 rounded-full bg-primary/5 blur-[80px] sm:h-64 sm:w-64 sm:blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 h-32 w-32 rounded-full bg-success/5 blur-[60px] sm:h-48 sm:w-48 sm:blur-[100px]" />
       </div>
 
       <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
@@ -43,33 +43,33 @@ const ROICalculator = () => {
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-success/20 bg-success/5 px-4 py-1.5 font-display text-[11px] font-semibold text-success sm:text-xs">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-success/20 bg-success/5 px-3 py-1 font-display text-[10px] font-semibold text-success sm:gap-2 sm:px-4 sm:py-1.5 sm:text-xs">
             <TrendingUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
             Revenue Calculator
           </span>
-          <h2 className="mx-auto mt-4 max-w-3xl font-display text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl md:text-5xl">
+          <h2 className="mx-auto mt-3 max-w-3xl font-display text-xl font-extrabold tracking-tight text-foreground sm:mt-4 sm:text-3xl md:text-5xl">
             See Your <span className="text-gradient">Potential Revenue</span>
           </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
+          <p className="mx-auto mt-2 max-w-xl text-xs text-muted-foreground sm:mt-3 sm:text-sm md:text-base">
             Adjust the sliders to see how many appointments and revenue you could generate from your existing leads.
           </p>
         </motion.div>
 
         {/* Controls Grid */}
         <motion.div
-          className="mx-auto mt-10 grid max-w-3xl gap-5 sm:mt-14 sm:grid-cols-2 sm:gap-6"
+          className="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-3 sm:mt-14 sm:grid-cols-2 sm:gap-5 md:gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
           {controls.map((c) => (
-            <div key={c.label} className="rounded-xl border bg-card p-4 shadow-sm">
+            <div key={c.label} className="rounded-lg border bg-card p-3 shadow-sm sm:rounded-xl sm:p-4">
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                  <c.icon className="h-3.5 w-3.5" />
+                <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground sm:gap-2 sm:text-sm">
+                  <c.icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   {c.label}
                 </span>
-                <span className="font-display text-lg font-bold tabular-nums text-foreground">{c.display}</span>
+                <span className="font-display text-base font-bold tabular-nums text-foreground sm:text-lg">{c.display}</span>
               </div>
               <Slider
                 value={[c.value]}
@@ -77,10 +77,10 @@ const ROICalculator = () => {
                 min={c.min}
                 max={c.max}
                 step={c.step}
-                className="mt-3"
+                className="mt-2.5 sm:mt-3"
               />
-              <div className="mt-1 flex justify-between text-[10px] text-muted-foreground/50">
-                <span>{c.min.toLocaleString()}{c.label.includes("Rate") ? "%" : c.label.includes("Value") ? "" : ""}</span>
+              <div className="mt-1 flex justify-between text-[9px] text-muted-foreground/50 sm:text-[10px]">
+                <span>{c.min.toLocaleString()}{c.label.includes("Rate") ? "%" : ""}</span>
                 <span>{c.max.toLocaleString()}{c.label.includes("Rate") ? "%" : ""}</span>
               </div>
             </div>
@@ -88,21 +88,21 @@ const ROICalculator = () => {
         </motion.div>
 
         {/* Metric Cards */}
-        <div className="mx-auto mt-10 grid max-w-3xl gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6">
+        <div className="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-3 sm:mt-14 sm:grid-cols-3 sm:gap-6">
           {metrics.map((m, i) => (
             <motion.div
               key={m.label}
-              className="group relative overflow-hidden rounded-xl border bg-card p-5 text-center shadow-sm transition-all hover:shadow-md sm:p-6"
+              className="group relative overflow-hidden rounded-lg border bg-card p-4 text-center shadow-sm transition-all hover:shadow-md sm:rounded-xl sm:p-6"
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
               animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 30, scale: 0.95 }}
               transition={{ delay: 0.3 + i * 0.12, duration: 0.5, ease: "easeOut" }}
             >
               <div className="absolute inset-0 bg-gradient-primary opacity-0 transition-opacity group-hover:opacity-[0.03]" />
-              <div className={`mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-muted ${m.color}`}>
-                <m.icon className="h-5 w-5" />
+              <div className={`mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-muted sm:h-10 sm:w-10 ${m.color}`}>
+                <m.icon className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <p className="mt-3 text-xs font-medium text-muted-foreground">{m.label}</p>
-              <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-foreground sm:text-3xl">
+              <p className="mt-2 text-[10px] font-medium text-muted-foreground sm:mt-3 sm:text-xs">{m.label}</p>
+              <p className="mt-0.5 font-display text-xl font-extrabold tabular-nums text-foreground sm:mt-1 sm:text-2xl md:text-3xl">
                 {m.value}
               </p>
             </motion.div>
@@ -110,7 +110,7 @@ const ROICalculator = () => {
         </div>
 
         <motion.p
-          className="mt-6 text-center text-[11px] text-muted-foreground/50 sm:mt-8 sm:text-xs"
+          className="mt-4 text-center text-[10px] text-muted-foreground/50 sm:mt-8 sm:text-xs"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : { opacity: 0 }}
           transition={{ delay: 0.7, duration: 0.4 }}
