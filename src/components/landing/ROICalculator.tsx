@@ -1,30 +1,32 @@
 import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { TrendingUp, Phone, CalendarCheck, DollarSign } from "lucide-react";
+import { TrendingUp, Phone, CalendarCheck, DollarSign, Percent, BadgeDollarSign } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-
-function AnimatedValue({ value, prefix = "", suffix = "", decimals = 0 }: { value: number; prefix?: string; suffix?: string; decimals?: number }) {
-  const display = decimals > 0 ? value.toFixed(decimals) : Math.round(value).toLocaleString();
-  return <span>{prefix}{display}{suffix}</span>;
-}
 
 const ROICalculator = () => {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: false, margin: "-80px" });
 
   const [leads, setLeads] = useState(500);
-  const bookingRate = 0.05;
-  const serviceValue = 10000;
-  const closingRate = 0.05;
+  const [bookingRate, setBookingRate] = useState(5);
+  const [serviceValue, setServiceValue] = useState(10000);
+  const [closingRate, setClosingRate] = useState(5);
 
-  const appointmentsBooked = Math.round(leads * bookingRate);
-  const dealsClosed = leads * bookingRate * closingRate;
+  const appointmentsBooked = Math.round(leads * (bookingRate / 100));
+  const dealsClosed = leads * (bookingRate / 100) * (closingRate / 100);
   const revenue = dealsClosed * serviceValue;
 
   const metrics = [
-    { icon: Phone, label: "Leads Called", value: leads, prefix: "", suffix: "", color: "text-primary" },
-    { icon: CalendarCheck, label: "Appointments Booked", value: appointmentsBooked, prefix: "", suffix: "", color: "text-success" },
-    { icon: DollarSign, label: "Revenue Generated", value: revenue, prefix: "$", suffix: "", color: "text-warning" },
+    { icon: Phone, label: "Leads Called", value: leads.toLocaleString(), color: "text-primary" },
+    { icon: CalendarCheck, label: "Appointments Booked", value: appointmentsBooked.toLocaleString(), color: "text-success" },
+    { icon: DollarSign, label: "Revenue Generated", value: `$${Math.round(revenue).toLocaleString()}`, color: "text-warning" },
+  ];
+
+  const controls = [
+    { label: "Leads to Call", value: leads, setter: setLeads, min: 100, max: 5000, step: 100, display: leads.toLocaleString(), icon: Phone },
+    { label: "Booking Rate", value: bookingRate, setter: setBookingRate, min: 1, max: 30, step: 1, display: `${bookingRate}%`, icon: Percent },
+    { label: "Avg Service Value", value: serviceValue, setter: setServiceValue, min: 1000, max: 50000, step: 500, display: `$${serviceValue.toLocaleString()}`, icon: BadgeDollarSign },
+    { label: "Closing Rate", value: closingRate, setter: setClosingRate, min: 1, max: 30, step: 1, display: `${closingRate}%`, icon: TrendingUp },
   ];
 
   return (
@@ -49,33 +51,40 @@ const ROICalculator = () => {
             See Your <span className="text-gradient">Potential Revenue</span>
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
-            Drag the slider to see how many appointments and revenue you could generate from your existing leads.
+            Adjust the sliders to see how many appointments and revenue you could generate from your existing leads.
           </p>
         </motion.div>
 
-        {/* Slider */}
+        {/* Controls Grid */}
         <motion.div
-          className="mx-auto mt-10 max-w-md sm:mt-14"
+          className="mx-auto mt-10 grid max-w-3xl gap-5 sm:mt-14 sm:grid-cols-2 sm:gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          <div className="flex items-center justify-between text-sm font-medium text-muted-foreground">
-            <span>Leads to Call</span>
-            <span className="font-display text-xl font-bold text-foreground tabular-nums">{leads.toLocaleString()}</span>
-          </div>
-          <Slider
-            value={[leads]}
-            onValueChange={([v]) => setLeads(v)}
-            min={100}
-            max={5000}
-            step={100}
-            className="mt-3"
-          />
-          <div className="mt-1.5 flex justify-between text-[11px] text-muted-foreground/60">
-            <span>100</span>
-            <span>5,000</span>
-          </div>
+          {controls.map((c) => (
+            <div key={c.label} className="rounded-xl border bg-card p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <c.icon className="h-3.5 w-3.5" />
+                  {c.label}
+                </span>
+                <span className="font-display text-lg font-bold tabular-nums text-foreground">{c.display}</span>
+              </div>
+              <Slider
+                value={[c.value]}
+                onValueChange={([v]) => c.setter(v)}
+                min={c.min}
+                max={c.max}
+                step={c.step}
+                className="mt-3"
+              />
+              <div className="mt-1 flex justify-between text-[10px] text-muted-foreground/50">
+                <span>{c.min.toLocaleString()}{c.label.includes("Rate") ? "%" : c.label.includes("Value") ? "" : ""}</span>
+                <span>{c.max.toLocaleString()}{c.label.includes("Rate") ? "%" : ""}</span>
+              </div>
+            </div>
+          ))}
         </motion.div>
 
         {/* Metric Cards */}
@@ -94,20 +103,19 @@ const ROICalculator = () => {
               </div>
               <p className="mt-3 text-xs font-medium text-muted-foreground">{m.label}</p>
               <p className="mt-1 font-display text-2xl font-extrabold tabular-nums text-foreground sm:text-3xl">
-                <AnimatedValue value={m.value} prefix={m.prefix} suffix={m.suffix} />
+                {m.value}
               </p>
             </motion.div>
           ))}
         </div>
 
-        {/* Footnote */}
         <motion.p
           className="mt-6 text-center text-[11px] text-muted-foreground/50 sm:mt-8 sm:text-xs"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : { opacity: 0 }}
           transition={{ delay: 0.7, duration: 0.4 }}
         >
-          Based on 5% appointment booking rate · $10,000 avg service value · 5% closing rate
+          Adjust the values above to match your business · Results update in real-time
         </motion.p>
       </div>
     </section>
