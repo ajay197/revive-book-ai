@@ -203,7 +203,7 @@ const Dashboard = () => {
                   <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Duration</th>
                   <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Outcome</th>
                   <th className="px-5 py-3 text-left text-xs font-medium text-muted-foreground">Sentiment</th>
-                  <th className="px-5 py-3 text-right text-xs font-medium text-muted-foreground">Cost</th>
+                  <th className="px-5 py-3 text-right text-xs font-medium text-muted-foreground">Credits</th>
                 </tr>
               </thead>
               <tbody>
