@@ -25,9 +25,8 @@ export function formatRemainingTime(credits: number): string {
 }
 
 export const CREDIT_PACKS = [
-  { name: "500 Credits", baseCredits: 500, bonusCredits: 0, totalCredits: 500, price: 500, popular: false },
-  { name: "2,100 Credits", baseCredits: 2000, bonusCredits: 100, totalCredits: 2100, price: 2000, popular: true, bonusLabel: "+5% bonus" },
-  { name: "6,000 Credits", baseCredits: 5000, bonusCredits: 1000, totalCredits: 6000, price: 5000, popular: false, bonusLabel: "+20% bonus" },
+  { name: "1,000 Credits", baseCredits: 1000, bonusCredits: 0, totalCredits: 1000, price: 500, popular: false },
+  { name: "2,500 Credits", baseCredits: 2500, bonusCredits: 0, totalCredits: 2500, price: 1000, popular: true },
 ] as const;
 
 export const LOW_BALANCE_THRESHOLD = 50;
