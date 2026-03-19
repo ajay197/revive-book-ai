@@ -143,7 +143,7 @@ const HeroSection = () => {
               size="lg"
               className="group w-full bg-gradient-primary px-8 text-base font-semibold shadow-elevated transition-all hover:shadow-glow hover:scale-[1.02] sm:w-auto"
             >
-              Start 500 Calls Trial
+              Start 1,000 Calls Trial
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </a>

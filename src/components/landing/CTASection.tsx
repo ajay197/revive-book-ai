@@ -44,7 +44,7 @@ const CTASection = () => (
       >
         <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
           <Button size="lg" variant="secondary" className="group w-full px-8 text-base font-semibold sm:w-auto">
-            Start 500 Calls Trial
+            Start 1,000 Calls Trial
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Button>
         </a>

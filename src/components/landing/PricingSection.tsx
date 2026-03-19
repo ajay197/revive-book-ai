@@ -67,7 +67,7 @@ const PricingSection = () => (
               size="lg"
               className="group rounded-full border border-white/20 bg-white/5 px-8 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10 hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] sm:px-10 sm:text-base"
             >
-              Start 500 Calls Trial
+              Start 1,000 Calls Trial
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </a>
