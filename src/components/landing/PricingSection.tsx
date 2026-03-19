@@ -3,9 +3,8 @@ import { motion } from "framer-motion";
 import { ArrowRight, Shield, Zap, Clock, Phone } from "lucide-react";
 
 const packs = [
-  { credits: "500 Credits", perCredit: "1,250 minutes of calling", price: "$500", promo: null },
-  { credits: "2,100 Credits", perCredit: "5,250 minutes of calling · +5% bonus", price: "$2,000", promo: null },
-  { credits: "6,000 Credits", perCredit: "15,000 minutes of calling · +20% bonus", price: "$5,000", promo: { label: "Most Popular", tag: "Best Value" } },
+  { credits: "1,000 Credits", perCredit: "1,000 minutes of calling", price: "$500", promo: null },
+  { credits: "2,500 Credits", perCredit: "2,500 minutes of calling", price: "$1,000", promo: { label: "Most Popular", tag: "Best Value" } },
 ];
 
 const includedFeatures = [
