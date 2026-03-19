@@ -4,7 +4,8 @@ import { ArrowRight, Shield, Zap, Clock, Phone } from "lucide-react";
 
 const packs = [
   { credits: "1,000 Credits", perCredit: "1,000 minutes of calling", price: "$500", promo: null },
-  { credits: "2,500 Credits", perCredit: "2,500 minutes of calling", price: "$1,000", promo: { label: "Most Popular", tag: "Best Value" } },
+  { credits: "2,200 Credits", perCredit: "2,200 minutes of calling · +10% bonus", price: "$1,000", promo: { label: "Most Popular", tag: "Best Value" } },
+  { credits: "15,000 Credits", perCredit: "15,000 minutes of calling · +50% bonus", price: "$5,000", promo: null },
 ];
 
 const includedFeatures = [
