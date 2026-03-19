@@ -110,7 +110,7 @@ const HeroSection = () => {
         >
           Turn old leads into{" "}
           <span className="relative inline-block">
-            <span className="text-gradient">booked appointments</span>
+            <span className="text-gradient">booked appointments in 7-14 days</span>
             <motion.span
               className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full bg-gradient-primary sm:-bottom-2 sm:h-[3px]"
               initial={{ scaleX: 0 }}
