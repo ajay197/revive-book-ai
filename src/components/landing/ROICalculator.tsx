@@ -7,7 +7,7 @@ const ROICalculator = () => {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: false, margin: "-80px" });
 
-  const [leads, setLeads] = useState(500);
+  const [leads, setLeads] = useState(1000);
   const [bookingRate, setBookingRate] = useState(5);
   const [serviceValue, setServiceValue] = useState(10000);
   const [closingRate, setClosingRate] = useState(5);

@@ -104,7 +104,7 @@ const Navbar = () => {
                   <Button variant="outline" size="sm" className="w-full">Log in</Button>
                 </Link>
                 <a href="https://cal.com/appointment-booking/strategic-call" target="_blank" rel="noopener noreferrer">
-                  <Button size="sm" className="w-full bg-gradient-primary font-semibold shadow-glow">Start 500 Calls Trial</Button>
+                  <Button size="sm" className="w-full bg-gradient-primary font-semibold shadow-glow">Start 1,000 Calls Trial</Button>
                 </a>
               </div>
             </div>
