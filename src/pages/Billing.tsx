@@ -77,9 +77,9 @@ const Billing = () => {
             <div className="text-center">
               <p className="font-display text-2xl font-bold text-foreground">{pack.baseCredits.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">credits</p>
-              {"bonusLabel" in pack && pack.bonusLabel && (
+              {"bonusLabel" in pack && (pack as any).bonusLabel && (
                 <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-                  <Sparkles className="h-3 w-3" /> {pack.bonusLabel}
+                  <Sparkles className="h-3 w-3" /> {(pack as any).bonusLabel}
                 </div>
               )}
               <p className="mt-3 text-sm text-muted-foreground">
