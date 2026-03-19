@@ -22,7 +22,7 @@ const badges = [
   { icon: Shield, text: "No Monthly Cost" },
   { icon: Zap, text: "Usage Based Cost" },
   { icon: Clock, text: "Credit Card Free" },
-  { icon: Phone, text: "1 Credit = 2.5 Min" },
+  { icon: Phone, text: "1 Credit = 1 Min" },
 ];
 
 const PricingSection = () => (
