@@ -82,10 +82,12 @@ const Billing = () => {
             <div className="flex-1 text-center">
               <p className="font-display text-2xl font-bold text-foreground">{pack.totalCredits.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">credits</p>
-              {"bonusLabel" in pack && (pack as any).bonusLabel && (
+              {("bonusLabel" in pack && (pack as any).bonusLabel) ? (
                 <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
                   <Sparkles className="h-3 w-3" /> {(pack as any).bonusLabel}
                 </div>
+              ) : (
+                <div className="mt-2 h-5" />
               )}
               <p className="mt-3 text-sm text-muted-foreground">
                 {pack.totalCredits.toLocaleString()} minutes of calling
