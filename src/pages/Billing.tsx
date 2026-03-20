@@ -65,17 +65,22 @@ const Billing = () => {
         {CREDIT_PACKS.map((pack) => (
           <div
             key={pack.name}
-            className={`relative rounded-xl border p-4 sm:p-6 shadow-card transition-shadow hover:shadow-elevated ${
-              pack.popular ? "border-primary ring-1 ring-primary/20" : "bg-card"
+            className={`relative flex flex-col rounded-xl border p-4 sm:p-6 shadow-card transition-shadow hover:shadow-elevated ${
+              pack.name === "15,000 Credits" ? "border-primary ring-1 ring-primary/20" : "bg-card"
             }`}
           >
-            {pack.popular && (
+            {pack.name === "1,000 Credits" && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-primary px-3 py-0.5 text-xs font-semibold text-primary-foreground">
-                Most Popular
+                Trial
               </div>
             )}
-            <div className="text-center">
-              <p className="font-display text-2xl font-bold text-foreground">{pack.baseCredits.toLocaleString()}</p>
+            {pack.name === "15,000 Credits" && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-primary px-3 py-0.5 text-xs font-semibold text-primary-foreground">
+                Best Value
+              </div>
+            )}
+            <div className="flex-1 text-center">
+              <p className="font-display text-2xl font-bold text-foreground">{pack.totalCredits.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">credits</p>
               {"bonusLabel" in pack && (pack as any).bonusLabel && (
                 <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
@@ -83,10 +88,10 @@ const Billing = () => {
                 </div>
               )}
               <p className="mt-3 text-sm text-muted-foreground">
-                Total: <span className="font-semibold text-foreground">{pack.totalCredits.toLocaleString()}</span> credits
+                {pack.totalCredits.toLocaleString()} minutes of calling
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                ≈ {formatRemainingTime(pack.totalCredits)} of calling
+              <p className="mt-1 text-xs font-semibold text-foreground">
+                ${pack.price.toLocaleString()}
               </p>
             </div>
             <Button
