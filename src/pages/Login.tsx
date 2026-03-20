@@ -32,13 +32,13 @@ const Login = () => {
   return (
     <div className="flex min-h-screen">
       <div className="hidden w-1/2 items-center justify-center bg-gradient-primary lg:flex">
-        <div className="max-w-md px-12 text-center">
+        <a href="/" className="max-w-md px-12 text-center cursor-pointer">
           <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-foreground/10">
             <Phone className="h-7 w-7 text-primary-foreground" />
           </div>
           <h2 className="font-display text-3xl font-bold text-primary-foreground">Ryngr AI</h2>
           <p className="mt-3 text-primary-foreground/70">Turn old leads into booked appointments with AI-powered calling</p>
-        </div>
+        </a>
       </div>
       <div className="flex flex-1 items-center justify-center px-6">
         <div className="w-full max-w-sm">
