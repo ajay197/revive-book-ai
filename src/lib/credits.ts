@@ -1,7 +1,7 @@
 /**
  * Credit calculation utilities.
- * 1 credit = 2.5 minutes of calling.
- * Formula: deductedCredits = durationSeconds / 150
+ * 1 credit = 1 minute of calling.
+ * Formula: deductedCredits = durationSeconds / 60
  */
 
 export function roundToTwo(num: number): number {
@@ -9,11 +9,11 @@ export function roundToTwo(num: number): number {
 }
 
 export function secondsToCredits(seconds: number): number {
-  return roundToTwo(seconds / 150);
+  return roundToTwo(seconds / 60);
 }
 
 export function creditsToMinutes(credits: number): number {
-  return roundToTwo(credits * 2.5);
+  return roundToTwo(credits * 1);
 }
 
 export function formatRemainingTime(credits: number): string {
@@ -26,7 +26,7 @@ export function formatRemainingTime(credits: number): string {
 
 export const CREDIT_PACKS = [
   { name: "1,000 Credits", baseCredits: 1000, bonusCredits: 0, totalCredits: 1000, price: 500, popular: false },
-  { name: "2,200 Credits", baseCredits: 2000, bonusCredits: 200, totalCredits: 2200, price: 1000, popular: true, bonusLabel: "+10% bonus" },
+  { name: "2,200 Credits", baseCredits: 2000, bonusCredits: 200, totalCredits: 2200, price: 1000, popular: false, bonusLabel: "+10% bonus" },
   { name: "15,000 Credits", baseCredits: 10000, bonusCredits: 5000, totalCredits: 15000, price: 5000, popular: false, bonusLabel: "+50% bonus" },
 ] as const;
 

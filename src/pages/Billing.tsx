@@ -111,7 +111,7 @@ const Billing = () => {
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
           <li className="flex items-start gap-2">
             <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-            1 credit = 2.5 minutes of AI calling
+            1 credit = 1 minute of AI calling
           </li>
           <li className="flex items-start gap-2">
             <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
